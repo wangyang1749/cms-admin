@@ -7,25 +7,27 @@
     <span slot="customTitle">
       <a-icon type="smile-o" />Name
     </span>-->
-
-    <!-- <span slot="tags" slot-scope="tags">
+    <span slot="categories" slot-scope="categories">
+      <a-tag
+        v-for="category in categories"
+        :color="category==='loser' ? 'volcano' : (category.length > 5 ? 'geekblue' : 'green')"
+        :key="category"
+      >{{category.name}}</a-tag>
+    </span>
+    <span slot="tags" slot-scope="tags">
       <a-tag
         v-for="tag in tags"
         :color="tag==='loser' ? 'volcano' : (tag.length > 5 ? 'geekblue' : 'green')"
         :key="tag"
-      >{{tag.toUpperCase()}}</a-tag>
-    </span>-->
+      >{{tag.name}}</a-tag>
+    </span>
 
-    <!-- <span slot="action" slot-scope="text, record">
-      <a href="javascript:;">Invite 一 {{record.name}}</a>
+    <span slot="action" slot-scope="">
+      
+      <a href="javascript:;">编辑</a>
       <a-divider type="vertical" />
-      <a href="javascript:;">Delete</a>
-      <a-divider type="vertical" />
-      <a href="javascript:;" class="ant-dropdown-link">
-        More actions
-        <a-icon type="down" />
-      </a>
-    </span>-->
+      <a href="javascript:;" >设置</a>
+    </span>
   </a-table>
      <div class="page-wrapper">
           <a-pagination
@@ -61,21 +63,37 @@ const columns = [
     key: "status"
   },
   {
-    title: "Address",
-    dataIndex: "address",
-    key: "address"
+    title: "分类",
+    dataIndex: "categories",
+    key: "categories",
+    scopedSlots: { customRender: "categories" }
   },
-  // {
-  //   title: "Tags",
-  //   key: "tags",
-  //   dataIndex: "tags",
-  //   scopedSlots: { customRender: "tags" }
-  // },
-  // {
-  //   title: "Action",
-  //   key: "action",
-  //   scopedSlots: { customRender: "action" }
-  // }
+  {
+    title: "标签",
+    key: "tags",
+    dataIndex: "tags",
+    scopedSlots: { customRender: "tags" }
+  },
+  {
+    title: "评论",
+    dataIndex: "commentNum",
+    key: "commentNum"
+  },
+  {
+    title: "访问",
+    dataIndex: "visits",
+    key: "visits"
+  },
+  {
+    title: "发布时间",
+    dataIndex: "createDate",
+    key: "createDate"
+  },
+  {
+    title: "Action",
+    key: "action",
+    scopedSlots: { customRender: "action" }
+  }
 ];
 
 
