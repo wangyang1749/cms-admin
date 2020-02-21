@@ -1,10 +1,14 @@
 <template>
-  <a-table
+  <div>
+     <a-table
     :columns="columns"
     :dataSource="data"
     :pagination="{ pageSize: 50 }"
     :scroll="{ y: 240 }"
   />
+
+  <button @click="testRouter">Button</button>
+  </div>
 </template>
 <script>
   const columns = [
@@ -41,5 +45,11 @@
         columns,
       };
     },
+    methods:{
+      testRouter(){
+        console.log("testRouter")
+        this.$router.push("/article/list")
+      }
+    }
   };
 </script>
