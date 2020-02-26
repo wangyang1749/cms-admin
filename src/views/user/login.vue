@@ -45,10 +45,11 @@ export default {
       this.form.validateFields((err, values)  => {
         if (!err) {
           UserApi.login(values).then(response=>{
-            console.log(response)
+            this.$message.success("登录成功!!"+response.data.message);
+            // console.log(response)
             this.$router.replace("/article/list")
           });
-            console.log(values)
+            // console.log(values)
         }
       });
     }

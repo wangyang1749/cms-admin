@@ -1,0 +1,1 @@
+ cp -r dist/* ~/Documents/cms/src/main/resources/static/

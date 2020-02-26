@@ -6,11 +6,11 @@
       :pagination="false"
       :rowKey="article => article.id"
     >
-      <!-- <a slot="name" slot-scope="text" href="javascript:;">{{text}}</a>
+     <a slot="articleTitle" slot-scope="articleTitle, record"   href="javascript:;" @click="preview(record.id)">[{{record.id}}]-{{articleTitle}}</a>
 
-    <span slot="customTitle">
-      <a-icon type="smile-o" />Name
-      </span>-->
+
+     <span slot="haveHtml" slot-scope="haveHtml,record"  ><a href="javascript:;" @click="openHtml(record)">{{haveHtml}}</a></span>
+
       <span slot="categories" slot-scope="categories">
         <a-tag
           v-for="category in categories"
@@ -51,16 +51,12 @@
 </template>
 <script>
 const columns = [
-  // {
-  //   dataIndex: "name",
-  //   key: "name",
-  //   slots: { title: "customTitle" },
-  //   scopedSlots: { customRender: "name" }
-  // },
   {
-    title: "标题",
+     title: "标题",
     dataIndex: "title",
-    key: "title"
+    key: "title",
+
+    scopedSlots: { customRender: "articleTitle" }
   },
   // {
   //   title: "状态",
@@ -89,6 +85,17 @@ const columns = [
     dataIndex: "visits",
     key: "visits"
   },
+    {
+    title: "状态",
+    dataIndex: "status",
+    key: "status"
+  },
+    {
+    title: "是否生成HTML",
+    dataIndex: "haveHtml",
+    key: "haveHtml",
+    scopedSlots: { customRender: "haveHtml" }
+  },
   {
     title: "发布时间",
     dataIndex: "createDate",
@@ -101,30 +108,8 @@ const columns = [
   }
 ];
 
-const data = [
-  {
-    key: "1",
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"]
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"]
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    age: 32,
-    address: "Sidney No. 1 Lake Park",
-    tags: ["cool", "teacher"]
-  }
-];
 import ArticleApi from "@/api/article.js";
+import preview from "@/api/preview.js";
 export default {
   data() {
     return {
@@ -141,7 +126,7 @@ export default {
         categoryId: null,
         status: null
       },
-      data,
+      
       columns,
       article: []
     };
@@ -158,7 +143,6 @@ export default {
         // console.log(response);
         this.article = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
-        // this.postsLoading = false;
       });
     },
     handlePaginationChange(page, pageSize) {
@@ -167,9 +151,19 @@ export default {
       this.pagination.page = page;
       this.pagination.size = pageSize;
       this.loadArticle();
+    },preview(id){
+      window.open(preview.Online('article',id),"_blank");
+      // window.location.href='https://www.baidu.com/'
     },
     handleEditClick(article) {
-      console.log(article);
+      this.$router.push({ name: 'ArticleWrite', query: { articleId: article.id } })
+      // console.log(article);
+    },
+    openHtml(value){
+      if(value.haveHtml){
+          window.open(preview.Html(value.viewName),"_blank");
+      }
+      console.log(value)
     },
     handleShowPostSettings(article) {
       console.log(article);
