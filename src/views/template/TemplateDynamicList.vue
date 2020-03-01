@@ -101,7 +101,7 @@ export default {
       TemplateApi.list(this.queryParam).then(response => {
         this.template = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
-        console.log(response);
+        //console.log(response);
       });
     },
     handlePaginationChange(page, pageSize) {

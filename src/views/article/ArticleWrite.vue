@@ -217,7 +217,7 @@ export default {
       formdata.append("file", $file);
       this.img_file[pos] = $file;
       uploadApi.upload(formdata).then(response => {
-        console.log(response.data.data.path);
+       // console.log(response.data.data.path);
         this.$refs.md.$img2Url(pos, response.data.data.path);
       });
     },
@@ -286,7 +286,7 @@ export default {
       }
       if (status === "done") {
         this.queryParam.picPath = info.file.response.data.path;
-        console.log(info.file.response.data.path);
+       // console.log(info.file.response.data.path);
         this.$message.success(`${info.file.name} file uploaded successfully.`);
       } else if (status === "error") {
         this.$message.error(`${info.file.name} file upload failed.`);
