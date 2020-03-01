@@ -5,7 +5,8 @@
     <a-tree v-if="categorys.length" showLine defaultExpandAll :treeData="categorys">
       <template slot="custom" slot-scope="item">
         <a href="javascript:;" @click="preview(item)">{{item.title}}</a> |
-        <a href="javascript:;" @click="findArticle(item)">点击查看</a>
+        <a href="javascript:;" @click="openHtml(item)">点击查看HTML</a> |
+        <span>{{item.haveHtml}}</span>
         <a-button type="primary" class="but_type" style="right:200px;" @click="()=> append(item)">新增</a-button>
         <a-button type="primary" class="but_type" style="right:120px;" @click="()=> edit(item)">编辑</a-button>
         <a-button type="primary" class="but_type" @click="(e)=> remove(item)">删除</a-button>
@@ -21,15 +22,34 @@
           <a-input v-model="categoryParam.name"></a-input>
         </a-form-item>
 
-        <a-form-item label="选择模板">
+        <a-form-item label="选择分类信息模板">
           <a-select style="width: 100%" v-model="categoryParam.templateId">
             <a-select-option :value="item.id" v-for="item in templates" :key="item.id">{{item.name}}</a-select-option>
           </a-select>
         </a-form-item>
 
-        <a-form-item label="描述">
+        <a-form-item label="分类的描述">
           <a-textarea v-model="categoryParam.description"></a-textarea>
         </a-form-item>
+        <a-form-item>
+          <a-upload-dragger
+            name="file"
+            :multiple="true"
+            :action="upload"
+            @change="handleChange"
+            :withCredentials="true"
+          >
+            <p class="ant-upload-drag-icon">
+              <!-- <a-icon type="inbox" /> -->
+              <img :src="categoryParam.picPath" width="100%" alt srcset />
+            </p>
+            <p class="ant-upload-text">Click or drag file to this area to upload</p>
+            <p
+              class="ant-upload-hint"
+            >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
+          </a-upload-dragger>
+        </a-form-item>
+
         <a-form-item label="是否需要静态化">
           <a-radio-group v-model="categoryParam.haveHtml" defaultValue="1">
             <a-radio :value="1">是</a-radio>
@@ -39,29 +59,8 @@
       </a-form>
     </a-modal>
 
-    <a-drawer
-      title="查看分类目录下文章"
-      placement="right"
-      :closable="false"
-      @close="onClose"
-      :visible="articleVisible"
-      width="30rem"
-    >
-      <a-form>
-        <a-form-item label="分类名称">
-          <span>{{articles.name}}</span>
-        </a-form-item>
-
-        <a-form-item label="静态文件路径">
-          <span>{{articles.viewName}}</span>
-        </a-form-item>
-
-        <a-form-item label="描述">
-          <span>{{articles.description}}</span>
-        </a-form-item>
-      </a-form>
-      <p v-for="item in articles.articleVOList" :key="item.id">{{item.title}}</p>
-    </a-drawer>
+    <!-- <input type="file" ref="file" />
+    <a-button @click="uploadTest">upload</a-button>-->
   </div>
 </template>
 
@@ -69,44 +68,82 @@
 import categoryApi from "@/api/category.js";
 import templateApi from "@/api/template.js";
 import preview from "@/api/preview.js";
+// import uploadApi from "@/api/upload.js";
 export default {
   data() {
     return {
       form: this.$form.createForm(this, { name: "123" }),
       categorys: [],
+      categorysSource: [],
       value: "",
-      articleVisible: false,
       templates: [],
       isUpdate: false,
       updateId: "",
       visible: false,
-      articles: [],
       categoryParam: {
         parentId: "",
         name: "",
         templateId: 2,
         viewName: "",
         description: "",
-        haveHtml: 0
+        haveHtml: 0,
+        picPath: ""
       }
     };
   },
   created() {
     this.loadcategory();
   },
+  computed: {
+    categoryIdMap() {
+      const categoryIdMap = {};
+      this.categorysSource.forEach(category => {
+        categoryIdMap[category.id] = category;
+      });
+      return categoryIdMap;
+    },
+    upload() {
+      return categoryApi.upload();
+    }
+  },
   methods: {
+    // uploadTest() {
+    //   console.log(this.$refs.file.files[0]);
+    //   var formData = new FormData();
+    //   formData.append("file", this.$refs.file.files[0]);
+    //   uploadApi.upload(formData).then(response => {
+    //     console.log(response);
+    //   });
+    // },
+    //加载模板
     loadTempalte() {
-      templateApi.findByType("CATEGORY").then(response => {
+      templateApi.findByType("CATEGORY_INFO").then(response => {
         this.templates = response.data.data;
       });
     },
-
     loadcategory() {
+      // console.log("loadcategory");
       categoryApi.list().then(response => {
+        //console.log(response);
+        this.categorysSource = response.data.data;
         this.categorys = categoryApi.concreteTree(response.data.data);
       });
     },
+    handleChange(info) {
+      const status = info.file.status;
+      if (status !== "uploading") {
+        // console.log(info.file, info.fileList);
+      }
+      if (status === "done") {
+        this.categoryParam.picPath = info.file.response.data.path;
+        // console.log(info.file.response.data.path);
+        this.$message.success(`${info.file.name} file uploaded successfully.`);
+      } else if (status === "error") {
+        this.$message.error(`${info.file.name} file upload failed.`);
+      }
+    },
     handleOk() {
+      this.categorys = [];
       if (!this.categoryParam.name) {
         this.$notification["error"]({
           message: "分类标题不能为空!!"
@@ -125,9 +162,8 @@ export default {
             message: "成功添加:" + response.data.data.name
           });
         });
-        this.loadcategory();
       }
-
+      this.loadcategory();
       this.visible = false;
     },
     append(data) {
@@ -142,37 +178,38 @@ export default {
       this.isUpdate = true;
       this.updateId = data.key;
       categoryApi.findById(data.key).then(response => {
-        console.log(response);
-        console.log(response.data.data.templateId);
+        //   console.log(response);
         this.categoryParam = response.data.data;
         this.categoryParam.haveHtml = 0;
         this.visible = true;
       });
     },
-    remove(data) {
-      console.log(data);
+    remove(value) {
+      // console.log(value.key);
+      categoryApi.deleteById(value.key).then(response => {
+        this.$notification["success"]({
+          message: response.data.message
+        });
+        this.loadcategory();
+      });
     },
     preview(value) {
       window.open(preview.Online("category", value.key), "_blank");
     },
-    findArticle(value) {
-      this.articleVisible = true;
-      categoryApi.findByCategoryDetail(value.key).then(response => {
-        const category = response.data.data;
-        console.log(category);
-        this.articles = category
-        if (category.articleVOList.length == 0) {
-          this.$notification["success"]({
-            message: "该分类目录下没有文章"
-          });
-        } else {
-          this.$notification["success"]({
-            message:
-              "该分类目录下有文章[" + category.articleVOList.length + "]篇"
-          });
-        }
-        // console.log(response)
-      });
+
+    openHtml(value) {
+      if (this.categoryIdMap[value.key].haveHtml) {
+        window.open(
+          preview.Html(
+            this.categoryIdMap[value.key].path +
+              "/" +
+              this.categoryIdMap[value.key].viewName
+          ),
+          "_blank"
+        );
+      } else {
+        this.$message.error("该分类没有生成HTML");
+      }
     },
     onClose() {
       this.articleVisible = false;

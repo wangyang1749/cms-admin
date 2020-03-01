@@ -1,15 +1,27 @@
 <template>
   <div>
+    <p>
+      生成Html在调试模板事有用
+    </p>
     <a-table
       :columns="columns"
       :dataSource="template"
       :pagination="false"
       :rowKey="template => template.id"
     >
+      <a
+        slot="templateName"
+        slot-scope="templateName, record"
+        href="javascript:;"
+        @click="preview(record.id)"
+      >[{{record.id}}]-{{templateName}}</a>
+
       <span slot="action" slot-scope="text, record">
         <a href="javascript:;" @click="handleEditClick(record)">编辑</a>
         <a-divider type="vertical" />
-        <a href="javascript:;" @click="handleShowPostSettings(record)">设置</a>
+        <a href="javascript:;" @click="openHtml(record)">查看Html</a>
+         <a-divider type="vertical" />
+        <a href="javascript:;" @click="generateHtml(record)">生成Html</a>
       </span>
     </a-table>
     <div class="page-wrapper" :style="{ textAlign: 'right'}">
@@ -27,26 +39,22 @@
   </div>
 </template>
 <script>
+import preview from "@/api/preview.js";
 const columns = [
   {
     title: "模板名称",
     dataIndex: "name",
-    key: "name"
+    key: "name",
+    scopedSlots: { customRender: "templateName" }
   },
-  
 
   {
-    title: "模板描述",
-    key: "description",
-    dataIndex: "description"
+    title: "数据来源",
+    key: "dataName",
+    dataIndex: "dataName"
   },
   {
-    title: "模板类型",
-    dataIndex: "type",
-    key: "type"
-  },
- {
-    title: "视图路径",
+    title: "数据参数",
     dataIndex: "path",
     key: "path"
   },
@@ -67,7 +75,9 @@ const columns = [
   }
 ];
 
-import TemplateApi from "@/api/template.js";
+import templatePageApi from "@/api/templatePage.js";
+// import preview from "@/api/preview.js";
+
 export default {
   data() {
     return {
@@ -97,10 +107,10 @@ export default {
       this.queryParam.page = this.pagination.page - 1;
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
-      TemplateApi.list(this.queryParam).then(response => {
+      templatePageApi.list(this.queryParam).then(response => {
         this.template = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
-        // console.log(response);
+       // console.log(response);
       });
     },
     handlePaginationChange(page, pageSize) {
@@ -110,12 +120,21 @@ export default {
       this.pagination.size = pageSize;
       this.loadArticle();
     },
-    // handleEditClick(template) {
-    //   console.log(template);
-    // },
-    // handleShowPostSettings(template) {
-    //   console.log(template);
-    // }
+    preview(value) {
+      window.open(preview.Online('template',value), "_blank");
+     // console.log(value);
+    },generateHtml(value){
+     // console.log(value.id)
+        templatePageApi.generateHtml(value.id).then(response => {
+        //  console.log(response)
+          this.$notification["success"]({
+            message: response.data.message
+          });
+        })
+    },openHtml(value){
+    //  console.log(value)
+      window.open(preview.Html(value.path+"/"+value.viewName),"_blank");
+    }
   }
 };
 </script>

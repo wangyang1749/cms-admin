@@ -30,12 +30,14 @@ categoryApi.findById=id=>{
     method:'get'
   })
 }
-categoryApi.findArticleById=id=>{
+
+categoryApi.deleteById=id=>{
   return service({
-    url:`${baseUrl}/find/article/${id}`,
+    url:`${baseUrl}/delete/${id}`,
     method:'get'
   })
 }
+
 categoryApi.findByCategoryDetail=id=>{
   return service({
     url:`${baseUrl}/find/categoryDetail/${id}`,
@@ -43,6 +45,9 @@ categoryApi.findByCategoryDetail=id=>{
   })
 }
 
+categoryApi.upload=()=>{
+  return `http://localhost:8080/api/attachment/upload`
+}
 
 
 function concreteTree(parentCategory, categories) {

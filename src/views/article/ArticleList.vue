@@ -130,17 +130,18 @@ export default {
       columns,
       article: []
     };
-  },
+  }, 
   created() {
     this.loadArticle();
   },
   methods: {
     loadArticle() {
+      //console.log("loadArticle")
       this.queryParam.page = this.pagination.page - 1;
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
       ArticleApi.query(this.queryParam).then(response => {
-        // console.log(response);
+        //console.log(response);
         this.article = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
       });
@@ -161,12 +162,12 @@ export default {
     },
     openHtml(value){
       if(value.haveHtml){
-          window.open(preview.Html(value.viewName),"_blank");
+          window.open(preview.Html(value.path+"/"+value.viewName),"_blank");
       }
-      console.log(value)
+     // console.log(value)
     },
-    handleShowPostSettings(article) {
-      console.log(article);
+    handleShowPostSettings() {
+     // console.log(article);
     }
   }
 };

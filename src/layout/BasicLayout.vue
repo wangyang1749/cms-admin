@@ -1,6 +1,9 @@
 <template>
   <a-layout id="components-layout-demo-fixed-sider">
-    <a-layout-sider style="z-index:99" :style="{ overflow: 'auto', height: '100vh', position: 'fixed', left: 0 }">
+    <a-layout-sider
+      style="z-index:99"
+      :style="{ overflow: 'auto', height: '100vh', position: 'fixed', left: 0 }"
+    >
       <div class="logo">CMS-SYSTEM</div>
 
       <a-menu theme="dark" mode="inline" :defaultSelectedKeys="[$route.name]">
@@ -26,11 +29,12 @@
     <a-layout :style="{ marginLeft: '200px' }">
       <a-layout-header :style="{ background: '#fff', padding: 0 }">
         <div :style="{float: 'right'}">
+          <a-button @click="openHtml()">静态首页</a-button>
           <a-button @click="logout">退出</a-button>
         </div>
       </a-layout-header>
       <a-layout-content :style="{ margin: '24px 5px 0', }">
-        <div >
+        <div>
           <router-view />
         </div>
       </a-layout-content>
@@ -40,6 +44,7 @@
 </template>
 <script>
 import UserApi from "@/api/user.js";
+import preview from "@/api/preview.js";
 export default {
   computed: {
     routes() {
@@ -52,10 +57,13 @@ export default {
   methods: {
     logout() {
       UserApi.logout().then(response => {
-        console.log(response);
+        this.$message.error(response.data.message)
         this.$router.replace("/login");
       });
-      console.log("logout");
+     // console.log("logout");
+    },
+    openHtml() {
+      window.open(preview.Html("index"), "_blank");
     }
   }
 };

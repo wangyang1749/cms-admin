@@ -47,7 +47,7 @@
     },
     methods:{
       testRouter(){
-        console.log("testRouter")
+      //  console.log("testRouter")
         this.$router.push("/article/list")
       }
     }

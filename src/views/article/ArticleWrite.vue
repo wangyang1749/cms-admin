@@ -7,6 +7,8 @@
         ref="md"
         @change="change"
         style="min-height: 600px;z-index: 1;"
+        @imgAdd="imgAdd"
+        @imgDel="imgDel"
       />
       <div class="article-bottom">
         <div class="article-option">
@@ -64,6 +66,32 @@
             />
           </a-form-item>
 
+          <a-form-item label="摘要">
+            <a-textarea v-model="queryParam.summary">
+
+            </a-textarea>
+          </a-form-item>
+
+
+          <a-form-item>
+            <a-upload-dragger
+              name="file"
+              :multiple="true"
+              :action="upload"
+              @change="uploadPic"
+              :withCredentials="true"
+            >
+              <p class="ant-upload-drag-icon">
+                <!-- <a-icon type="inbox" /> -->
+                <img :src="queryParam.picPath" width="100%" alt srcset />
+              </p>
+              <p class="ant-upload-text">Click or drag file to this area to upload</p>
+              <p
+                class="ant-upload-hint"
+              >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
+            </a-upload-dragger>
+          </a-form-item>
+
           <a-form-item label="是否需要静态化">
             <a-radio-group v-model="queryParam.haveHtml" defaultValue="1">
               <a-radio :value="1">是</a-radio>
@@ -89,6 +117,7 @@ import categoryApi from "@/api/category.js";
 import templateApi from "@/api/template.js";
 import axios from "axios";
 import articleApi from "@/api/article.js";
+import uploadApi from "@/api/upload.js";
 export default {
   // 注册
   components: {
@@ -101,12 +130,14 @@ export default {
         tagIds: [],
         categoryIds: [],
         haveHtml: 0,
-        templateId: '',
+        templateId: "",
         title: "",
         viewName: "",
         summary: "",
-        status: "PUBLISHED"
+        status: "PUBLISHED",
+        pathPic:""
       },
+      img_file: {},
       visible: false,
       tags: [],
       selectedTagNames: [],
@@ -134,6 +165,9 @@ export default {
       });
 
       return tagNameMap;
+    },
+    upload() {
+      return categoryApi.upload();
     }
   },
   watch: {
@@ -163,7 +197,7 @@ export default {
           vm.queryParam.viewName = article.viewName;
           vm.queryParam.summary = article.summary;
           vm.queryParam.status = article.status;
-
+          vm.queryParam.picPath = article.picPath
           //     tagIds: []
           // categoryIds: []
           vm.isUpdate = true;
@@ -176,7 +210,18 @@ export default {
     change(value, render) {
       // render 为 markdown 解析后的结果[html]
       this.queryParam.formatContent = render;
+      // console.log(value)
     },
+    imgAdd(pos, $file) {
+      var formdata = new FormData();
+      formdata.append("file", $file);
+      this.img_file[pos] = $file;
+      uploadApi.upload(formdata).then(response => {
+        console.log(response.data.data.path);
+        this.$refs.md.$img2Url(pos, response.data.data.path);
+      });
+    },
+    imgDel() {},
     // 提交
     submit() {
       if (!this.queryParam.title) {
@@ -185,11 +230,11 @@ export default {
         });
         return;
       }
-      if(!this.queryParam.templateId){
+      if (!this.queryParam.templateId) {
         this.$notification["error"]({
           message: "请至少选择一个模板!!"
         });
-        return
+        return;
       }
       if (this.isUpdate) {
         articleApi
@@ -199,11 +244,16 @@ export default {
             const data = response.data.data;
             if (data.haveHtml) {
               this.$notification["success"]({
-                message: "更新成功:"+response.data.message+"更新html页面"+data.viewName
+                message:
+                  "更新成功:" +
+                  response.data.message +
+                  "更新html页面" +
+                  data.viewName
               });
-            }else{
+            } else {
               this.$notification["success"]({
-                message:"更新成功:"+ response.data.message+"没有生成html页面"
+                message:
+                  "更新成功:" + response.data.message + "没有生成html页面"
               });
             }
 
@@ -215,20 +265,33 @@ export default {
           // console.log(response);
           const data = response.data.data;
           if (data.haveHtml) {
-              this.$notification["success"]({
-                message: response.data.message+"成功生成html页面"+data.viewName
-              });
-            }else{
-              this.$notification["success"]({
-                message: response.data.message+"没有生成html页面"
-              });
-            }
+            this.$notification["success"]({
+              message:
+                response.data.message + "成功生成html页面" + data.viewName
+            });
+          } else {
+            this.$notification["success"]({
+              message: response.data.message + "没有生成html页面"
+            });
+          }
         });
       }
       this.$router.push("/article/list");
     },
     save() {},
-
+    uploadPic(info) {
+      const status = info.file.status;
+      if (status !== "uploading") {
+        // console.log(info.file, info.fileList);
+      }
+      if (status === "done") {
+        this.queryParam.picPath = info.file.response.data.path;
+        console.log(info.file.response.data.path);
+        this.$message.success(`${info.file.name} file uploaded successfully.`);
+      } else if (status === "error") {
+        this.$message.error(`${info.file.name} file upload failed.`);
+      }
+    },
     showDrawer() {
       this.loadTags();
       this.loadcategory();
