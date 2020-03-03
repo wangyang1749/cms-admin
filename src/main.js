@@ -23,6 +23,7 @@ import { message } from 'ant-design-vue';
 import { Modal } from 'ant-design-vue';
 import { notification } from 'ant-design-vue';
 import { Upload } from 'ant-design-vue';
+import { Tabs } from 'ant-design-vue';
 
 Vue.use(Menu);
 Vue.use(Layout);
@@ -42,6 +43,7 @@ Vue.use(Tree);
 Vue.use(Radio);
 Vue.use(Modal);
 Vue.use(Upload);
+Vue.use(Tabs);
 
 Vue.prototype.$notification = notification;
 Vue.config.productionTip = false

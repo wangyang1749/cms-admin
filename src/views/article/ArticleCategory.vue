@@ -48,6 +48,11 @@
               class="ant-upload-hint"
             >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
           </a-upload-dragger>
+          <a-input placeholder="直接粘贴图片路径" v-model="categoryParam.picPath"></a-input>
+        </a-form-item>
+
+        <a-form-item>
+          <a-input v-model="categoryParam.order"></a-input>
         </a-form-item>
 
         <a-form-item label="是否需要静态化">
@@ -81,6 +86,7 @@ export default {
       updateId: "",
       visible: false,
       categoryParam: {
+        order:'',
         parentId: "",
         name: "",
         templateId: 2,

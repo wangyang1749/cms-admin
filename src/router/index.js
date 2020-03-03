@@ -67,6 +67,12 @@ const routes = [
             name: 'PageCreate',
             component: () => import(/* webpackChunkName: "PageCreate" */ '../views/page/PageCreate.vue'),
             meta: { title: '创建页面' }
+          }, {
+            path: '/page/menu',
+            name: 'pageMenu',
+            component: () => import(/* webpackChunkName: "pageMenu" */ '../views/page/menu.vue'),
+            meta: { title: '菜单设置', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
+
           }
         ]
       },
@@ -101,13 +107,22 @@ const routes = [
         component: () => import(/* webpackChunkName: "article" */ '../layout/PageView.vue'),
         meta: { title: '系统', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false },
         children: [
-          {
-            path: '/system/menu',
-            name: 'SystemMenu',
-            component: () => import(/* webpackChunkName: "SystemMenu" */ '../views/system/menu.vue'),
-            meta: { title: '菜单设置', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
 
-          }, {
+          {
+            path: '/system/attachment',
+            name: 'SystemAttachment',
+            component: () => import(/* webpackChunkName: "SystemOption" */ '../views/system/attachment.vue'),
+            meta: { title: '附件管理', icon: 'SystemAttachment', hiddenHeaderContent: false, keepAlive: false }
+
+          },
+          {
+            path: '/system/option',
+            name: 'SystemOption',
+            component: () => import(/* webpackChunkName: "SystemOption" */ '../views/system/option.vue'),
+            meta: { title: '系统设置', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
+
+          },
+          {
             path: '/system/about',
             name: 'About',
             component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),

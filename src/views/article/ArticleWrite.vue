@@ -67,11 +67,8 @@
           </a-form-item>
 
           <a-form-item label="摘要">
-            <a-textarea v-model="queryParam.summary">
-
-            </a-textarea>
+            <a-textarea v-model="queryParam.summary"></a-textarea>
           </a-form-item>
-
 
           <a-form-item>
             <a-upload-dragger
@@ -90,6 +87,7 @@
                 class="ant-upload-hint"
               >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
             </a-upload-dragger>
+            <a-input  v-model="queryParam.picPath"></a-input>
           </a-form-item>
 
           <a-form-item label="是否需要静态化">
@@ -135,7 +133,7 @@ export default {
         viewName: "",
         summary: "",
         status: "PUBLISHED",
-        pathPic:""
+        pathPic: ""
       },
       img_file: {},
       visible: false,
@@ -197,7 +195,7 @@ export default {
           vm.queryParam.viewName = article.viewName;
           vm.queryParam.summary = article.summary;
           vm.queryParam.status = article.status;
-          vm.queryParam.picPath = article.picPath
+          vm.queryParam.picPath = article.picPath;
           //     tagIds: []
           // categoryIds: []
           vm.isUpdate = true;
@@ -217,7 +215,7 @@ export default {
       formdata.append("file", $file);
       this.img_file[pos] = $file;
       uploadApi.upload(formdata).then(response => {
-       // console.log(response.data.data.path);
+        // console.log(response.data.data.path);
         this.$refs.md.$img2Url(pos, response.data.data.path);
       });
     },
@@ -286,7 +284,7 @@ export default {
       }
       if (status === "done") {
         this.queryParam.picPath = info.file.response.data.path;
-       // console.log(info.file.response.data.path);
+        // console.log(info.file.response.data.path);
         this.$message.success(`${info.file.name} file uploaded successfully.`);
       } else if (status === "error") {
         this.$message.error(`${info.file.name} file upload failed.`);
