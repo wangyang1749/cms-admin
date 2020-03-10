@@ -3,7 +3,7 @@
 const preview = {}
 
 preview.Online = (name,id) => {
-    return  `http://localhost:8080/${name}/preview/${id}`;
+    return  `http://localhost:8080/preview/${name}/${id}`;
 }
 
 

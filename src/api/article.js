@@ -3,6 +3,21 @@ const baseUrl = '/api/article'
 
 const articleApi = {}
 
+
+articleApi.delete = (id) => {
+    return service({
+        url: `${baseUrl}/delete/${id}`,
+        method: 'get'
+    })
+}
+
+articleApi.updateAll = () => {
+    return service({
+        url: `${baseUrl}/updateAll`,
+        method: 'get'
+    })
+}
+
 articleApi.query = (params) => {
     return service({
         url: baseUrl,

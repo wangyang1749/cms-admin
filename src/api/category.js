@@ -46,7 +46,7 @@ categoryApi.findByCategoryDetail=id=>{
 }
 
 categoryApi.upload=()=>{
-  return `http://localhost:8080/api/attachment/upload`
+  return `http://47.93.201.74:8080/api/attachment/upload`
 }
 
 

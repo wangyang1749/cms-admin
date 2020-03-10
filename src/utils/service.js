@@ -4,7 +4,7 @@ import router from '@/router'
 import { message } from 'ant-design-vue'
 
 const service = axios.create({
-    baseURL: 'http://localhost:8080/',
+    baseURL: 'http://47.93.201.74:8080/',
     timeout: 10000,
     withCredentials: true,
 })

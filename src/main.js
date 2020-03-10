@@ -20,6 +20,7 @@ import { Select } from 'ant-design-vue';
 import { Tree } from 'ant-design-vue';
 import { Radio } from 'ant-design-vue';
 import { message } from 'ant-design-vue';
+// import { confirm } from 'ant-design-vue';
 import { Modal } from 'ant-design-vue';
 import { notification } from 'ant-design-vue';
 import { Upload } from 'ant-design-vue';
@@ -48,6 +49,7 @@ Vue.use(Tabs);
 Vue.prototype.$notification = notification;
 Vue.config.productionTip = false
 Vue.prototype.$message = message;
+Vue.prototype.$confirm = Modal.confirm;
 new Vue({
   router,
   store,
