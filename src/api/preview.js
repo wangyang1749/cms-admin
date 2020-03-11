@@ -3,12 +3,12 @@
 const preview = {}
 
 preview.Online = (name,id) => {
-    return  `http://localhost:8080/preview/${name}/${id}`;
+    return  `http://47.93.201.74:8080/preview/${name}/${id}`;
 }
 
 
 preview.Html = (viewName) => {
-    return  `http://localhost/${viewName}.html`;
+    return  `http://47.93.201.74/${viewName}.html`;
 }
 
 export default preview
