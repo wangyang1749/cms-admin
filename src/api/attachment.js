@@ -1,8 +1,12 @@
 import service from '@/utils/service'
-const baseUrl = '/api/menu'
+import Golbal from '@/api/global_variable.js'
+const baseUrl = '/api/attachment'
 
 const attachmentApi = {}
 
+attachmentApi.upload=()=>{
+  return `http://${Golbal.baseUrl}:${Golbal.port}/api/attachment/upload`
+}
 
 attachmentApi.list = () => {
   return service({

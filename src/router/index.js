@@ -47,7 +47,13 @@ const routes = [
             name: 'ArticleCategory',
             component: () => import(/* webpackChunkName: "ArticleCategory" */ '../views/article/ArticleCategory.vue'),
             meta: { title: '文章分类' }
-          },
+          }, {
+            path: '/article/channel',
+            name: 'articleChannel',
+            component: () => import(/* webpackChunkName: "articleChannel" */ '../views/article/channel.vue'),
+            meta: { title: '栏目管理', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
+
+          }
 
         ]
       },
@@ -62,18 +68,12 @@ const routes = [
             name: 'PageList',
             component: () => import(/* webpackChunkName: "PageList" */ '../views/page/list.vue'),
             meta: { title: '页面列表' }
-          },{
+          }, {
             path: '/page/create',
             name: 'PageCreate',
             component: () => import(/* webpackChunkName: "PageCreate" */ '../views/page/PageCreate.vue'),
             meta: { title: '创建页面' }
-          }, {
-            path: '/page/menu',
-            name: 'pageMenu',
-            component: () => import(/* webpackChunkName: "pageMenu" */ '../views/page/menu.vue'),
-            meta: { title: '菜单设置', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
-
-          }
+          },
         ]
       },
       {
@@ -82,6 +82,7 @@ const routes = [
         component: PageView,
         meta: { title: '模板管理' },
         children: [
+
           {
             path: '/template/dynamicList',
             name: 'TemplateDynamicList',
@@ -98,16 +99,22 @@ const routes = [
             name: 'TemplateCreate',
             component: () => import(/* webpackChunkName: "TemplateCreate" */ '../views/template/TemplateCreate.vue'),
             meta: { title: '创建模板' }
-          }
+          },
         ]
       },
       {
         path: '/system',
         name: 'System',
-        component: () => import(/* webpackChunkName: "article" */ '../layout/PageView.vue'),
+        component: () => import(/* webpackChunkName: "System" */ '../layout/PageView.vue'),
         meta: { title: '系统', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false },
         children: [
+          {
+            path: '/system/menu',
+            name: 'systemMenu',
+            component: () => import(/* webpackChunkName: "systemMenu" */ '../views/system/menu.vue'),
+            meta: { title: '菜单设置', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
 
+          },
           {
             path: '/system/attachment',
             name: 'SystemAttachment',

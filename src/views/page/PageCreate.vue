@@ -1,6 +1,7 @@
 <template>
   <div>
     <div>
+      <a-input placeholder="请输入标题" v-model="queryParam.title" />
       <mavon-editor
         v-model="queryParam.originalContent"
         ref="md"
@@ -25,14 +26,14 @@
           <a-input v-model="queryParam.title"></a-input>
         </a-form-item>
         <a-form>
-          <a-form-item label="页面路径">
-            <a-input placeholder="请输入页面路径" v-model="queryParam.viewName" />
+          <a-form-item label="视图路径">
+            <a-input placeholder="请输入视图路径" v-model="queryParam.viewName" />
           </a-form-item>
 
           <a-form-item label="选择模板">
-            <a-select style="width: 100%" v-model="queryParam.templateId">
+            <a-select style="width: 100%" v-model="queryParam.templateName">
               <a-select-option
-                :value="item.id"
+                :value="item.enName"
                 v-for="item in templates"
                 :key="item.id"
               >{{item.name}}</a-select-option>
@@ -51,8 +52,8 @@
 <script>
 import { mavonEditor } from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
-
 import templateApi from "@/api/template.js";
+// import templateApi from "@/api/template.js";
 import sheetApi from "@/api/sheet.js";
 export default {
   // 注册
@@ -63,7 +64,7 @@ export default {
     return {
       queryParam: {
         originalContent: "", // 输入的markdown
-        templateId: "",
+        templateName: "",
         title: "",
         viewName: "",
         status: "PUBLISHED"
@@ -102,12 +103,12 @@ export default {
     },
     // 提交
     submit() {
-      if (!this.queryParam.templateId) {
-        this.$notification["error"]({
-          message: "请至少选择一个模板!!"
-        });
-        return;
-      }
+      // if (!this.queryParam.channelId) {
+      //   this.$notification["error"]({
+      //     message: "请选择一个栏目"
+      //   });
+      //   return;
+      // }
       if (this.isUpdate) {
         sheetApi
           .update(this.$route.query.sheetId, this.queryParam)
@@ -115,7 +116,6 @@ export default {
             // console.log(response);
 
             this.$notification["success"]({
-
               message: "更新成功:" + response.data.message
             });
 
@@ -126,23 +126,23 @@ export default {
         sheetApi.create(this.queryParam).then(response => {
           // console.log(response);
           this.$notification["success"]({
-            message: "添加成功"+response.data.message 
+            message: "添加成功" + response.data.message
           });
+          this.$router.push({ name: "PageList" });
         });
       }
-      this.$router.push({ name: "PageList" });
     },
     showDrawer() {
-      this.loadTempalte();
+      this.loadTemplate();
       this.visible = true;
     },
     onClose() {
       this.visible = false;
     },
     handleChange(value) {
-      this.queryParam.templateId = value;
+      this.queryParam.channelId = value;
     },
-    loadTempalte() {
+    loadTemplate() {
       templateApi.findByType("SHEET").then(response => {
         this.templates = response.data.data;
         // console.log(response);

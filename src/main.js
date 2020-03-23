@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import Golbal from '@/api/global_variable.js'
 
 import { Button } from 'ant-design-vue';
 import { Layout } from 'ant-design-vue';
@@ -25,7 +26,8 @@ import { Modal } from 'ant-design-vue';
 import { notification } from 'ant-design-vue';
 import { Upload } from 'ant-design-vue';
 import { Tabs } from 'ant-design-vue';
-
+import { Switch } from 'ant-design-vue';
+import { InputNumber } from 'ant-design-vue';
 Vue.use(Menu);
 Vue.use(Layout);
 Vue.use(Button);
@@ -45,7 +47,12 @@ Vue.use(Radio);
 Vue.use(Modal);
 Vue.use(Upload);
 Vue.use(Tabs);
+Vue.use(Switch);
+Vue.use(InputNumber);
 
+
+
+Vue.prototype.$Golbal = Golbal;
 Vue.prototype.$notification = notification;
 Vue.config.productionTip = false
 Vue.prototype.$message = message;

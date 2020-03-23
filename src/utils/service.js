@@ -1,11 +1,12 @@
 import axios from 'axios'
+import Golbal from '@/api/global_variable.js'
 // import Vue from 'vue'
 import router from '@/router'
 import { message } from 'ant-design-vue'
 
 const service = axios.create({
-    baseURL: 'http://47.93.201.74:8080/',
-    timeout: 10000,
+    baseURL: `http://${Golbal.baseUrl}:${Golbal.port}/`,
+    timeout: 30000,
     withCredentials: true,
 })
 message.config({

@@ -36,9 +36,9 @@ const columns = [
   
 
   {
-    title: "模板描述",
-    key: "description",
-    dataIndex: "description"
+    title: "英文名称",
+    key: "enName",
+    dataIndex: "enName"
   },
   {
     title: "模板类型",
@@ -101,7 +101,7 @@ export default {
       TemplateApi.list(this.queryParam).then(response => {
         this.template = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
-        //console.log(response);
+        // console.log(response);
       });
     },
     handlePaginationChange(page, pageSize) {

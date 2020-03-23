@@ -3,12 +3,26 @@ const baseUrl = '/api/sheet'
 
 const sheetApi = {}
 
-sheetApi.list=()=>{
+sheetApi.list=(param)=>{
     return service({
         url:baseUrl,
+        params: param,
         method:"get"
     })
 }
+sheetApi.addOrRemoveToMenu=id=>{
+    return service({
+      url:`${baseUrl}/addOrRemoveToMenu/${id}`,
+      method:'get'
+    })
+  }
+
+sheetApi.findListByChannelId =id => {
+    return service({
+        url: `${baseUrl}/findListByChannelId/${id}`,
+        method: 'get'
+    })
+  }
 sheetApi.deleteById=(id) => {
     return service({
         url: `${baseUrl}/delete/${id}`,

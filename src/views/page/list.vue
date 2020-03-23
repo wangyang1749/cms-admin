@@ -1,6 +1,10 @@
 <template>
   <div>
     <a-table :pagination="false" :columns="columns" :dataSource="data" :rowKey="data => data.id">
+      <div slot="existNav" slot-scope="existNav,record">
+        <a-switch defaultChecked @change="onChangeNav(record.id)" v-model="record.existNav" />
+      </div>
+
       <span slot="action" slot-scope="text, record">
         <a href="javascript:;" @click="edit(record.id)">编辑</a>
         <a-divider type="vertical" />
@@ -12,6 +16,21 @@
         <a-divider type="vertical" />
         <a href="javascript:;" @click="openHtml(record)">查看HTML</a>
       </span>
+
+      <template slot="footer">
+        <div class="page-wrapper" :style="{ textAlign: 'right'}">
+          <a-pagination
+            class="pagination"
+            :current="pagination.page"
+            :total="pagination.total"
+            :defaultPageSize="pagination.size"
+            :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']"
+            showSizeChanger
+            @showSizeChange="handlePaginationChange"
+            @change="handlePaginationChange"
+          />
+        </div>
+      </template>
     </a-table>
   </div>
 </template>
@@ -32,6 +51,13 @@ const columns = [
     key: "createDate"
   },
   {
+    title: "是否添加到导航",
+    dataIndex: "existNav",
+    key: "existNav",
+    scopedSlots: { customRender: "existNav" }
+  },
+
+  {
     title: "Action",
     key: "action",
     scopedSlots: { customRender: "action" }
@@ -40,20 +66,43 @@ const columns = [
 export default {
   data() {
     return {
+      pagination: {
+        page: 0,
+        size: 5,
+        sort: null
+      },
+      queryParam: {
+        page: 0,
+        size: 10,
+        sort: null,
+        keyword: null,
+        categoryId: null,
+        status: null
+      },
       data: [],
       columns
     };
   },
   created() {
-    this.loadPage();
+    this.loadSheet();
   },
   methods: {
-    loadPage() {
-      sheetApi.list().then(response => {
-        // this.data = response.data.data.content
+    loadSheet() {
+      this.queryParam.page = this.pagination.page - 1;
+      this.queryParam.size = this.pagination.size;
+      this.queryParam.sort = this.pagination.sort;
+      sheetApi.list(this.queryParam).then(response => {
         this.data = response.data.data.content;
-      //  console.log(response.data.data.content);
+        this.pagination.total = response.data.data.totalElements;
+        // console.log(response);
       });
+    },
+    handlePaginationChange(page, pageSize) {
+      // console.log("111")
+      // this.$log.debug(`Current: ${page}, PageSize: ${pageSize}`)
+      this.pagination.page = page;
+      this.pagination.size = pageSize;
+      this.loadSheet();
     },
     edit(value) {
       this.$router.push({
@@ -63,15 +112,29 @@ export default {
     },
     deleteById(value) {
       sheetApi.deleteById(value).then(response => {
-      //  console.log(response);
+        //  console.log(response);
         this.$notification["success"]({
           message: response.data.message
         });
-        this.loadPage();
+        this.loadSheet();
+      });
+    },
+    onChangeNav(id) {
+      // console.log(id);
+      sheetApi.addOrRemoveToMenu(id).then(response => {
+         if (response.data.data.existNav) {
+          this.$notification["success"]({
+            message: "成功添加" + response.data.data.title + "到导航!!"
+          });
+        } else {
+          this.$notification["success"]({
+            message: "成功移除" + response.data.data.title + "到导航!!"
+          });
+        }
       });
     },
     preview(value) {
-     // console.log(value);
+      // console.log(value);
       window.open(preview.Online("sheet", value), "_blank");
     },
     openHtml(value) {
@@ -84,7 +147,7 @@ export default {
     generateHtml(id) {
       sheetApi.generateHtml(id).then(response => {
         this.$notification["success"]({
-          message: "页面生成成功!!"+response.data.message
+          message: "页面生成成功!!" + response.data.message
         });
         // console.log(response);
       });

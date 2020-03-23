@@ -121,7 +121,7 @@ export default {
       this.loadArticle();
     },
     preview(value) {
-      window.open(preview.Online('template',value), "_blank");
+      window.open(preview.Online('component',value), "_blank");
      // console.log(value);
     },generateHtml(value){
      // console.log(value.id)

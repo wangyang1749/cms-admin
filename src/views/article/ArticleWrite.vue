@@ -5,7 +5,6 @@
       <mavon-editor
         v-model="queryParam.originalContent"
         ref="md"
-        @change="change"
         style="min-height: 600px;z-index: 1;"
         @imgAdd="imgAdd"
         @imgDel="imgDel"
@@ -30,9 +29,9 @@
           </a-form-item>
 
           <a-form-item label="选择模板">
-            <a-select style="width: 100%" v-model="queryParam.templateId">
+            <a-select style="width: 100%" v-model="queryParam.templateName">
               <a-select-option
-                :value="item.id"
+                :value="item.enName"
                 v-for="item in templates"
                 :key="item.id"
               >{{item.name}}</a-select-option>
@@ -57,13 +56,20 @@
           </a-form-item>
 
           <a-form-item label="选择分类">
-            <a-tree
+            <!-- <a-tree
               checkable
               :defaultExpandAll="true"
-              :checkedKeys="queryParam.categoryIds"
+              :checkedKeys="queryParam.categoryId"
               @check="onCheck"
               :treeData="categorys"
-            />
+            />-->
+            <a-select style="width: 100%" v-model="queryParam.categoryId">
+              <a-select-option
+                :value="item.id"
+                v-for="item in categorys"
+                :key="item.id"
+              >{{item.name}}</a-select-option>
+            </a-select>
           </a-form-item>
 
           <a-form-item label="摘要">
@@ -87,15 +93,15 @@
                 class="ant-upload-hint"
               >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
             </a-upload-dragger>
-            <a-input  v-model="queryParam.picPath"></a-input>
+            <a-input v-model="queryParam.picPath"></a-input>
           </a-form-item>
-
+          <!-- 
           <a-form-item label="是否需要静态化">
             <a-radio-group v-model="queryParam.haveHtml" defaultValue="1">
               <a-radio :value="1">是</a-radio>
               <a-radio :value="0">否</a-radio>
             </a-radio-group>
-          </a-form-item>
+          </a-form-item>-->
 
           <a-form-item>
             <a-button @click="submit">发布</a-button>
@@ -116,6 +122,7 @@ import templateApi from "@/api/template.js";
 import axios from "axios";
 import articleApi from "@/api/article.js";
 import uploadApi from "@/api/upload.js";
+import attachmentApi from "@/api/attachment.js";
 export default {
   // 注册
   components: {
@@ -124,16 +131,16 @@ export default {
   data() {
     return {
       queryParam: {
-        originalContent: "", // 输入的markdown
+        originalContent: '', // 输入的markdown
         tagIds: [],
-        categoryIds: [],
-        haveHtml: 0,
-        templateId: "",
-        title: "",
+        categoryId: null,
+        templateName: null,
+        title: '',
         viewName: "",
         summary: "",
         status: "PUBLISHED",
-        pathPic: ""
+        pathPic: "",
+        userId: 1
       },
       img_file: {},
       visible: false,
@@ -165,20 +172,8 @@ export default {
       return tagNameMap;
     },
     upload() {
-      return categoryApi.upload();
+      return attachmentApi.upload();
     }
-  },
-  watch: {
-    // tags(newValue) {
-    //   // 解决tags未赋上值就使用导致的取值报错问题
-    //   if (newValue) {
-    //     if (this.selectedTagIds.length != 0) {
-    //       this.selectedTagNames = this.selectedTagIds.map(
-    //         tagId => this.tagIdMap[tagId].name
-    //       );
-    //     }
-    //   }
-    // }
   },
   beforeRouteEnter(to, from, next) {
     // Get post id from query
@@ -187,15 +182,16 @@ export default {
       if (articleId) {
         articleApi.findById(articleId).then(response => {
           const article = response.data.data;
+          vm.queryParam = article; 
           // console.log(article);
-          vm.queryParam.originalContent = article.originalContent; // 输入的markdown
+          // vm.queryParam.originalContent = article.originalContent; // 输入的markdown
           // vm.queryParam.haveHtml= article.haveHtml
-          // vm.queryParam.templateId = article.templateId;
-          vm.queryParam.title = article.title;
-          vm.queryParam.viewName = article.viewName;
-          vm.queryParam.summary = article.summary;
-          vm.queryParam.status = article.status;
-          vm.queryParam.picPath = article.picPath;
+          // vm.queryParam.templateName = article.templateName;
+          // vm.queryParam.title = article.title;
+          // vm.queryParam.viewName = article.viewName;
+          // vm.queryParam.summary = article.summary;
+          // vm.queryParam.status = article.status;
+          // vm.queryParam.picPath = article.picPath;
           //     tagIds: []
           // categoryIds: []
           vm.isUpdate = true;
@@ -204,12 +200,6 @@ export default {
     });
   },
   methods: {
-    // 所有操作都会被解析重新渲染
-    change(value, render) {
-      // render 为 markdown 解析后的结果[html]
-      this.queryParam.formatContent = render;
-      // console.log(value)
-    },
     imgAdd(pos, $file) {
       var formdata = new FormData();
       formdata.append("file", $file);
@@ -222,15 +212,27 @@ export default {
     imgDel() {},
     // 提交
     submit() {
+       if (!this.queryParam.categoryId) {
+        this.$notification["error"]({
+          message: "文章类别不能为空!!"
+        });
+        return;
+      }
       if (!this.queryParam.title) {
         this.$notification["error"]({
           message: "文章标题不能为空!!"
         });
         return;
       }
-      if (!this.queryParam.templateId) {
+      if (!this.queryParam.originalContent) {
         this.$notification["error"]({
-          message: "请至少选择一个模板!!"
+          message: "文章内容不能为空!!"
+        });
+        return;
+      }
+      if (!this.queryParam.userId) {
+        this.$notification["error"]({
+          message: "文章用户不能为空!!"
         });
         return;
       }
@@ -239,44 +241,70 @@ export default {
           .update(this.$route.query.articleId, this.queryParam)
           .then(response => {
             // console.log(response);
-            const data = response.data.data;
-            if (data.haveHtml) {
-              this.$notification["success"]({
-                message:
-                  "更新成功:" +
-                  response.data.message +
-                  "更新html页面" +
-                  data.viewName
-              });
-            } else {
-              this.$notification["success"]({
-                message:
-                  "更新成功:" + response.data.message + "没有生成html页面"
-              });
-            }
-
+            this.$notification["success"]({
+              message: "更新成功:" + response.data.message
+            });
+            this.$router.push("/article/list");
             // this.$router.push("/article/list");
           });
       } else {
         // console.log(this.queryParam);
         articleApi.create(this.queryParam).then(response => {
           // console.log(response);
-          const data = response.data.data;
-          if (data.haveHtml) {
-            this.$notification["success"]({
-              message:
-                response.data.message + "成功生成html页面" + data.viewName
-            });
-          } else {
-            this.$notification["success"]({
-              message: response.data.message + "没有生成html页面"
-            });
-          }
+          this.$notification["success"]({
+            message: "成功创建文章" + response.data.message
+          });
+          this.$router.push("/article/list");
         });
       }
-      this.$router.push("/article/list");
     },
-    save() {},
+    save() {
+         if (!this.queryParam.categoryId) {
+        this.$notification["error"]({
+          message: "文章类别不能为空!!"
+        });
+        return;
+      }
+      if (!this.queryParam.title) {
+        this.$notification["error"]({
+          message: "文章标题不能为空!!"
+        });
+        return;
+      }
+      if (!this.queryParam.originalContent) {
+        this.$notification["error"]({
+          message: "文章内容不能为空!!"
+        });
+        return;
+      }
+      if (!this.queryParam.userId) {
+        this.$notification["error"]({
+          message: "文章用户不能为空!!"
+        });
+        return;
+      }
+      if (this.isUpdate) {
+        articleApi
+          .updateArticle(this.$route.query.articleId, this.queryParam)
+          .then(response => {
+            // console.log(response);
+            this.$notification["success"]({
+              message: "更新文章成功:" + response.data.message
+            });
+            this.$router.push("/article/list");
+            // this.$router.push("/article/list");
+          });
+      } else {
+        // console.log(this.queryParam);
+        articleApi.saveArticle(this.queryParam).then(response => {
+          // console.log(response);
+          this.$notification["success"]({
+            message: "保存文章" + response.data.message
+          });
+          this.$router.push("/article/list");
+        });
+      }
+    },
     uploadPic(info) {
       const status = info.file.status;
       if (status !== "uploading") {
@@ -309,7 +337,9 @@ export default {
       if (tagNamesToCreate.length == 0) {
         this.queryParam.tagIds = this.selectedTagNames.map(
           tagName => this.tagNameMap[tagName].id
+          
         );
+        // console.log( this.queryParam.tagIds)
         // If empty
         return;
       }
@@ -326,10 +356,7 @@ export default {
         })
       );
     },
-    handleChange(value) {
-      this.queryParam.templateId = value;
-      // console.log(value);
-    },
+
     loadTags(callback) {
       tagsApi.list().then(response => {
         this.tags = response.data.data;
@@ -340,8 +367,8 @@ export default {
       });
     },
     loadcategory() {
-      categoryApi.list().then(response => {
-        this.categorys = categoryApi.concreteTree(response.data.data);
+      categoryApi.listBaseCategory().then(response => {
+        this.categorys = response.data.data;
       });
     },
     loadTempalte() {
@@ -349,18 +376,6 @@ export default {
         this.templates = response.data.data;
         // console.log(response);
       });
-    },
-    onCheck(checkedKeys, e) {
-      // console.log("onCheck", checkedKeys);
-      // console.log("e::", e);
-      // this.categoryIds = checkedKeys;
-      this.queryParam.categoryIds = e.checkedNodes
-        .filter(node => {
-          return node.data.props.isLeaf;
-        })
-        .map(node => node.key);
-
-      // console.log(this.queryParam.categoryIds);
     }
   }
 };

@@ -1,14 +1,14 @@
-
+import Golbal from '@/api/global_variable.js'
 
 const preview = {}
 
 preview.Online = (name,id) => {
-    return  `http://47.93.201.74:8080/preview/${name}/${id}`;
+    return  `http://${Golbal.baseUrl}:${Golbal.port}/preview/${name}/${id}`;
 }
 
 
 preview.Html = (viewName) => {
-    return  `http://47.93.201.74/${viewName}.html`;
+    return  `http://${Golbal.baseUrl}/${viewName}.html`;
 }
 
 export default preview

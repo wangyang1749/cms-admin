@@ -1,17 +1,68 @@
 <template>
   <div>
-    <hr />
-    <a-button type="primary" @click="append({key:0})">添加顶级菜单</a-button>
-    <a-tree v-if="categorys.length" showLine defaultExpandAll :treeData="categorys">
-      <template slot="custom" slot-scope="item">
-        <a href="javascript:;" @click="preview(item)">{{item.title}}</a> |
-        <a href="javascript:;" @click="openHtml(item)">点击查看HTML</a> |
-        <span>{{item.haveHtml}}</span>
-        <a-button type="primary" class="but_type" style="right:200px;" @click="()=> append(item)">新增</a-button>
-        <a-button type="primary" class="but_type" style="right:120px;" @click="()=> edit(item)">编辑</a-button>
-        <a-button type="primary" class="but_type" @click="(e)=> remove(item)">删除</a-button>
-      </template>
-    </a-tree>
+    <a-tabs defaultActiveKey="1">
+      <a-tab-pane tab="界面" key="1">
+        <a-table
+          :columns="columns"
+          :dataSource="categorys"
+          :pagination="false"
+          :rowKey="category => category.id"
+          size="small"
+          class="table"
+          :scroll="{ x: 1500 }"
+        >
+          <template slot="title">
+            <a-button type="primary" @click="append">添加分类</a-button>
+            <a-button @click="updateAll(false)">生成所有分类HTML</a-button>
+            <a-button @click="updateAll(true)">生成所有分类HTML更新模板</a-button>
+          </template>
+          <a
+            slot="name"
+            slot-scope="name, record"
+            href="javascript:;"
+            @click="preview(record.id)"
+          >{{name}}</a>
+          <a
+            slot="viewName"
+            slot-scope="viewName, record"
+            href="javascript:;"
+            @click="openHtml(record)"
+          >{{viewName}}</a>
+
+          <div slot="recommend" slot-scope="recommend,record">
+            <a-switch defaultChecked @change="onChange(record.id)" v-model="record.recommend" />
+          </div>
+
+          <div slot="existNav" slot-scope="existNav,record">
+            <a-switch defaultChecked @change="onChangeNav(record.id)" v-model="record.existNav" />
+          </div>
+
+          <div slot="haveHtml" slot-scope="haveHtml,record">
+            <a-switch defaultChecked @change="onChangeHtml(record.id)" v-model="record.haveHtml" />
+          </div>
+          <span slot="action" slot-scope="text, record">
+            <!-- <a href="javascript:;">Invite 一 {{record.name}}</a>
+            <a-divider type="vertical" />-->
+
+            <!-- <a href="javascript:;" @click="preview(record.id)">在线预览</a> -->
+            <!-- <a-divider type="vertical" />
+            <a href="javascript:;" @click="openHtml(record)">预览Html</a>-->
+            <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
+            <a-divider type="vertical" />
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="()=> edit(record.id)">编辑</a>
+
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="(e)=> remove(record.id)">删除分类</a>
+            <!-- <a href="javascript:;" class="ant-dropdown-link">
+        More actions
+        <a-icon type="down" />
+            </a>-->
+          </span>
+        </a-table>
+      </a-tab-pane>
+      <a-tab-pane tab="使用说明" key="2"></a-tab-pane>
+    </a-tabs>
 
     <a-modal title="添加分类" v-model="visible" @ok="handleOk">
       <a-form layout="horizontal">
@@ -23,8 +74,12 @@
         </a-form-item>
 
         <a-form-item label="选择分类信息模板">
-          <a-select style="width: 100%" v-model="categoryParam.templateId">
-            <a-select-option :value="item.id" v-for="item in templates" :key="item.id">{{item.name}}</a-select-option>
+          <a-select style="width: 100%" v-model="categoryParam.templateName">
+            <a-select-option
+              :value="item.enName"
+              v-for="item in templates"
+              :key="item.id"
+            >{{item.name}}</a-select-option>
           </a-select>
         </a-form-item>
 
@@ -55,12 +110,12 @@
           <a-input v-model="categoryParam.order"></a-input>
         </a-form-item>
 
-        <a-form-item label="是否需要静态化">
+        <!-- <a-form-item label="是否需要静态化">
           <a-radio-group v-model="categoryParam.haveHtml" defaultValue="1">
             <a-radio :value="1">是</a-radio>
             <a-radio :value="0">否</a-radio>
           </a-radio-group>
-        </a-form-item>
+        </a-form-item>-->
       </a-form>
     </a-modal>
 
@@ -70,29 +125,73 @@
 </template>
 
 <script>
+const columns = [
+  {
+    title: "名称",
+    dataIndex: "name",
+    key: "name",
+    // fixed: "left",
+    scopedSlots: { customRender: "name" }
+  },
+  {
+    title: "视图名称",
+    dataIndex: "viewName",
+    key: "viewName",
+    scopedSlots: { customRender: "viewName" }
+  },
+  {
+    title: "category模板",
+    dataIndex: "templateName",
+    key: "templateName"
+  },
+  {
+    title: "是否推荐首页",
+    dataIndex: "recommend",
+    key: "recommend",
+    scopedSlots: { customRender: "recommend" }
+  },
+  {
+    title: "是否添加到导航",
+    dataIndex: "existNav",
+    key: "existNav",
+    scopedSlots: { customRender: "existNav" }
+  },
+  {
+    title: "是否生成Html",
+    dataIndex: "haveHtml",
+    key: "haveHtml",
+    scopedSlots: { customRender: "haveHtml" }
+  },
+  {
+    title: "Action",
+    key: "action",
+    fixed: "right",
+    scopedSlots: { customRender: "action" }
+  }
+];
 import categoryApi from "@/api/category.js";
 import templateApi from "@/api/template.js";
 import preview from "@/api/preview.js";
 // import uploadApi from "@/api/upload.js";
+import attachmentApi from '@/api/attachment.js'
 export default {
   data() {
     return {
+      columns: columns,
       form: this.$form.createForm(this, { name: "123" }),
       categorys: [],
-      categorysSource: [],
       value: "",
       templates: [],
       isUpdate: false,
-      updateId: "",
+      updateId: null,
       visible: false,
+
       categoryParam: {
-        order:'',
-        parentId: "",
+        order: 0,
         name: "",
-        templateId: 2,
+        templateName: "",
         viewName: "",
         description: "",
-        haveHtml: 0,
         picPath: ""
       }
     };
@@ -101,38 +200,21 @@ export default {
     this.loadcategory();
   },
   computed: {
-    categoryIdMap() {
-      const categoryIdMap = {};
-      this.categorysSource.forEach(category => {
-        categoryIdMap[category.id] = category;
-      });
-      return categoryIdMap;
-    },
     upload() {
-      return categoryApi.upload();
+      return attachmentApi.upload();
     }
   },
   methods: {
-    // uploadTest() {
-    //   console.log(this.$refs.file.files[0]);
-    //   var formData = new FormData();
-    //   formData.append("file", this.$refs.file.files[0]);
-    //   uploadApi.upload(formData).then(response => {
-    //     console.log(response);
-    //   });
-    // },
-    //加载模板
     loadTempalte() {
-      templateApi.findByType("CATEGORY_INFO").then(response => {
+      templateApi.findByType("CATEGORY").then(response => {
         this.templates = response.data.data;
       });
     },
     loadcategory() {
       // console.log("loadcategory");
       categoryApi.list().then(response => {
-        //console.log(response);
-        this.categorysSource = response.data.data;
-        this.categorys = categoryApi.concreteTree(response.data.data);
+        // console.log(response);
+        this.categorys = response.data.data;
       });
     },
     handleChange(info) {
@@ -149,7 +231,6 @@ export default {
       }
     },
     handleOk() {
-      this.categorys = [];
       if (!this.categoryParam.name) {
         this.$notification["error"]({
           message: "分类标题不能为空!!"
@@ -157,42 +238,87 @@ export default {
         return;
       }
       if (this.isUpdate) {
+        // console.log(this.categoryParam);
         categoryApi.update(this.updateId, this.categoryParam).then(response => {
           this.$notification["success"]({
             message: "成功更新数据:" + response.data.data.name
           });
+          this.loadcategory();
         });
       } else {
         categoryApi.add(this.categoryParam).then(response => {
           this.$notification["success"]({
             message: "成功添加:" + response.data.data.name
           });
+          this.loadcategory();
         });
       }
-      this.loadcategory();
+
       this.visible = false;
     },
-    append(data) {
+    append() {
       this.loadTempalte();
       this.isUpdate = false;
-
-      this.categoryParam.parentId = data.key;
       this.visible = true;
     },
-    edit(data) {
+    edit(id) {
       this.loadTempalte();
       this.isUpdate = true;
-      this.updateId = data.key;
-      categoryApi.findById(data.key).then(response => {
-        //   console.log(response);
+      this.updateId = id;
+      categoryApi.findById(id).then(response => {
+        // console.log(response);
         this.categoryParam = response.data.data;
-        this.categoryParam.haveHtml = 0;
+        // this.categoryParam.haveHtml = 0;
         this.visible = true;
+      });
+    },
+    onChange(item) {
+      // console.log(item);
+      categoryApi.recommendOrCancel(item).then(response => {
+        if (response.data.data.recommend) {
+          this.$notification["success"]({
+            message: "分类" + response.data.data.name + "成功在首页推荐!!"
+          });
+        } else {
+          this.$notification["success"]({
+            message: "分类" + response.data.data.name + "已经从首页取消推荐!!"
+          });
+        }
+      });
+    },
+    onChangeNav(id) {
+      // console.log(id);
+      categoryApi.addOrRemoveToMenu(id).then(response => {
+        if (response.data.data.existNav) {
+          this.$notification["success"]({
+            message: "成功添加" + response.data.data.name + "到导航!!"
+          });
+        } else {
+          this.$notification["success"]({
+            message: "成功移除" + response.data.data.name + "到导航!!"
+          });
+        }
+      });
+    },
+    onChangeHtml(id) {
+      // console.log(id);
+      categoryApi.haveHtml(id).then(response => {
+        const data = response.data.data;
+        if (data.haveHtml) {
+          this.$notification["success"]({
+            message: "成功生成" + data.name + "Html"
+          });
+        } else {
+          this.$notification["success"]({
+            message: "成功移除" + data.name + "Html"
+          });
+        }
+        // console.log(response);
       });
     },
     remove(value) {
       // console.log(value.key);
-      categoryApi.deleteById(value.key).then(response => {
+      categoryApi.deleteById(value).then(response => {
         this.$notification["success"]({
           message: response.data.message
         });
@@ -200,25 +326,55 @@ export default {
       });
     },
     preview(value) {
-      window.open(preview.Online("category", value.key), "_blank");
+      window.open(preview.Online("category", value), "_blank");
     },
 
     openHtml(value) {
-      if (this.categoryIdMap[value.key].haveHtml) {
-        window.open(
-          preview.Html(
-            this.categoryIdMap[value.key].path +
-              "/" +
-              this.categoryIdMap[value.key].viewName
-          ),
-          "_blank"
-        );
+      if (value.haveHtml) {
+        window.open(preview.Html(value.path + "/" + value.viewName), "_blank");
       } else {
         this.$message.error("该分类没有生成HTML");
       }
     },
     onClose() {
       this.articleVisible = false;
+    },
+    generateHtml(id) {
+      categoryApi.generateHtml(id).then(response => {
+        this.$notification["success"]({
+          message: "成功生成" + response.data.data.name + "的HTML"
+        });
+      });
+    },
+    updateAll(more) {
+      var _this = this;
+      this.$confirm({
+        title: "你确定生成所有栏目HTML?",
+        content: "Some descriptions",
+        okText: "Yes",
+        okType: "danger",
+        cancelText: "No",
+        onOk() {
+          if (more) {
+            categoryApi.updateAll({ more: true }).then(response => {
+              _this.$notification["success"]({
+                message: "成功生成栏目Id为:" + response.data.data + "的HTML页面"
+              });
+              _this.loadArticle();
+            });
+          } else {
+            categoryApi.updateAll().then(response => {
+              _this.$notification["success"]({
+                message: "成功生成栏目Id为:" + response.data.data + "的HTML页面"
+              });
+              _this.loadArticle();
+            });
+          }
+        },
+        onCancel() {
+          // console.log("Cancel");
+        }
+      });
     }
   }
 };

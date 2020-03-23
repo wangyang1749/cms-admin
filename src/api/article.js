@@ -11,9 +11,10 @@ articleApi.delete = (id) => {
     })
 }
 
-articleApi.updateAll = () => {
+articleApi.updateAll = (params) => {
     return service({
         url: `${baseUrl}/updateAll`,
+        params: params,
         method: 'get'
     })
 }
@@ -25,9 +26,37 @@ articleApi.query = (params) => {
         method: 'get'
     })
 }
-articleApi.findById = (articleId) => {
+articleApi.updateCategory = (articleId,baseCategoryId) => {
+    return service({
+        url: `${baseUrl}/updateCategory/${articleId}`,
+        params: {baseCategoryId:baseCategoryId},
+        method: 'get'
+    })
+}
+articleApi.addArticleToChannel = (articleId,channelId) => {
+    return service({
+        url: `${baseUrl}/addArticleToChannel/${articleId}`,
+        params: {channelId:channelId},
+        method: 'get'
+    })
+}
+
+articleApi.findListByCategoryId = articleId => {
+    return service({
+        url: `${baseUrl}/findListByCategoryId/${articleId}`,
+        method: 'get'
+    })
+}
+
+articleApi.findById = articleId => {
     return service({
         url: `${baseUrl}/find/${articleId}`,
+        method: 'get'
+    })
+}
+articleApi.haveHtml = articleId => {
+    return service({
+        url: `${baseUrl}/haveHtml/${articleId}`,
         method: 'get'
     })
 }
@@ -38,6 +67,21 @@ articleApi.create = (params) => {
         method: 'post'
     })
 }
+articleApi.saveArticle = (params) => {
+    return service({
+        url: `${baseUrl}/save`,
+        data: params,
+        method: 'post'
+    })
+}
+articleApi.updateArticle = (id,params) => {
+    return service({
+        url: `${baseUrl}/save/${id}`,
+        data: params,
+        method: 'post'
+    })
+}
+
 
 articleApi.update = (id,params) => {
     return service({
@@ -46,10 +90,13 @@ articleApi.update = (id,params) => {
         method: 'post'
     })
 }
-articleApi.preview = (id) => {
-    return  `http://localhost:8080/article/preview/${id}`;
-}
 
+articleApi.generateHtml=(id) => {
+    return service({
+        url: `${baseUrl}/generateHtml/${id}`,
+        method: 'get'
+    })
+}
 
 
 export default articleApi

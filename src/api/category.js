@@ -10,6 +10,21 @@ categoryApi.list = () => {
       method: 'get'
   })
 }
+categoryApi.listBaseCategory = () => {
+  return service({
+      url: `${baseUrl}/listBaseCategory`,
+      method: 'get'
+  })
+}
+
+
+categoryApi.updateAll = (params) => {
+  return service({
+      url: `${baseUrl}/updateAll`,
+      params: params,
+      method: 'get'
+  })
+}
 categoryApi.add = data=>{
   return service({
     url:baseUrl,
@@ -31,6 +46,26 @@ categoryApi.findById=id=>{
   })
 }
 
+categoryApi.recommendOrCancel=id=>{
+  return service({
+    url:`${baseUrl}/recommendOrCancel/${id}`,
+    method:'get'
+  })
+}
+categoryApi.addOrRemoveToMenu=id=>{
+  return service({
+    url:`${baseUrl}/addOrRemoveToMenu/${id}`,
+    method:'get'
+  })
+}
+categoryApi.haveHtml=id=>{
+  return service({
+    url:`${baseUrl}/haveHtml/${id}`,
+    method:'get'
+  })
+}
+
+
 categoryApi.deleteById=id=>{
   return service({
     url:`${baseUrl}/delete/${id}`,
@@ -45,10 +80,12 @@ categoryApi.findByCategoryDetail=id=>{
   })
 }
 
-categoryApi.upload=()=>{
-  return `http://47.93.201.74:8080/api/attachment/upload`
+categoryApi.generateHtml=(id) => {
+  return service({
+      url: `${baseUrl}/generateHtml/${id}`,
+      method: 'get'
+  })
 }
-
 
 function concreteTree(parentCategory, categories) {
     categories.forEach(category => {

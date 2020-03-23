@@ -7,29 +7,39 @@
       :rowKey="article => article.id"
       size="small"
       class="table"
+      :scroll="{ x: 1500 }"
     >
       <template slot="title">
-        <a-button @click="updateAll">生成所有文章HTML</a-button>
+        <a-button @click="updateAll(false)">生成所有文章HTML</a-button>
+        <a-button @click="updateAll(true)">生成所有文章HTML更新文章内容</a-button>
       </template>
+      <div slot="title_" slot-scope="title_,record">
+        <a href="javascript:;" @click="preview(record.id)">{{title_}}</a>
+      </div>
 
-      <a
-        slot="articleTitle"
-        slot-scope="articleTitle, record"
-        href="javascript:;"
-        @click="preview(record.id)"
-      >[{{record.id}}]-{{articleTitle}}</a>
+      <div slot="viewName" slot-scope="viewName,record">
+        <a href="javascript:;" @click="openHtml(record)">{{viewName}}</a>
+      </div>
+      <div slot="haveHtml" slot-scope="haveHtml,record">
+        <a-switch defaultChecked @change="onChangeHtml(record.id)" v-model="record.haveHtml" />
+      </div>
 
-      <span slot="haveHtml" slot-scope="haveHtml,record">
+      <div slot="categoryId" slot-scope="categoryId,record">
+        <a-select
+          style="width: 100%"
+          v-model="record.categoryId"
+          @change="selectCategory(record.id,$event)"
+        >
+          <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{item.name}}</a-select-option>
+        </a-select>
+      </div>
+      <!-- <span slot="haveHtml" slot-scope="haveHtml,record">
         <a href="javascript:;" @click="openHtml(record)">{{haveHtml}}</a>
-      </span>
+      </span>-->
 
-      <span slot="categories" slot-scope="categories">
-        <a-tag
-          v-for="category in categories"
-          :color="'geekblue'"
-          :key="category.id"
-        >{{category.name}}</a-tag>
-      </span>
+      <!-- <span slot="category" slot-scope="category">
+        <a-tag :color="'geekblue'" v-if="category">{{category.name}}</a-tag>
+      </span>-->
       <span slot="tags" slot-scope="tags">
         <a-tag v-for="tag in tags" :color="'green'" :key="tag.id">{{tag.name}}</a-tag>
       </span>
@@ -37,7 +47,8 @@
       <span slot="action" slot-scope="text, record">
         <!-- <a href="javascript:;">Invite 一 {{record.name}}</a>
         <a-divider type="vertical" />-->
-
+        <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
+        <a-divider type="vertical" />
         <a href="javascript:;" @click="handleEditClick(record)">编辑</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="handleShowPostSettings(record)">设置</a>
@@ -63,6 +74,22 @@
         </div>
       </template>
     </a-table>
+
+    <a-modal title="添加栏目" v-model="visible">
+      <a-form layout="horizontal">
+        <a-form-item label="更改文章分类">
+          <a-select style="width: 100%">
+            <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{item.name}}</a-select-option>
+          </a-select>
+        </a-form-item>
+
+        <a-form-item label="添加文章到Channel">
+          <a-select style="width: 100%" @change="selectChannel">
+            <a-select-option :value="item.id" v-for="item in channels" :key="item.id">{{item.name}}</a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 <script>
@@ -71,19 +98,26 @@ const columns = [
     title: "标题",
     dataIndex: "title",
     key: "title",
+    // fixed: "left",
 
-    scopedSlots: { customRender: "articleTitle" }
+    scopedSlots: { customRender: "title_" }
   },
-  // {
-  //   title: "状态",
-  //   dataIndex: "status",
-  //   key: "status"
-  // },
+  {
+    title: "视图名称",
+    dataIndex: "viewName",
+    key: "viewName",
+    scopedSlots: { customRender: "viewName" }
+  },
+  {
+    title: "Article模板",
+    dataIndex: "templateName",
+    key: "templateName"
+  },
   {
     title: "分类",
-    dataIndex: "categories",
-    key: "categories",
-    scopedSlots: { customRender: "categories" }
+    dataIndex: "categoryId",
+    key: "categoryId",
+    scopedSlots: { customRender: "categoryId" }
   },
   {
     title: "标签",
@@ -120,12 +154,16 @@ const columns = [
   {
     title: "Action",
     key: "action",
+    fixed: "right",
+    //   width: 200,
     scopedSlots: { customRender: "action" }
   }
 ];
 
 import ArticleApi from "@/api/article.js";
 import preview from "@/api/preview.js";
+import categoryApi from "@/api/category.js";
+import channelApi from "@/api/channel.js";
 export default {
   data() {
     return {
@@ -142,24 +180,64 @@ export default {
         categoryId: null,
         status: null
       },
-
+      categorys: [],
+      channels: [],
       columns,
-      article: []
+      article: [],
+      visible: false,
+      selectRecord: null
     };
   },
   created() {
     this.loadArticle();
+    this.loadcategory();
+    // console.log(this.$Golbal.baseUrl)
   },
   methods: {
+    formatDate(now) {
+      var year = now.getFullYear(); //取得4位数的年份
+      var month = now.getMonth() + 1; //取得日期中的月份，其中0表示1月，11表示12月
+      var date = now.getDate(); //返回日期月份中的天数（1到31）
+      var hour = now.getHours(); //返回日期中的小时数（0到23）
+      var minute = now.getMinutes(); //返回日期中的分钟数（0到59）
+      var second = now.getSeconds(); //返回日期中的秒数（0到59）
+      return (
+        year +
+        "-" +
+        month +
+        "-" +
+        date +
+        " " +
+        hour +
+        ":" +
+        minute +
+        ":" +
+        second
+      );
+    },
+
     loadArticle() {
       //console.log("loadArticle")
       this.queryParam.page = this.pagination.page - 1;
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
       ArticleApi.query(this.queryParam).then(response => {
-        //console.log(response);
+        // console.log(this.formatDate(response.data.data.content[0].createDate));
         this.article = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
+      });
+    },
+    loadcategory() {
+      // console.log("loadcategory");
+      categoryApi.listBaseCategory().then(response => {
+        // console.log(response);
+        this.categorys = response.data.data;
+      });
+    },
+    loadChannel() {
+      channelApi.list().then(response => {
+        // console.log(response);
+        this.channels = response.data.data;
       });
     },
     handlePaginationChange(page, pageSize) {
@@ -183,11 +261,35 @@ export default {
     openHtml(value) {
       if (value.haveHtml) {
         window.open(preview.Html(value.path + "/" + value.viewName), "_blank");
+      } else {
+        this.$message.error("该文章没有生成HTML");
       }
-      // console.log(value)
     },
-    handleShowPostSettings() {
-      // console.log(article);
+    handleShowPostSettings(value) {
+      this.selectRecord = value;
+      this.loadChannel();
+      this.visible = true;
+    },
+    selectCategory(value, select) {
+      ArticleApi.updateCategory(value, select).then(response => {
+        // console.log(response);
+        this.$notification["success"]({
+          message: "操作" + response.data.message
+        });
+        this.loadArticle();
+      });
+    },
+    selectChannel(value) {
+      // console.log(value);
+      // console.log(this.selectRecord.id);
+      ArticleApi.addArticleToChannel(this.selectRecord.id, value).then(
+        response => {
+          // console.log(response);
+          this.$notification["success"]({
+            message: "操作" + response.data.message
+          });
+        }
+      );
     },
     deleteArticleById(id) {
       var _this = this;
@@ -210,8 +312,24 @@ export default {
         }
       });
     },
-
-    updateAll() {
+    onChangeHtml(id) {
+      // console.log(id);
+      ArticleApi.haveHtml(id).then(response => {
+        // console.log(response);
+        this.$notification["success"]({
+          message: "操作" + response.data.message
+        });
+        this.loadArticle();
+      });
+    },
+    generateHtml(id) {
+      ArticleApi.generateHtml(id).then(response => {
+        this.$notification["success"]({
+          message: "成功生成" + response.data.data.title + "的HTML"
+        });
+      });
+    },
+    updateAll(more) {
       var _this = this;
       this.$confirm({
         title: "你确定生成所有文章HTML?",
@@ -220,13 +338,23 @@ export default {
         okType: "danger",
         cancelText: "No",
         onOk() {
-          ArticleApi.updateAll().then(response => {
-            _this.$notification["success"]({
-              message: "成功生成文章Id为:" + response.data.data + "的文章"
+          if (more) {
+            ArticleApi.updateAll({ more: true }).then(response => {
+              _this.$notification["success"]({
+                message: "成功生成文章Id为:" + response.data.data + "的文章"
+              });
+              _this.loadArticle();
             });
-            _this.loadArticle();
-          });
+          } else {
+            ArticleApi.updateAll().then(response => {
+              _this.$notification["success"]({
+                message: "成功生成文章Id为:" + response.data.data + "的文章"
+              });
+              _this.loadArticle();
+            });
+          }
         },
+
         onCancel() {
           // console.log("Cancel");
         }
