@@ -2,10 +2,10 @@ import service from '@/utils/service'
 
 const userApi = {}
 
-userApi.login = (params) => {
+userApi.login = (data) => {
     return service({
-        url: "/login",
-        params: params,
+        url: "/user/authenticate",
+        data: data,
         method: 'post'
     })
 }
@@ -16,4 +16,11 @@ userApi.logout = () => {
     })
 }
 
+
+userApi.getCurrentUser=()=>{
+    return service({
+        url:"/api/user/getCurrent",
+        method:'get'
+    })
+}
 export default userApi

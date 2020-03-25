@@ -291,7 +291,7 @@ export default {
             this.$notification["success"]({
               message: "更新文章成功:" + response.data.message
             });
-            this.$router.push("/article/list");
+            // this.$router.push("/article/list");
             // this.$router.push("/article/list");
           });
       } else {
@@ -301,7 +301,7 @@ export default {
           this.$notification["success"]({
             message: "保存文章" + response.data.message
           });
-          this.$router.push("/article/list");
+          // this.$router.push("/article/list");
         });
       }
     },
