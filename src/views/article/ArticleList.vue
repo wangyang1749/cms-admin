@@ -446,7 +446,7 @@ export default {
           "resourceId":this.articleId,
           "content":this.commentContent
       }
-      console.log(data)
+      //console.log(data)
        commentApi.add(data).then(resp => {
         this.$notification["success"]({
           message: "成功添加" + resp
