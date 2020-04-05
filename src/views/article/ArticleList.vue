@@ -20,6 +20,14 @@
       <div slot="viewName" slot-scope="viewName,record">
         <a href="javascript:;" @click="openHtml(record)">{{viewName}}</a>
       </div>
+
+      <div slot="commentNum" slot-scope="commentNum,record">
+        <a href="javascript:;" @click="commentList(record.id)">{{commentNum}}</a>
+      </div>
+      <div slot="openComment" slot-scope="openComment,record">
+        <a-switch defaultChecked @change="onChangeComment(record.id)" v-model="record.openComment" />
+      </div>
+
       <div slot="haveHtml" slot-scope="haveHtml,record">
         <a-switch defaultChecked @change="onChangeHtml(record.id)" v-model="record.haveHtml" />
       </div>
@@ -75,7 +83,7 @@
       </template>
     </a-table>
 
-    <a-modal title="添加栏目" v-model="visible">
+    <!-- <a-modal title="添加栏目" v-model="visible">
       <a-form layout="horizontal">
         <a-form-item label="更改文章分类">
           <a-select style="width: 100%">
@@ -89,7 +97,38 @@
           </a-select>
         </a-form-item>
       </a-form>
-    </a-modal>
+    </a-modal>-->
+
+    <a-drawer
+      title="查看评论"
+      placement="right"
+      :closable="true"
+      :visible="commentVisible"
+      @close="()=>{commentVisible=false}"
+      width="40rem"
+    >
+    <a-form>
+      <a-form-item label="发表评论">
+        <a-input type="textarea" v-model="commentContent">
+        </a-input>
+        <a-button @click="addComment">发布</a-button>
+      </a-form-item>
+    </a-form>
+      <a-list bordered :dataSource="comments">
+        <a-list-item slot="renderItem" slot-scope="item">
+          <a slot="actions">编辑</a>
+          <a slot="actions" @click="delComment(item.id)">删除</a>
+          <a slot="actions">回复</a>
+          <a-list-item-meta :description="item.content">
+            <a slot="title">{{item.username}}</a>
+            <!-- <a-avatar
+              slot="avatar"
+              src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
+            />-->
+          </a-list-item-meta>
+        </a-list-item>
+      </a-list>
+    </a-drawer>
   </div>
 </template>
 <script>
@@ -125,11 +164,7 @@ const columns = [
     dataIndex: "tags",
     scopedSlots: { customRender: "tags" }
   },
-  {
-    title: "评论",
-    dataIndex: "commentNum",
-    key: "commentNum"
-  },
+
   {
     title: "访问",
     dataIndex: "visits",
@@ -139,6 +174,18 @@ const columns = [
     title: "状态",
     dataIndex: "status",
     key: "status"
+  },
+  {
+    title: "评论",
+    dataIndex: "commentNum",
+    key: "commentNum",
+    scopedSlots: { customRender: "commentNum" }
+  },
+  {
+    title: "是否开启评论",
+    dataIndex: "openComment",
+    key: "openComment",
+    scopedSlots: { customRender: "openComment" }
   },
   {
     title: "是否生成HTML",
@@ -159,7 +206,7 @@ const columns = [
     scopedSlots: { customRender: "action" }
   }
 ];
-
+import commentApi from "@/api/comment.js";
 import ArticleApi from "@/api/article.js";
 import preview from "@/api/preview.js";
 import categoryApi from "@/api/category.js";
@@ -184,13 +231,17 @@ export default {
       channels: [],
       columns,
       article: [],
-      visible: false,
-      selectRecord: null
+      commentVisible: false,
+      selectRecord: null,
+      comments: [],
+      articleId:null,
+      commentContent:"" //评论内容绑定
     };
   },
   created() {
     this.loadArticle();
     this.loadcategory();
+    //console.log(this.$user)
     // console.log(this.$Golbal.baseUrl)
   },
   methods: {
@@ -265,6 +316,7 @@ export default {
         this.$message.error("该文章没有生成HTML");
       }
     },
+
     handleShowPostSettings(value) {
       this.selectRecord = value;
       this.loadChannel();
@@ -279,18 +331,18 @@ export default {
         this.loadArticle();
       });
     },
-    selectChannel(value) {
-      // console.log(value);
-      // console.log(this.selectRecord.id);
-      ArticleApi.addArticleToChannel(this.selectRecord.id, value).then(
-        response => {
-          // console.log(response);
-          this.$notification["success"]({
-            message: "操作" + response.data.message
-          });
-        }
-      );
-    },
+    // selectChannel(value) {
+    //   // console.log(value);
+    //   // console.log(this.selectRecord.id);
+    //   ArticleApi.addArticleToChannel(this.selectRecord.id, value).then(
+    //     response => {
+    //       // console.log(response);
+    //       this.$notification["success"]({
+    //         message: "操作" + response.data.message
+    //       });
+    //     }
+    //   );
+    // },
     deleteArticleById(id) {
       var _this = this;
       this.$confirm({
@@ -315,6 +367,15 @@ export default {
     onChangeHtml(id) {
       // console.log(id);
       ArticleApi.haveHtml(id).then(response => {
+        // console.log(response);
+        this.$notification["success"]({
+          message: "操作" + response.data.message
+        });
+        this.loadArticle();
+      });
+    },
+    onChangeComment(id) {
+      ArticleApi.openOrCloseComment(id).then(response => {
         // console.log(response);
         this.$notification["success"]({
           message: "操作" + response.data.message
@@ -358,6 +419,39 @@ export default {
         onCancel() {
           // console.log("Cancel");
         }
+      });
+    },
+    commentList(id) {
+      this.commentVisible = true;
+      this.articleId=id
+      // console.log(id);
+      commentApi.listArticle(id).then(resp => {
+        let content = resp.data.data.content;
+        this.comments = content;
+      });
+    },
+    delComment(id) {
+      // console.log(id);
+      commentApi.deleteById(id).then(resp => {
+        this.$notification["success"]({
+          message: "成功删除评论" + resp.content
+        });
+        this.commentList(id);
+      });
+    },addComment(){
+      let data = {
+          "username":this.$user.username,
+          "userId":this.$user.id,
+          "email":this.$user.email,
+          "resourceId":this.articleId,
+          "content":this.commentContent
+      }
+      console.log(data)
+       commentApi.add(data).then(resp => {
+        this.$notification["success"]({
+          message: "成功添加" + resp
+        });
+        this.commentList(this.articleId);
       });
     }
   }

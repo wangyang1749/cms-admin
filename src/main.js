@@ -30,6 +30,7 @@ import { Switch } from 'ant-design-vue';
 import { InputNumber } from 'ant-design-vue';
 import { Dropdown } from 'ant-design-vue';
 import { Avatar } from 'ant-design-vue';
+import { List } from 'ant-design-vue';
 Vue.use(Menu);
 Vue.use(Layout);
 Vue.use(Button);
@@ -53,6 +54,7 @@ Vue.use(Switch);
 Vue.use(InputNumber);
 Vue.use(Dropdown);
 Vue.use(Avatar);
+Vue.use(List);
 
 Vue.prototype.$Golbal = Golbal;
 Vue.prototype.$notification = notification;

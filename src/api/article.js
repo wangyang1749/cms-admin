@@ -54,12 +54,19 @@ articleApi.findById = articleId => {
         method: 'get'
     })
 }
+articleApi.openOrCloseComment = articleId => {
+    return service({
+        url: `${baseUrl}/openOrCloseComment/${articleId}`,
+        method: 'get'
+    })
+}
 articleApi.haveHtml = articleId => {
     return service({
         url: `${baseUrl}/haveHtml/${articleId}`,
         method: 'get'
     })
 }
+
 articleApi.create = (params) => {
     return service({
         url: baseUrl,

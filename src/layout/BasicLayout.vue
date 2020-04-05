@@ -66,6 +66,7 @@
 <script>
 // import UserApi from "@/api/user.js";
 import preview from "@/api/preview.js";
+import Vue from "vue"
 export default {
   data() {
     return {
@@ -85,6 +86,7 @@ export default {
 
     let user = JSON.parse(localStorage.getItem("user"));
     if(user){
+      Vue.prototype.$user= user
       this.user =user
     }
       // this.user = JSON.parse(localStorage.getItem("user"));
