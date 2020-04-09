@@ -41,9 +41,19 @@ articleApi.addArticleToChannel = (articleId,channelId) => {
     })
 }
 
-articleApi.findListByCategoryId = articleId => {
+articleApi.updateOrderBy = (articleId,order) => {
     return service({
-        url: `${baseUrl}/findListByCategoryId/${articleId}`,
+        url: `${baseUrl}/updateOrderBy/${articleId}`,
+        params: {order:order},
+        method: 'get'
+    })
+}
+
+
+articleApi.pageDtoBy = (articleId,params) => {
+    return service({
+        url: `${baseUrl}/pageDtoBy/${articleId}`,
+        params:params,
         method: 'get'
     })
 }

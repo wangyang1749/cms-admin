@@ -3,16 +3,17 @@ const baseUrl = '/api/comment'
 
 const CommentApi = {}
 
-CommentApi.listArticle = articleId => {
+CommentApi.listByArticleId = articleId => {
     return service({
-        url: `${baseUrl}/listArticle/${articleId}`,
+        url: `${baseUrl}/listByArticleId/${articleId}`,
+        params:{size:100},
         method: 'get'
     })
 }
 
 CommentApi.add = data_ => {
     return service({
-        url: baseUrl,
+        url: `${baseUrl}`,
         method: 'post',
         data:data_
     })

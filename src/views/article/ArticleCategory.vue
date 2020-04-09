@@ -52,8 +52,11 @@
             <!-- <a href="javascript:;" @click="preview(record.id)">在线预览</a> -->
             <!-- <a-divider type="vertical" />
             <a href="javascript:;" @click="openHtml(record)">预览Html</a>-->
-            <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
             <a-divider type="vertical" />
+            <a href="javascript:;" @click="articleListShow(record.id)">查看文章</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
+
             <a-divider type="vertical" />
             <a href="javascript:;" @click="()=> edit(record.id)">编辑</a>
 
@@ -71,16 +74,15 @@
     </a-tabs>
 
     <a-modal title="添加分类" v-model="visible" @ok="handleOk">
-      <!-- <a-form-item label="选择父分类">
-        <a-select style="width: 100%" v-model="categoryParam.parentId">
-          <a-select-option value="0">创建父分类</a-select-option>
-          <a-select-option
-            :value="item.id"
-            v-for="item in parentCategory"
-            :key="item.id"
-          >{{item.name}}</a-select-option>
+      <a-input-number id="inputNumber" v-model="categoryParam.articleListSize" />
+      <!-- <a-form-item label="是否为降序">
+        <a-select style="width: 100%" v-model="categoryParam.desc">
+          <a-select-option :key="1" :value="1">是</a-select-option>
+           <a-select-option :key="0" :value="0">否</a-select-option>
         </a-select>
-      </a-form-item> -->
+      </a-form-item>-->
+      <!-- <a-switch defaultChecked  /> -->
+      <a-switch defaultChecked v-model="categoryParam.desc" />
 
       <a-form layout="horizontal">
         <a-form-item label="视图的名称" help="不输入.默认生成">
@@ -118,7 +120,7 @@
               :key="item.viewName"
             >{{item.title}}</a-select-option>
           </a-select>
-        </a-form-item> -->
+        </a-form-item>-->
 
         <a-form-item label="分类的描述">
           <a-textarea v-model="categoryParam.description"></a-textarea>
@@ -157,8 +159,28 @@
       </a-form>
     </a-modal>
 
-    <!-- <input type="file" ref="file" />
-    <a-button @click="uploadTest">upload</a-button>-->
+    <a-drawer
+      title="文章列表"
+      placement="right"
+      :closable="true"
+      :visible="articleListDrawer"
+      @close="()=>{articleListDrawer=false}"
+      width="40rem"
+    >
+      <!-- <a-button type="primary" @click="updateArticleOrder">提交排序结果</a-button> -->
+      <a-list bordered :dataSource="articles">
+        <a-list-item slot="renderItem" slot-scope="item">
+          <!-- <a slot="actions">编辑</a>
+          <a slot="actions" @click="delComment(item.id)">删除</a>
+          <a slot="actions">回复</a>-->
+          <a-input-number slot="actions" v-model="item.order" />
+          <a slot="actions" @click="updateArticleOrder(item.id,item.order)">更新文章Order</a>
+          <a-list-item-meta :description="item.content">
+            <a slot="title">{{item.title}}</a>
+          </a-list-item-meta>
+        </a-list-item>
+      </a-list>
+    </a-drawer>
   </div>
 </template>
 
@@ -177,12 +199,7 @@ const columns = [
     key: "viewName",
     scopedSlots: { customRender: "viewName" }
   },
-  {
-    title: "第一篇文章",
-    dataIndex: "firstArticle",
-    key: "firstArticle",
-    scopedSlots: { customRender: "firstArticle" }
-  },
+
   {
     title: "category模板",
     dataIndex: "templateName",
@@ -232,14 +249,15 @@ export default {
       categorys: [],
       parentCategory: [],
       articles: [],
-      value: "",
+      // value: "",
       templates: [],
       articleTemplate: [],
       isUpdate: false,
       updateId: null,
       visible: false,
       currentTabId: null,
-
+      articleListDrawer: false,
+      categoryId: null,
       categoryParam: {
         order: 0,
         name: "",
@@ -249,7 +267,8 @@ export default {
         picPath: "",
         articleTemplateName: "",
         firstArticle: "",
-        parentId: ""
+        articleListSize: 10,
+        desc: 1
       }
     };
   },
@@ -305,11 +324,26 @@ export default {
       });
     },
     loadArticle(id) {
-      ArticleApi.findListByCategoryId(id).then(response => {
+      ArticleApi.pageDtoBy(id).then(response => {
         // console.log(response);
-        this.articles = response.data.data;
+        this.articles = response.data.data.content;
       });
       // console.log(id)
+    },
+    articleListShow(id) {
+      this.categoryId = id;
+      // console.log(id);
+      this.loadArticle(id);
+      this.articleListDrawer = true;
+    },
+    updateArticleOrder(id, order) {
+      // console.log(id+"-"+order)
+      ArticleApi.updateOrderBy(id, order).then(resp => {
+        this.$notification["success"]({
+          message: "成功更改文章" + resp.data.data.title+"的顺序!"
+        });
+        this.loadArticle(this.categoryId);
+      });
     },
     handleChange(info) {
       const status = info.file.status;
@@ -326,7 +360,6 @@ export default {
     },
 
     handleOk() {
- 
       if (!this.categoryParam.name) {
         this.$notification["error"]({
           message: "分类标题不能为空!!"
@@ -334,6 +367,7 @@ export default {
         return;
       }
       if (this.isUpdate) {
+        // this.desc=1
         // console.log(this.categoryParam);
         categoryApi.update(this.updateId, this.categoryParam).then(response => {
           this.$notification["success"]({
@@ -369,8 +403,8 @@ export default {
 
       this.updateId = id;
       categoryApi.findById(id).then(response => {
-        // console.log(response);
         this.categoryParam = response.data.data;
+        // console.log(this.categoryParam);
         // this.categoryParam.haveHtml = 0;
         this.visible = true;
       });
@@ -472,15 +506,12 @@ export default {
         onOk() {
           // console.log(_this.currentTabId)
           if (more) {
-            categoryApi
-              .updateAll( { more: true })
-              .then(response => {
-                _this.$notification["success"]({
-                  message:
-                    "成功生成栏目Id为:" + response.data.data + "的HTML页面"
-                });
-                _this.loadcategory(_this.currentTabId);
+            categoryApi.updateAll({ more: true }).then(response => {
+              _this.$notification["success"]({
+                message: "成功生成栏目Id为:" + response.data.data + "的HTML页面"
               });
+              _this.loadcategory(_this.currentTabId);
+            });
           } else {
             categoryApi.updateAll().then(response => {
               _this.$notification["success"]({

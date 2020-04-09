@@ -120,10 +120,6 @@
           <a slot="actions">回复</a>
           <a-list-item-meta :description="item.content">
             <a slot="title">{{item.username}}</a>
-            <!-- <a-avatar
-              slot="avatar"
-              src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png"
-            />-->
           </a-list-item-meta>
         </a-list-item>
       </a-list>
@@ -423,8 +419,9 @@ export default {
     commentList(id) {
       this.commentVisible = true;
       this.articleId = id;
+      // console.log("--" + id);
       // console.log(id);
-      commentApi.listArticle(id).then(resp => {
+      commentApi.listByArticleId(id).then(resp => {
         let content = resp.data.data.content;
         this.comments = content;
       });
@@ -435,7 +432,7 @@ export default {
         this.$notification["success"]({
           message: "成功删除评论" + resp.content
         });
-        this.commentList(id);
+        this.commentList(this.articleId);
       });
     },
     addComment() {
@@ -443,7 +440,7 @@ export default {
         username: this.$user.username,
         userId: this.$user.id,
         email: this.$user.email,
-        resourceId: this.articleId,
+        articleId: this.articleId,
         content: this.commentContent
       };
       //console.log(data)
