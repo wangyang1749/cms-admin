@@ -1,6 +1,6 @@
 <template>
   <a-layout id="components-layout-demo-side" style="min-height: 100vh">
-    <a-layout-sider collapsible v-model="collapsed">
+    <a-layout-sider collapsible v-model="collapsed" style="z-index:99">
       <div class="logo">CMS-SYSTEM</div>
 
       <a-menu theme="dark" mode="inline" :defaultSelectedKeys="[$route.name]">

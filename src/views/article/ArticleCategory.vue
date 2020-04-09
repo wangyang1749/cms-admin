@@ -1,7 +1,10 @@
 <template>
   <div>
-    <a-tabs defaultActiveKey="1">
-      <a-tab-pane tab="界面" key="1">
+    <a-button type="primary" @click="append">添加分类</a-button>
+    <a-button @click="updateAll(false)">生成所有分类HTML</a-button>
+    <a-button @click="updateAll(true)">生成所有分类HTML更新模板</a-button>
+    <a-tabs defaultActiveKey="-1" @change="tabCallback">
+      <a-tab-pane :tab="itemTab.name" :key="itemTab.enName" v-for="itemTab in templates">
         <a-table
           :columns="columns"
           :dataSource="categorys"
@@ -11,11 +14,6 @@
           class="table"
           :scroll="{ x: 1500 }"
         >
-          <template slot="title">
-            <a-button type="primary" @click="append">添加分类</a-button>
-            <a-button @click="updateAll(false)">生成所有分类HTML</a-button>
-            <a-button @click="updateAll(true)">生成所有分类HTML更新模板</a-button>
-          </template>
           <a
             slot="name"
             slot-scope="name, record"
@@ -28,6 +26,13 @@
             href="javascript:;"
             @click="openHtml(record)"
           >{{viewName}}</a>
+
+          <a
+            slot="firstArticle"
+            slot-scope="firstArticle, record"
+            href="javascript:;"
+            @click="openHtmlFirstArticle(record)"
+          >{{firstArticle}}</a>
 
           <div slot="recommend" slot-scope="recommend,record">
             <a-switch defaultChecked @change="onChange(record.id)" v-model="record.recommend" />
@@ -61,10 +66,22 @@
           </span>
         </a-table>
       </a-tab-pane>
-      <a-tab-pane tab="使用说明" key="2"></a-tab-pane>
+
+      <!-- <a-tab-pane tab="使用说明" ></a-tab-pane> -->
     </a-tabs>
 
     <a-modal title="添加分类" v-model="visible" @ok="handleOk">
+      <!-- <a-form-item label="选择父分类">
+        <a-select style="width: 100%" v-model="categoryParam.parentId">
+          <a-select-option value="0">创建父分类</a-select-option>
+          <a-select-option
+            :value="item.id"
+            v-for="item in parentCategory"
+            :key="item.id"
+          >{{item.name}}</a-select-option>
+        </a-select>
+      </a-form-item> -->
+
       <a-form layout="horizontal">
         <a-form-item label="视图的名称" help="不输入.默认生成">
           <a-input v-model="categoryParam.viewName"></a-input>
@@ -83,6 +100,26 @@
           </a-select>
         </a-form-item>
 
+        <a-form-item label="选择文章显示的模板">
+          <a-select style="width: 100%" v-model="categoryParam.articleTemplateName">
+            <a-select-option
+              :value="item.enName"
+              v-for="item in articleTemplate"
+              :key="item.enName"
+            >{{item.name}}</a-select-option>
+          </a-select>
+        </a-form-item>
+
+        <!-- <a-form-item label="选择文章显示的模板">
+          <a-select style="width: 100%" v-model="categoryParam.firstArticle">
+            <a-select-option
+              :value="item.viewName"
+              v-for="item in articles"
+              :key="item.viewName"
+            >{{item.title}}</a-select-option>
+          </a-select>
+        </a-form-item> -->
+
         <a-form-item label="分类的描述">
           <a-textarea v-model="categoryParam.description"></a-textarea>
         </a-form-item>
@@ -92,13 +129,14 @@
             :multiple="true"
             :action="upload"
             @change="handleChange"
+            :headers="headers"
             :withCredentials="true"
           >
             <p class="ant-upload-drag-icon">
               <!-- <a-icon type="inbox" /> -->
               <img :src="categoryParam.picPath" width="100%" alt srcset />
             </p>
-            <p class="ant-upload-text">Click or drag file to this area to upload</p>
+            <p class="ant-upload-text"></p>
             <p
               class="ant-upload-hint"
             >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
@@ -140,9 +178,20 @@ const columns = [
     scopedSlots: { customRender: "viewName" }
   },
   {
+    title: "第一篇文章",
+    dataIndex: "firstArticle",
+    key: "firstArticle",
+    scopedSlots: { customRender: "firstArticle" }
+  },
+  {
     title: "category模板",
     dataIndex: "templateName",
     key: "templateName"
+  },
+  {
+    title: "文章模板",
+    dataIndex: "articleTemplateName",
+    key: "articleTemplateName"
   },
   {
     title: "是否推荐首页",
@@ -173,18 +222,23 @@ import categoryApi from "@/api/category.js";
 import templateApi from "@/api/template.js";
 import preview from "@/api/preview.js";
 // import uploadApi from "@/api/upload.js";
-import attachmentApi from '@/api/attachment.js'
+import attachmentApi from "@/api/attachment.js";
+import ArticleApi from "@/api/article.js";
 export default {
   data() {
     return {
       columns: columns,
       form: this.$form.createForm(this, { name: "123" }),
       categorys: [],
+      parentCategory: [],
+      articles: [],
       value: "",
       templates: [],
+      articleTemplate: [],
       isUpdate: false,
       updateId: null,
       visible: false,
+      currentTabId: null,
 
       categoryParam: {
         order: 0,
@@ -192,30 +246,70 @@ export default {
         templateName: "",
         viewName: "",
         description: "",
-        picPath: ""
+        picPath: "",
+        articleTemplateName: "",
+        firstArticle: "",
+        parentId: ""
       }
     };
   },
   created() {
-    this.loadcategory();
+    // this.loadParentCategory();
+    // this.loadcategory(-1)
+    this.loadParentCategory();
   },
   computed: {
     upload() {
       return attachmentApi.upload();
+    },
+    headers() {
+      var token = localStorage.getItem("jwtToken");
+      return {
+        Authorization: "Bearer " + token
+      };
     }
   },
   methods: {
+    tabCallback(key) {
+      // console.log(key);
+      this.currentTabId = key;
+      this.loadcategory(key);
+    },
     loadTempalte() {
       templateApi.findByType("CATEGORY").then(response => {
         this.templates = response.data.data;
       });
     },
-    loadcategory() {
-      // console.log("loadcategory");
-      categoryApi.list().then(response => {
+    loadArticleTempalte() {
+      templateApi.findByType("ARTICLE").then(response => {
+        this.articleTemplate = response.data.data;
         // console.log(response);
-        this.categorys = response.data.data;
       });
+    },
+    loadcategory(templateEnName) {
+      categoryApi.pageBy(templateEnName).then(resp => {
+        // console.log(resp.data.data.content);
+        this.categorys = resp.data.data.content;
+      });
+      // console.log("loadcategory");
+      // categoryApi.listByParent(id).then(response => {
+      //   // console.log(response);
+      //   this.categorys = response.data.data;
+      // });
+    },
+    loadParentCategory() {
+      templateApi.findByType("CATEGORY").then(response => {
+        this.templates = response.data.data;
+        this.loadcategory(this.templates[0].enName);
+        // console.log(this.templates);
+      });
+    },
+    loadArticle(id) {
+      ArticleApi.findListByCategoryId(id).then(response => {
+        // console.log(response);
+        this.articles = response.data.data;
+      });
+      // console.log(id)
     },
     handleChange(info) {
       const status = info.file.status;
@@ -230,7 +324,9 @@ export default {
         this.$message.error(`${info.file.name} file upload failed.`);
       }
     },
+
     handleOk() {
+ 
       if (!this.categoryParam.name) {
         this.$notification["error"]({
           message: "分类标题不能为空!!"
@@ -243,14 +339,14 @@ export default {
           this.$notification["success"]({
             message: "成功更新数据:" + response.data.data.name
           });
-          this.loadcategory();
+          this.loadcategory(this.currentTabId);
         });
       } else {
         categoryApi.add(this.categoryParam).then(response => {
           this.$notification["success"]({
             message: "成功添加:" + response.data.data.name
           });
-          this.loadcategory();
+          this.loadcategory(this.currentTabId);
         });
       }
 
@@ -258,12 +354,19 @@ export default {
     },
     append() {
       this.loadTempalte();
+      this.loadArticleTempalte();
+
       this.isUpdate = false;
       this.visible = true;
     },
+
     edit(id) {
       this.loadTempalte();
+      // this.loadArticle(id);
+
+      this.loadArticleTempalte();
       this.isUpdate = true;
+
       this.updateId = id;
       categoryApi.findById(id).then(response => {
         // console.log(response);
@@ -322,7 +425,7 @@ export default {
         this.$notification["success"]({
           message: response.data.message
         });
-        this.loadcategory();
+        this.loadcategory(this.currentTabId);
       });
     },
     preview(value) {
@@ -332,6 +435,18 @@ export default {
     openHtml(value) {
       if (value.haveHtml) {
         window.open(preview.Html(value.path + "/" + value.viewName), "_blank");
+      } else {
+        this.$message.error("该分类没有生成HTML");
+      }
+    },
+    openHtmlFirstArticle(value) {
+      if (value.haveHtml) {
+        window.open(
+          preview.Html(
+            value.path + "/" + value.viewName + "/" + value.firstArticle
+          ),
+          "_blank"
+        );
       } else {
         this.$message.error("该分类没有生成HTML");
       }
@@ -355,19 +470,23 @@ export default {
         okType: "danger",
         cancelText: "No",
         onOk() {
+          // console.log(_this.currentTabId)
           if (more) {
-            categoryApi.updateAll({ more: true }).then(response => {
-              _this.$notification["success"]({
-                message: "成功生成栏目Id为:" + response.data.data + "的HTML页面"
+            categoryApi
+              .updateAll( { more: true })
+              .then(response => {
+                _this.$notification["success"]({
+                  message:
+                    "成功生成栏目Id为:" + response.data.data + "的HTML页面"
+                });
+                _this.loadcategory(_this.currentTabId);
               });
-              _this.loadArticle();
-            });
           } else {
             categoryApi.updateAll().then(response => {
               _this.$notification["success"]({
                 message: "成功生成栏目Id为:" + response.data.data + "的HTML页面"
               });
-              _this.loadArticle();
+              _this.loadcategory(_this.currentTabId);
             });
           }
         },

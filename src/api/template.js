@@ -9,6 +9,14 @@ templateApi.findByType = (type) => {
         method: 'get'
     })
 }
+
+templateApi.setStatus = id => {
+    return service({
+        url: `${baseUrl}/setStatus/${id}`,
+        method: 'get'
+    })
+}
+
 templateApi.list =(param)=>{
     return service({
         url:baseUrl,

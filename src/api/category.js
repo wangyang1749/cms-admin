@@ -4,6 +4,13 @@ const baseUrl = '/api/category'
 const categoryApi = {}
 
 
+categoryApi.listByParent = (id) => {
+  return service({
+      url: `${baseUrl}/listByParentId/${id}`,
+      method: 'get'
+  })
+}
+
 categoryApi.list = () => {
   return service({
       url: baseUrl,
@@ -42,6 +49,13 @@ categoryApi.update = (id,data)=>{
 categoryApi.findById=id=>{
   return service({
     url:`${baseUrl}/find/${id}`,
+    method:'get'
+  })
+}
+
+categoryApi.pageBy=categoryEnName=>{
+  return service({
+    url:`${baseUrl}/template/${categoryEnName}`,
     method:'get'
   })
 }

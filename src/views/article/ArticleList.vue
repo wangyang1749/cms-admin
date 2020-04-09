@@ -107,13 +107,12 @@
       @close="()=>{commentVisible=false}"
       width="40rem"
     >
-    <a-form>
-      <a-form-item label="发表评论">
-        <a-input type="textarea" v-model="commentContent">
-        </a-input>
-        <a-button @click="addComment">发布</a-button>
-      </a-form-item>
-    </a-form>
+      <a-form>
+        <a-form-item label="发表评论">
+          <a-input type="textarea" v-model="commentContent"></a-input>
+          <a-button @click="addComment">发布</a-button>
+        </a-form-item>
+      </a-form>
       <a-list bordered :dataSource="comments">
         <a-list-item slot="renderItem" slot-scope="item">
           <a slot="actions">编辑</a>
@@ -234,8 +233,8 @@ export default {
       commentVisible: false,
       selectRecord: null,
       comments: [],
-      articleId:null,
-      commentContent:"" //评论内容绑定
+      articleId: null,
+      commentContent: "" //评论内容绑定
     };
   },
   created() {
@@ -280,7 +279,7 @@ export default {
     },
     loadcategory() {
       // console.log("loadcategory");
-      categoryApi.listBaseCategory().then(response => {
+      categoryApi.list().then(response => {
         // console.log(response);
         this.categorys = response.data.data;
       });
@@ -423,7 +422,7 @@ export default {
     },
     commentList(id) {
       this.commentVisible = true;
-      this.articleId=id
+      this.articleId = id;
       // console.log(id);
       commentApi.listArticle(id).then(resp => {
         let content = resp.data.data.content;
@@ -438,16 +437,17 @@ export default {
         });
         this.commentList(id);
       });
-    },addComment(){
+    },
+    addComment() {
       let data = {
-          "username":this.$user.username,
-          "userId":this.$user.id,
-          "email":this.$user.email,
-          "resourceId":this.articleId,
-          "content":this.commentContent
-      }
+        username: this.$user.username,
+        userId: this.$user.id,
+        email: this.$user.email,
+        resourceId: this.articleId,
+        content: this.commentContent
+      };
       //console.log(data)
-       commentApi.add(data).then(resp => {
+      commentApi.add(data).then(resp => {
         this.$notification["success"]({
           message: "成功添加" + resp
         });

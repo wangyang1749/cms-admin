@@ -1,33 +1,45 @@
 <template>
   <div>
-    <div>
-      <a-input placeholder="请输入标题" v-model="queryParam.title" />
-      <mavon-editor
-        v-model="queryParam.originalContent"
-        ref="md"
-        style="min-height: 600px;z-index: 1;"
-        @imgAdd="imgAdd"
-        @imgDel="imgDel"
-      />
-      <div class="article-bottom">
-        <div class="article-option">
-          <a-button type="primary" @click="showDrawer">打开发布面板</a-button>
-        </div>
+    <a-form layout="inline">
+      <a-form-item label="请输入标题">
+        <a-input placeholder="请输入标题" v-model="queryParam.title" />
+      </a-form-item>
+
+      <a-form-item label="选择分类">
+        <a-select v-model="queryParam.categoryId" style=" min-width: 300px;">
+          <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{item.name}}</a-select-option>
+        </a-select>
+      </a-form-item>
+    </a-form>
+
+    <mavon-editor
+      v-model="queryParam.originalContent"
+      ref="md"
+      style="min-height: 600px;z-index: 1;"
+      @imgAdd="imgAdd"
+      @imgDel="imgDel"
+    />
+    <div class="article-bottom">
+      <div class="article-option">
+        <a-button type="primary" @click="save">保存</a-button>
+        <a-button type="primary" @click="preview">预览</a-button>
+        <a-button type="primary" @click="showDrawer">打开发布面板</a-button>
       </div>
+    </div>
 
-      <a-drawer
-        title="发布文章"
-        placement="right"
-        :closable="false"
-        @close="onClose"
-        :visible="visible"
-        width="30rem"
-      >
-        <a-form>
-          <a-form-item label="静态页面视图的名称" help="不写,默认自动生成">
-            <a-input placeholder="请输入视图名称" v-model="queryParam.viewName" />
-          </a-form-item>
-
+    <a-drawer
+      title="发布文章"
+      placement="right"
+      :closable="false"
+      @close="onClose"
+      :visible="visible"
+      width="30rem"
+    >
+      <a-form>
+        <a-form-item label="静态页面视图的名称" help="不写,默认自动生成">
+          <a-input placeholder="请输入视图名称" v-model="queryParam.viewName" />
+        </a-form-item>
+        <!-- 
           <a-form-item label="选择模板">
             <a-select style="width: 100%" v-model="queryParam.templateName">
               <a-select-option
@@ -36,80 +48,68 @@
                 :key="item.id"
               >{{item.name}}</a-select-option>
             </a-select>
-          </a-form-item>
+        </a-form-item>-->
 
-          <a-form-item label="选择标签">
-            <a-select
-              allowClear
-              mode="tags"
-              style="width: 100%"
-              @blur="handleBlur"
-              placeholder="Tags Mode"
-              v-model="selectedTagNames"
-            >
-              <a-select-option
-                v-for="item in tags"
-                :key="item.id+''"
-                :value="item.name"
-              >{{item.id}}-{{item.name}}</a-select-option>
-            </a-select>
-          </a-form-item>
+        <a-form-item label="选择标签">
+          <a-select
+            allowClear
+            mode="tags"
+            style="width: 100%"
+            @blur="handleBlur"
+            placeholder="Tags Mode"
+            v-model="selectedTagNames"
+          >
+            <a-select-option
+              v-for="item in tags"
+              :key="item.id+''"
+              :value="item.name"
+            >{{item.id}}-{{item.name}}</a-select-option>
+          </a-select>
+        </a-form-item>
 
-          <a-form-item label="选择分类">
-            <!-- <a-tree
-              checkable
-              :defaultExpandAll="true"
-              :checkedKeys="queryParam.categoryId"
-              @check="onCheck"
-              :treeData="categorys"
-            />-->
-            <a-select style="width: 100%" v-model="queryParam.categoryId">
-              <a-select-option
-                :value="item.id"
-                v-for="item in categorys"
-                :key="item.id"
-              >{{item.name}}</a-select-option>
-            </a-select>
-          </a-form-item>
+        <a-form-item label="选择分类">
+          <a-select style="width: 100%" v-model="queryParam.categoryId">
+            <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{item.name}}</a-select-option>
+          </a-select>
+        </a-form-item>
 
-          <a-form-item label="摘要">
-            <a-textarea v-model="queryParam.summary"></a-textarea>
-          </a-form-item>
+        <a-form-item label="摘要">
+          <a-textarea v-model="queryParam.summary"></a-textarea>
+        </a-form-item>
 
-          <a-form-item>
-            <a-upload-dragger
-              name="file"
-              :multiple="true"
-              :action="upload"
-              @change="uploadPic"
-              :withCredentials="true"
-            >
-              <p class="ant-upload-drag-icon">
-                <!-- <a-icon type="inbox" /> -->
-                <img :src="queryParam.picPath" width="100%" alt srcset />
-              </p>
-              <p class="ant-upload-text">Click or drag file to this area to upload</p>
-              <p
-                class="ant-upload-hint"
-              >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
-            </a-upload-dragger>
-            <a-input v-model="queryParam.picPath"></a-input>
-          </a-form-item>
-          <!-- 
+        <a-form-item>
+          <a-upload-dragger
+            name="file"
+            :multiple="true"
+            :action="upload"
+            @change="uploadPic"
+            :headers="headers"
+            :withCredentials="true"
+          >
+            <p class="ant-upload-drag-icon">
+              <!-- <a-icon type="inbox" /> -->
+              <img :src="queryParam.picPath" width="100%" alt srcset />
+            </p>
+            <p class="ant-upload-text">Click or drag file to this area to upload</p>
+            <p
+              class="ant-upload-hint"
+            >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
+          </a-upload-dragger>
+          <a-input v-model="queryParam.picPath"></a-input>
+        </a-form-item>
+        <!-- 
           <a-form-item label="是否需要静态化">
             <a-radio-group v-model="queryParam.haveHtml" defaultValue="1">
               <a-radio :value="1">是</a-radio>
               <a-radio :value="0">否</a-radio>
             </a-radio-group>
-          </a-form-item>-->
+        </a-form-item>-->
 
-          <a-form-item>
-            <a-button @click="submit">发布</a-button>
-            <a-button @click="save">保存</a-button>
-          </a-form-item>
-        </a-form>
-      </a-drawer>
-    </div>
+        <a-form-item>
+          <a-button @click="submit">发布</a-button>
+        </a-form-item>
+      </a-form>
+    </a-drawer>
   </div>
 </template>
 
@@ -123,6 +123,7 @@ import axios from "axios";
 import articleApi from "@/api/article.js";
 import uploadApi from "@/api/upload.js";
 import attachmentApi from "@/api/attachment.js";
+import preview from "@/api/preview.js";
 export default {
   // 注册
   components: {
@@ -131,11 +132,11 @@ export default {
   data() {
     return {
       queryParam: {
-        originalContent: '', // 输入的markdown
+        originalContent: "", // 输入的markdown
         tagIds: [],
         categoryId: null,
         templateName: null,
-        title: '',
+        title: "",
         viewName: "",
         summary: "",
         status: "PUBLISHED",
@@ -150,8 +151,12 @@ export default {
       categorys: [],
       selectCategoryIds: [],
       templates: [],
-      isUpdate: false
+      isUpdate: false,
+      articleId: null
     };
+  },
+  created() {
+    this.loadcategory();
   },
   computed: {
     tagIdMap() {
@@ -173,6 +178,12 @@ export default {
     },
     upload() {
       return attachmentApi.upload();
+    },
+    headers() {
+      var token = localStorage.getItem("jwtToken");
+      return {
+        Authorization: "Bearer " + token
+      };
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -182,7 +193,7 @@ export default {
       if (articleId) {
         articleApi.findById(articleId).then(response => {
           const article = response.data.data;
-          vm.queryParam = article; 
+          vm.queryParam = article;
           // console.log(article);
           // vm.queryParam.originalContent = article.originalContent; // 输入的markdown
           // vm.queryParam.haveHtml= article.haveHtml
@@ -212,7 +223,7 @@ export default {
     imgDel() {},
     // 提交
     submit() {
-       if (!this.queryParam.categoryId) {
+      if (!this.queryParam.categoryId) {
         this.$notification["error"]({
           message: "文章类别不能为空!!"
         });
@@ -259,7 +270,7 @@ export default {
       }
     },
     save() {
-         if (!this.queryParam.categoryId) {
+      if (!this.queryParam.categoryId) {
         this.$notification["error"]({
           message: "文章类别不能为空!!"
         });
@@ -285,23 +296,20 @@ export default {
       }
       if (this.isUpdate) {
         articleApi
-          .updateArticle(this.$route.query.articleId, this.queryParam)
+          .updateArticle(this.articleId, this.queryParam)
           .then(response => {
-            // console.log(response);
+            this.articleId = response.data.data.id;
             this.$notification["success"]({
               message: "更新文章成功:" + response.data.message
             });
-            // this.$router.push("/article/list");
-            // this.$router.push("/article/list");
           });
       } else {
-        // console.log(this.queryParam);
         articleApi.saveArticle(this.queryParam).then(response => {
-          // console.log(response);
+          this.articleId = response.data.data.id;
+          this.isUpdate=true
           this.$notification["success"]({
             message: "保存文章" + response.data.message
           });
-          // this.$router.push("/article/list");
         });
       }
     },
@@ -320,7 +328,7 @@ export default {
     },
     showDrawer() {
       this.loadTags();
-      this.loadcategory();
+      // this.loadcategory();
       this.loadTempalte();
       this.visible = true;
     },
@@ -337,7 +345,6 @@ export default {
       if (tagNamesToCreate.length == 0) {
         this.queryParam.tagIds = this.selectedTagNames.map(
           tagName => this.tagNameMap[tagName].id
-          
         );
         // console.log( this.queryParam.tagIds)
         // If empty
@@ -367,7 +374,7 @@ export default {
       });
     },
     loadcategory() {
-      categoryApi.listBaseCategory().then(response => {
+      categoryApi.list().then(response => {
         this.categorys = response.data.data;
       });
     },
@@ -376,6 +383,41 @@ export default {
         this.templates = response.data.data;
         // console.log(response);
       });
+    },
+    preview() {
+      if (!this.queryParam.categoryId) {
+        this.$notification["error"]({
+          message: "文章类别不能为空!!"
+        });
+        return;
+      }
+      if (!this.queryParam.title) {
+        this.$notification["error"]({
+          message: "文章标题不能为空!!"
+        });
+        return;
+      }
+      if (!this.queryParam.originalContent) {
+        this.$notification["error"]({
+          message: "文章内容不能为空!!"
+        });
+        return;
+      }
+
+      if (!this.articleId) {
+        articleApi.saveArticle(this.queryParam).then(response => {
+          this.articleId = response.data.data.id;
+          // console.log(this.articleId);
+          this.$notification["success"]({
+            message: "预览之前保存文章" + response.data.message
+          });
+          window.open(preview.Online("article", this.articleId), "_blank");
+
+          // this.$router.push("/article/list");
+        });
+      } else {
+        window.open(preview.Online("article", this.articleId), "_blank");
+      }
     }
   }
 };

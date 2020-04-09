@@ -6,6 +6,12 @@
       :pagination="false"
       :rowKey="template => template.id"
     >
+
+    <div slot="status" slot-scope="status,record">
+        <a-switch defaultChecked @change="onChangeStatus(record.id)" v-model="record.status" />
+      </div>
+
+
       <span slot="action" slot-scope="text, record">
         <a href="javascript:;" @click="handleEditClick(record)">编辑</a>
         <a-divider type="vertical" />
@@ -54,6 +60,11 @@ const columns = [
     title: "视图名称",
     dataIndex: "viewName",
     key: "viewName"
+  }, {
+    title: "是否展示在主页",
+    dataIndex: "status",
+    key: "status",
+    scopedSlots: { customRender: "status" }
   },
   {
     title: "创建时间",
@@ -110,7 +121,14 @@ export default {
       this.pagination.page = page;
       this.pagination.size = pageSize;
       this.loadArticle();
-    },
+    },onChangeStatus(id){
+      // console.log(id)
+      TemplateApi.setStatus(id).then(resp=>{
+         this.$notification["success"]({
+          message: "操作" + resp.data.message
+        });
+      })
+    }
     // handleEditClick(template) {
     //   console.log(template);
     // },

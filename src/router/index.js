@@ -47,13 +47,14 @@ const routes = [
             name: 'ArticleCategory',
             component: () => import(/* webpackChunkName: "ArticleCategory" */ '../views/article/ArticleCategory.vue'),
             meta: { title: '文章分类' }
-          }, {
-            path: '/article/channel',
-            name: 'articleChannel',
-            component: () => import(/* webpackChunkName: "articleChannel" */ '../views/article/channel.vue'),
-            meta: { title: '栏目管理', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
-
           }
+          // , {
+          //   path: '/article/channel',
+          //   name: 'articleChannel',
+          //   component: () => import(/* webpackChunkName: "articleChannel" */ '../views/article/channel.vue'),
+          //   meta: { title: '父分类管理', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
+
+          // }
 
         ]
       },
