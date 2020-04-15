@@ -10,6 +10,10 @@
           <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{item.name}}</a-select-option>
         </a-select>
       </a-form-item>
+      <a-form-item>
+        <a-button @click="openLatexPanel">输入公式</a-button>
+        <!-- <a-button @click="insert('myValue')">11 </a-button> -->
+      </a-form-item>
     </a-form>
 
     <mavon-editor
@@ -26,6 +30,16 @@
         <a-button type="primary" @click="showDrawer">打开发布面板</a-button>
       </div>
     </div>
+
+    <a-modal title="添加公式" v-model="latexVisible" @ok="saveLatexSvg">
+      <div v-html="latexForamt"></div>
+      <!-- <img src="http://localhost:8080/user/latex/svg?latex=d = \sqrt{(A_0-B_0)^2+(A_1-B_1)^2}" alt="" srcset=""> -->
+      <a-textarea
+        v-model="latexContent"
+        placeholder="Controlled autosize"
+        :autoSize="{ minRows: 3, maxRows: 5 }"
+      />
+    </a-modal>
 
     <a-drawer
       title="发布文章"
@@ -124,6 +138,7 @@ import articleApi from "@/api/article.js";
 import uploadApi from "@/api/upload.js";
 import attachmentApi from "@/api/attachment.js";
 import preview from "@/api/preview.js";
+import latexApi from "@/api/latex.js";
 export default {
   // 注册
   components: {
@@ -152,8 +167,17 @@ export default {
       selectCategoryIds: [],
       templates: [],
       isUpdate: false,
-      articleId: null
+      articleId: null,
+      latexVisible: false,
+      latexContent: "",
+      latexForamt: ""
     };
+  },
+  watch: {
+    latexContent(value) {
+      this.getLatexSvg(value);
+      // console.log(value);
+    }
   },
   created() {
     this.loadcategory();
@@ -189,11 +213,14 @@ export default {
   beforeRouteEnter(to, from, next) {
     // Get post id from query
     const articleId = to.query.articleId;
+
     next(vm => {
       if (articleId) {
+        vm.articleId = articleId;
         articleApi.findById(articleId).then(response => {
           const article = response.data.data;
           vm.queryParam = article;
+
           // console.log(article);
           // vm.queryParam.originalContent = article.originalContent; // 输入的markdown
           // vm.queryParam.haveHtml= article.haveHtml
@@ -306,7 +333,7 @@ export default {
       } else {
         articleApi.saveArticle(this.queryParam).then(response => {
           this.articleId = response.data.data.id;
-          this.isUpdate=true
+          this.isUpdate = true;
           this.$notification["success"]({
             message: "保存文章" + response.data.message
           });
@@ -418,6 +445,45 @@ export default {
       } else {
         window.open(preview.Online("article", this.articleId), "_blank");
       }
+    },
+    openLatexPanel() {
+      this.latexVisible = true;
+    },
+    async insert(myValue) {
+      // const myField = document.querySelector('#textarea');
+      const myField = this.$refs.md;
+      if (myField.selectionStart || myField.selectionStart === 0) {
+        var startPos = myField.selectionStart;
+        var endPos = myField.selectionEnd;
+        this.queryParam.originalContent =
+          myField.value.substring(0, startPos) +
+          myValue +
+          myField.value.substring(endPos, myField.value.length);
+        await this.$nextTick(); // 这句是重点, 圈起来
+        myField.focus();
+        myField.setSelectionRange(
+          endPos + myValue.length,
+          endPos + myValue.length
+        );
+      } else {
+        this.queryParam.originalContent += myValue;
+      }
+    },
+    getLatexSvg(latex) {
+      latexApi.preview(latex).then(resp => {
+        this.latexForamt = resp.data;
+      });
+    },
+    saveLatexSvg() {
+      if (!this.latexContent) {
+        return;
+      }
+      latexApi.save(this.latexContent).then(resp => {
+        if (resp.data.message) {
+          this.insert("![](/latex/" + resp.data.message + ")");
+        }
+        this.latexVisible = false;
+      });
     }
   }
 };
