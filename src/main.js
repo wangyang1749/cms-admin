@@ -31,6 +31,10 @@ import { InputNumber } from 'ant-design-vue';
 import { Dropdown } from 'ant-design-vue';
 import { Avatar } from 'ant-design-vue';
 import { List } from 'ant-design-vue';
+
+import { Row } from 'ant-design-vue';
+import { Col ,Checkbox} from 'ant-design-vue';
+
 Vue.use(Menu);
 Vue.use(Layout);
 Vue.use(Button);
@@ -55,6 +59,9 @@ Vue.use(InputNumber);
 Vue.use(Dropdown);
 Vue.use(Avatar);
 Vue.use(List);
+Vue.use(Row);
+Vue.use(Col);
+Vue.use(Checkbox);
 
 Vue.prototype.$Golbal = Golbal;
 Vue.prototype.$notification = notification;
