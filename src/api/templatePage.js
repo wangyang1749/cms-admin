@@ -9,10 +9,10 @@ const templatePageApi = {}
 //         method: 'get'
 //     })
 // }
-templatePageApi.list =(param)=>{
+templatePageApi.list =(params)=>{
     return service({
         url:baseUrl,
-        param:param,
+        params:params,
         method:'get'
     })
 }

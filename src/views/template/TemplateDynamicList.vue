@@ -111,7 +111,7 @@ export default {
       this.queryParam.sort = this.pagination.sort;
       TemplateApi.list(this.queryParam).then(response => {
         this.template = response.data.data.content;
-        this.pagination.total = response.data.data.totalElements;
+        this.pagination.total = response.data.data.totalElements
         // console.log(response);
       });
     },
@@ -120,7 +120,7 @@ export default {
       // this.$log.debug(`Current: ${page}, PageSize: ${pageSize}`)
       this.pagination.page = page;
       this.pagination.size = pageSize;
-      this.loadArticle();
+      this.loadTemplate();
     },onChangeStatus(id){
       // console.log(id)
       TemplateApi.setStatus(id).then(resp=>{

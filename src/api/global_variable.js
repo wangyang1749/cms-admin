@@ -1,4 +1,4 @@
-const baseUrl = "47.93.201.74"
+const baseUrl = "localhost"
 const port = 8080
 
 export default{

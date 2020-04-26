@@ -118,7 +118,7 @@ export default {
       // this.$log.debug(`Current: ${page}, PageSize: ${pageSize}`)
       this.pagination.page = page;
       this.pagination.size = pageSize;
-      this.loadArticle();
+      this.loadTemplate();
     },
     preview(value) {
       window.open(preview.Online('component',value), "_blank");

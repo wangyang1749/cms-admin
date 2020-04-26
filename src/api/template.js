@@ -17,10 +17,10 @@ templateApi.setStatus = id => {
     })
 }
 
-templateApi.list =(param)=>{
+templateApi.list =(params)=>{
     return service({
         url:baseUrl,
-        param:param,
+        params:params,
         method:'get'
     })
 }
