@@ -8,9 +8,10 @@ attachmentApi.upload=()=>{
   return `http://${Golbal.baseUrl}:${Golbal.port}/api/attachment/upload`
 }
 
-attachmentApi.list = () => {
+attachmentApi.list = (params) => {
   return service({
       url: baseUrl,
+      params:params,
       method: 'get'
   })
 }

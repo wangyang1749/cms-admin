@@ -117,12 +117,19 @@ const routes = [
 
           },
           {
+            path: '/system/schedule',
+            name: 'SystemSchedule',
+            component: () => import(/* webpackChunkName: "SystemSchedule" */ '../views/system/SystemSchedule.vue'),
+            meta: { title: '任务管理', icon: 'SystemSchedule', hiddenHeaderContent: false, keepAlive: false }
+          },
+          {
             path: '/system/attachment',
             name: 'SystemAttachment',
-            component: () => import(/* webpackChunkName: "SystemOption" */ '../views/system/attachment.vue'),
+            component: () => import(/* webpackChunkName: "SystemAttachment" */ '../views/system/attachment.vue'),
             meta: { title: '附件管理', icon: 'SystemAttachment', hiddenHeaderContent: false, keepAlive: false }
 
           },
+ 
           {
             path: '/system/option',
             name: 'SystemOption',

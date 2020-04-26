@@ -14,6 +14,10 @@
         <a-button @click="openLatexPanel">输入公式</a-button>
         <!-- <a-button @click="insert('myValue')">11 </a-button> -->
       </a-form-item>
+      <a-form-item>
+        <a-button @click="()=>attachmentUploadVisible=true">上传附件</a-button>
+        <!-- <a-button @click="insert('myValue')">11 </a-button> -->
+      </a-form-item>
     </a-form>
 
     <mavon-editor
@@ -28,6 +32,7 @@
         <a-button type="primary" @click="save">保存</a-button>
         <a-button type="primary" @click="preview">预览</a-button>
         <a-button type="primary" @click="showDrawer">打开发布面板</a-button>
+        <a-button type="primary" @click="openAttachement">附件库</a-button>
       </div>
     </div>
 
@@ -124,6 +129,66 @@
         </a-form-item>
       </a-form>
     </a-drawer>
+
+    <a-drawer
+      title="附件库"
+      placement="right"
+      :closable="false"
+      @close="()=>{attachemnetVisible=false}"
+      :visible="attachemnetVisible"
+      width="30rem"
+    >
+      <a-list :grid="{ gutter: 16, column: 2 }" :dataSource="attachments">
+        <a-list-item slot="renderItem" slot-scope="item">
+          <a-card :title="item.fileKey">
+            <img :src="item.path" width="100%" height="100px" />
+            <a href="javascript:;" @click="addToTextarea(item)">详情</a>
+          </a-card>
+        </a-list-item>
+      </a-list>
+      <a-button @click="nextPage(-1)">上一页</a-button>
+      <a-button @click="nextPage(1)">下一页</a-button>
+    </a-drawer>
+
+    <a-modal title="附件上传" v-model="attachmentUploadVisible">
+      <a-upload-dragger
+        name="file"
+        :multiple="true"
+        :action="upload"
+        @change="uploadAttachment"
+        :headers="headers"
+        :withCredentials="true"
+      >
+        <p class="ant-upload-drag-icon">
+          <!-- <a-icon type="inbox" /> -->
+          <img :src="queryParam.picPath" width="100%" alt srcset />
+        </p>
+        <p class="ant-upload-text">Click or drag file to this area to upload</p>
+        <p
+          class="ant-upload-hint"
+        >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
+      </a-upload-dragger>
+    </a-modal>
+
+    <a-modal title="附件详情" v-model="attachmentVisible">
+      <a-form v-if="attachmentDetails">
+        <a-form-item label="路径">
+          <a-input v-model="attachmentDetails.path"></a-input>
+        </a-form-item>
+        <a-form-item label="ThumbPath" v-show="handlePictureType(attachmentVisible)">
+          <a-input v-model="attachmentDetails.thumbPath"></a-input>
+        </a-form-item>
+        <div v-if="handleVideoType(attachmentDetails)">
+          <video :src="attachmentDetails.path" controls style="width:100%"></video>
+        </div>
+        <div v-if="handlePictureType(attachmentDetails)">
+          <img :src="attachmentDetails.path" controls style="width:100%" />
+        </div>
+        <div v-if="handleMusicType(attachmentDetails)">
+          <audio :src="attachmentDetails.path" controls style="width:100%"></audio>
+        </div>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -139,6 +204,7 @@ import uploadApi from "@/api/upload.js";
 import attachmentApi from "@/api/attachment.js";
 import preview from "@/api/preview.js";
 import latexApi from "@/api/latex.js";
+
 export default {
   // 注册
   components: {
@@ -158,6 +224,11 @@ export default {
         pathPic: "",
         userId: 1
       },
+      pagination: {
+        page: 0,
+        size: 10,
+        sort: null
+      },
       img_file: {},
       visible: false,
       tags: [],
@@ -170,7 +241,12 @@ export default {
       articleId: null,
       latexVisible: false,
       latexContent: "",
-      latexForamt: ""
+      latexForamt: "",
+      attachemnetVisible: false,
+      attachments: [],
+      attachmentVisible: false,
+      attachmentDetails: null,
+      attachmentUploadVisible: false
     };
   },
   watch: {
@@ -244,7 +320,7 @@ export default {
       this.img_file[pos] = $file;
       uploadApi.upload(formdata).then(response => {
         // console.log(response.data.data.path);
-        this.$refs.md.$img2Url(pos, response.data.data.path);
+        this.$refs.md.$img2Url(pos, response.data.data.thumbPath);
       });
     },
     imgDel() {},
@@ -340,13 +416,43 @@ export default {
         });
       }
     },
+    uploadAttachment(info) {
+      const status = info.file.status;
+      if (status === "done") {
+        let attachementRes = info.file.response.data;
+        let resHtml = "";
+        if (this.handleMusicType(attachementRes)) {
+          resHtml =
+            "<audio src='" + attachementRes.path + "' controls></audio>";
+        } else if (this.handleVideoType(attachementRes)) {
+          resHtml =
+            "<video src='" + attachementRes.path + "' controls></video>";
+        } else if (this.handlePictureType(attachementRes)) {
+          resHtml = "<img src='" + attachementRes.thumbPath + "' />";
+        } else {
+          resHtml =
+            "<a href='" +
+            attachementRes.path +
+            "' download='file+" +
+            new Date() +
+            "'>点击下载</a>";
+        }
+        // console.log(attachementRes)
+        // console.log(resHtml)
+        this.insert(resHtml);
+        this.attachmentUploadVisible = false;
+        this.$message.success(`${info.file.name} file uploaded successfully.`);
+      } else if (status === "error") {
+        this.$message.error(`${info.file.name} file upload failed.`);
+      }
+    },
     uploadPic(info) {
       const status = info.file.status;
-      if (status !== "uploading") {
-        // console.log(info.file, info.fileList);
-      }
+      // if (status !== "uploading") {
+      //   // console.log(info.file, info.fileList);
+      // }
       if (status === "done") {
-        this.queryParam.picPath = info.file.response.data.path;
+        this.queryParam.picPath = info.file.response.data.thumbPath;
         // console.log(info.file.response.data.path);
         this.$message.success(`${info.file.name} file uploaded successfully.`);
       } else if (status === "error") {
@@ -390,7 +496,20 @@ export default {
         })
       );
     },
-
+    nextPage(num) {
+      this.pagination.page = this.pagination.page + num;
+      // console.log(this.pagination);
+      attachmentApi.list(this.pagination).then(resp => {
+        // console.log(resp);
+        this.attachments = resp.data.data.content;
+      });
+    },
+    loadAttachment() {
+      attachmentApi.list(this.pagination).then(resp => {
+        // console.log(resp);
+        this.attachments = resp.data.data.content;
+      });
+    },
     loadTags(callback) {
       tagsApi.list().then(response => {
         this.tags = response.data.data;
@@ -484,6 +603,66 @@ export default {
         }
         this.latexVisible = false;
       });
+    },
+    openAttachement() {
+      this.attachemnetVisible = true;
+      this.loadAttachment();
+    },
+    addToTextarea(item) {
+      this.attachmentVisible = true;
+      // console.log(item);
+      this.attachmentDetails = item;
+    },
+    handlePictureType(attachment) {
+      var mediaType = attachment.mediaType;
+      // 判断文件类型
+      if (mediaType) {
+        var prefix = mediaType.split("/")[0];
+
+        if (prefix === "image") {
+          // 是图片
+          return true;
+        } else {
+          // 非图片
+          return false;
+        }
+      }
+      // 没有获取到文件返回false
+      return false;
+    },
+    handleMusicType(attachment) {
+      var mediaType = attachment.mediaType;
+      // 判断文件类型
+      if (mediaType) {
+        var prefix = mediaType.split("/")[0];
+
+        if (prefix === "audio") {
+          // 是音乐
+          return true;
+        } else {
+          // 非图片
+          return false;
+        }
+      }
+      // 没有获取到文件返回false
+      return false;
+    },
+    handleVideoType(attachment) {
+      var mediaType = attachment.mediaType;
+      // 判断文件类型
+      if (mediaType) {
+        var prefix = mediaType.split("/")[0];
+
+        if (prefix === "video") {
+          // 是音乐
+          return true;
+        } else {
+          // 非图片
+          return false;
+        }
+      }
+      // 没有获取到文件返回false
+      return false;
     }
   }
 };

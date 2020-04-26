@@ -4,7 +4,7 @@
       <a-col :span="24" style="padding-bottom: 12px;">
         <!-- 顶部操作 -->
         <a-card :bordered="false" :bodyStyle="{ padding: '16px' }">
-          <a-form layout="inline" >
+          <a-form layout="inline">
             <a-row :gutter="48">
               <a-col :md="8" :sm="24">
                 <a-form-item label="关键词">
@@ -35,7 +35,7 @@
               </a-col>
             </a-row>
           </a-form>
-          <div  style="margin-top: 10px;">
+          <div style="margin-top: 10px;">
             <!-- 第二行操作 -->
             <a-button type="primary" icon="cloud-upload" @click="() => (uploadVisible = true)">上传</a-button>
             <a-button
@@ -66,13 +66,21 @@
           <a-list-item slot="renderItem" slot-scope="item, index" :key="index">
             <a-card :bodyStyle="{ padding: 0 }" hoverable @click="handleShowDetailDrawer(item)">
               <div class="attach-thumb">
-                <span v-show="!handleJudgeMediaType(item)">当前格式不支持预览</span>
-                <img
-                  :src="item.thumbPath"
-                  v-show="handleJudgeMediaType(item)"
-                  loading="lazy"
-                  style="width:100%;height:100px"
-                />
+                <div v-if="handleJudgeMediaType(item)">
+                  <img
+                    :src="item.thumbPath"
+                    v-show="handleJudgeMediaType(item)"
+                    loading="lazy"
+                    style="width:100%;height:100px"
+                  />
+                </div>
+                <div v-else-if="handleMusicType(item)">
+                  <audio :src="item.path" controls style="width: 100%;"></audio>
+                </div>
+                
+                <div v-else>
+                  <span >当前格式不支持预览</span>
+                </div>
               </div>
               <a-card-meta style="padding: 0.8rem;">
                 <!-- <span>{{item.fileKey}}</span> -->
@@ -103,14 +111,24 @@
         @showSizeChange="handlePaginationChange"
       />
     </div>
-    <a-modal
-      title="上传附件"
-      v-model="uploadVisible"
-      :footer="null"
-      :afterClose="onUploadClose"
-      destroyOnClose
-    >
-      <FilePondUpload ref="upload" :uploadHandler="uploadHandler"></FilePondUpload>
+    <a-modal title="上传附件" v-model="uploadVisible" :afterClose="onUploadClose" destroyOnClose>
+      <a-upload-dragger
+        name="file"
+        :multiple="true"
+        :action="upload"
+        @change="uploadPic"
+        :headers="headers"
+        :withCredentials="true"
+      >
+        <p class="ant-upload-drag-icon">
+          <!-- <a-icon type="inbox" /> -->
+          <img :src="queryParam.picPath" width="100%" alt srcset />
+        </p>
+        <p class="ant-upload-text">Click or drag file to this area to upload</p>
+        <p
+          class="ant-upload-hint"
+        >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
+      </a-upload-dragger>
     </a-modal>
     <!-- <AttachmentDetailDrawer
       v-model="drawerVisible"
@@ -133,29 +151,44 @@ export default {
       attachments: "",
       pagination: {
         page: 1,
-        size: 18,
+        size: 12,
         sort: null
       },
       queryParam: {
         page: 0,
-        size: 18,
+        size: 10,
         sort: null,
         keyword: null,
-        mediaType: null,
-        attachmentType: null
+        categoryId: null,
+        status: null
       },
       drawerVisible: false,
       uploadHandler: attachmentApi.upload
     };
+  },
+  computed: {
+    upload() {
+      return attachmentApi.upload();
+    },
+    headers() {
+      var token = localStorage.getItem("jwtToken");
+      return {
+        Authorization: "Bearer " + token
+      };
+    }
   },
   created() {
     this.loadAttachment();
   },
   methods: {
     loadAttachment() {
-      attachmentApi.list().then(resp => {
-        console.log(resp);
+      this.queryParam.page = this.pagination.page - 1;
+      this.queryParam.size = this.pagination.size;
+      this.queryParam.sort = this.pagination.sort;
+      attachmentApi.list(this.queryParam).then(resp => {
+        // console.log(resp);
         this.attachments = resp.data.data.content;
+        this.pagination.total = resp.data.data.totalElements;
       });
     },
     handleMultipleSelection() {
@@ -183,8 +216,44 @@ export default {
       // 没有获取到文件返回false
       return false;
     },
+      handleMusicType(attachment) {
+      var mediaType = attachment.mediaType;
+      // 判断文件类型
+      if (mediaType) {
+        var prefix = mediaType.split("/")[0];
+
+        if (prefix === "audio") {
+          // 是音乐
+          return true;
+        } else {
+          // 非图片
+          return false;
+        }
+      }
+      // 没有获取到文件返回false
+      return false;
+    },
+    uploadPic(info) {
+      const status = info.file.status;
+      if (status !== "uploading") {
+        // console.log(info.file, info.fileList);
+      }
+      if (status === "done") {
+        // this.queryParam.picPath = info.file.response.data.path;
+        // console.log(info.file.response.data.path);
+        this.loadAttachment();
+        this.uploadVisible = false;
+        this.$message.success(`${info.file.name} file uploaded successfully.`);
+      } else if (status === "error") {
+        this.$message.error(`${info.file.name} file upload failed.`);
+      }
+    },
     getCheckStatus() {},
-    handlePaginationChange() {},
+    handlePaginationChange(page, pageSize) {
+      this.pagination.page = page;
+      this.pagination.size = pageSize;
+      this.loadAttachment();
+    },
     onUploadClose() {}
   }
 };
