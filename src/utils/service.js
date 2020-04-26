@@ -49,8 +49,8 @@ service.interceptors.response.use(
         const data = response ? response.data : null
         if (data) {
             if (data.status === 401) {
-                // localStorage.removeItem('jwtToken');
-                // localStorage.removeItem("user");
+                localStorage.removeItem('jwtToken');
+                localStorage.removeItem("user");
                 router.push("/login")
                 message.error(data.message);
             } else {
