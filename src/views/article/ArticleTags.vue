@@ -45,15 +45,15 @@ export default {
   methods: {
     loadTags() {
       tagsApi.list().then(resp => {
-        console.log(resp);
+        // console.log(resp);
         this.tags = resp.data.data;
       });
     },
     openArticle(item) {
       this.visible = true;
-      console.log(item);
+      // console.log(item);
       articleAPi.pageByTagId(item.id).then(resp => {
-        console.log(resp);
+        // console.log(resp);
         this.articles = resp.data.data.content;
       });
     }
