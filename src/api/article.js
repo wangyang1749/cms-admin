@@ -49,6 +49,14 @@ articleApi.updateOrderBy = (articleId,order) => {
     })
 }
 
+articleApi.pageByTagId = (tagId,params) => {
+    return service({
+        url: `${baseUrl}/pageByTagId/${tagId}`,
+        params: params,
+        method: 'get'
+    })
+}
+
 
 articleApi.pageDtoBy = (articleId,params) => {
     return service({
