@@ -59,7 +59,7 @@
         <a-divider type="vertical" />
         <a href="javascript:;" @click="handleEditClick(record)">编辑</a>
         <a-divider type="vertical" />
-        <a href="javascript:;" @click="handleShowPostSettings(record)">设置</a>
+        <a href="javascript:;" @click="articleSettings(record.id)">设置</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="deleteArticleById(record.id)">删除文章</a>
         <!-- <a href="javascript:;" class="ant-dropdown-link">
@@ -83,21 +83,10 @@
       </template>
     </a-table>
 
-    <!-- <a-modal title="添加栏目" v-model="visible">
-      <a-form layout="horizontal">
-        <a-form-item label="更改文章分类">
-          <a-select style="width: 100%">
-            <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{item.name}}</a-select-option>
-          </a-select>
-        </a-form-item>
+    <a-modal title="添加到组件" v-model="visible">
 
-        <a-form-item label="添加文章到Channel">
-          <a-select style="width: 100%" @change="selectChannel">
-            <a-select-option :value="item.id" v-for="item in channels" :key="item.id">{{item.name}}</a-select-option>
-          </a-select>
-        </a-form-item>
-      </a-form>
-    </a-modal>-->
+     
+    </a-modal>
 
     <a-drawer
       title="查看评论"
@@ -205,7 +194,6 @@ import commentApi from "@/api/comment.js";
 import ArticleApi from "@/api/article.js";
 import preview from "@/api/preview.js";
 import categoryApi from "@/api/category.js";
-import channelApi from "@/api/channel.js";
 export default {
   data() {
     return {
@@ -230,7 +218,10 @@ export default {
       selectRecord: null,
       comments: [],
       articleId: null,
-      commentContent: "" //评论内容绑定
+      commentContent: "", //评论内容绑定
+      visible:false,
+      
+      selecetComponentsId:null
     };
   },
   created() {
@@ -280,12 +271,7 @@ export default {
         this.categorys = response.data.data;
       });
     },
-    loadChannel() {
-      channelApi.list().then(response => {
-        // console.log(response);
-        this.channels = response.data.data;
-      });
-    },
+
     handlePaginationChange(page, pageSize) {
       // console.log("111")
       // this.$log.debug(`Current: ${page}, PageSize: ${pageSize}`)
@@ -310,12 +296,11 @@ export default {
       } else {
         this.$message.error("该文章没有生成HTML");
       }
-    },
+    }, 
 
-    handleShowPostSettings(value) {
-      this.selectRecord = value;
-      this.loadChannel();
+    articleSettings() {
       this.visible = true;
+      
     },
     selectCategory(value, select) {
       ArticleApi.updateCategory(value, select).then(response => {

@@ -41,6 +41,21 @@ articleApi.addArticleToChannel = (articleId,channelId) => {
     })
 }
 
+articleApi.queryTitle = (title) => {
+    return service({
+        url: `${baseUrl}/query`,
+        params: {title:title},
+        method: 'get'
+    })
+}
+
+articleApi.listByComponentsId = (id) => {
+    return service({
+        url: `${baseUrl}/listByComponentsId/${id}`,
+        method: 'get'
+    })
+}
+
 articleApi.updateOrderBy = (articleId,order) => {
     return service({
         url: `${baseUrl}/updateOrderBy/${articleId}`,

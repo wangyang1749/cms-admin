@@ -3,16 +3,35 @@ const baseUrl = '/api/templatePage'
 
 const templatePageApi = {}
 
-// templatePageApi.findByType = (type) => {
-//     return service({
-//         url: `${baseUrl}/find/${type}`,
-//         method: 'get'
-//     })
-// }
+templatePageApi.update = (id,templatePageParam) => {
+    return service({
+        url: `${baseUrl}/update/${id}`,
+        data: templatePageParam,
+        method: 'post'
+    })
+}
+
+
+templatePageApi.add = (templatePageParam) => {
+    return service({
+        url: `${baseUrl}`,
+        data: templatePageParam,
+        method: 'post'
+    })
+}
+
+
 templatePageApi.list =(params)=>{
     return service({
         url:baseUrl,
         params:params,
+        method:'get'
+    })
+}
+
+templatePageApi.delete =(id)=>{
+    return service({
+        url:`${baseUrl}/delete/${id}`,
         method:'get'
     })
 }
@@ -23,5 +42,35 @@ templatePageApi.generateHtml = (id) => {
     })
 }
 
+templatePageApi.findById = (id) => {
+    return service({
+        url: `${baseUrl}/find/${id}`,
+        method: 'get'
+    })
+}
+
+templatePageApi.listNeedArticle = () => {
+    return service({
+        url: `${baseUrl}/listNeedArticle`,
+        method: 'get'
+    })
+}
+
+templatePageApi.updateArgs = (id,args) => {
+    return service({
+        url: `${baseUrl}/updateArgs/${id}`,
+        params:{
+            args:args
+        },
+        method: 'get'
+    })
+}
+
+templatePageApi.findDetailsById = (id) => {
+    return service({
+        url: `${baseUrl}/findDetailsById/${id}`,
+        method: 'get'
+    })
+}
 
 export default templatePageApi
