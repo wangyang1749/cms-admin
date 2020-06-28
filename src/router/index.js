@@ -104,9 +104,24 @@ const routes = [
         ]
       },
       {
+        path: '/user',
+        name: 'User',
+        component: PageView,
+        meta: { title: '用户管理', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false },
+        children: [
+          {
+            path: '/user/list',
+            name: 'userList',
+            component: () => import(/* webpackChunkName: "userList" */ '../views/user/userList.vue'),
+            meta: { title: '用户列表', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
+
+          }
+        ]
+      },
+      {
         path: '/system',
         name: 'System',
-        component: () => import(/* webpackChunkName: "System" */ '../layout/PageView.vue'),
+        component: PageView,
         meta: { title: '系统', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false },
         children: [
           {
@@ -129,7 +144,7 @@ const routes = [
             meta: { title: '附件管理', icon: 'SystemAttachment', hiddenHeaderContent: false, keepAlive: false }
 
           },
- 
+
           {
             path: '/system/option',
             name: 'SystemOption',
@@ -144,7 +159,8 @@ const routes = [
             meta: { title: '系统关于', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
           },
         ]
-      }
+      },
+      
     ]
   },
 

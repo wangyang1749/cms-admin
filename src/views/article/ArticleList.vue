@@ -84,8 +84,6 @@
     </a-table>
 
     <a-modal title="添加到组件" v-model="visible">
-
-     
     </a-modal>
 
     <a-drawer
