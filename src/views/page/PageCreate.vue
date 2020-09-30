@@ -7,6 +7,8 @@
         ref="md"
         @change="change"
         style="min-height: 600px;z-index: 1;"
+        @imgAdd="imgAdd"
+        @imgDel="imgDel"
       />
 
       <a-form-item label="输入CSS">
@@ -66,6 +68,7 @@ import "mavon-editor/dist/css/index.css";
 import templateApi from "@/api/template.js";
 // import templateApi from "@/api/template.js";
 import preview from "@/api/preview.js";
+import uploadApi from "@/api/upload.js";
 
 import sheetApi from "@/api/sheet.js";
 export default {
@@ -87,7 +90,8 @@ export default {
       visible: false,
       templates: [],
       isUpdate: false,
-      sheetId:null
+      sheetId: null,
+      img_file: {},
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -115,6 +119,15 @@ export default {
     });
   },
   methods: {
+    imgAdd(pos, $file) {
+      var formdata = new FormData();
+      formdata.append("file", $file);
+      this.img_file[pos] = $file;
+      uploadApi.upload(formdata).then(response => {
+        // console.log(response.data.data.path);
+        this.$refs.md.$img2Url(pos, response.data.data.thumbPath);
+      });
+    },  imgDel() {},
     // 所有操作都会被解析重新渲染
     change(value, render) {
       // render 为 markdown 解析后的结果[html]
@@ -168,18 +181,17 @@ export default {
       });
     },
     preview() {
-    //  console.log(this.sheetId);
+      //  console.log(this.sheetId);
       if (!this.sheetId) {
-    
         sheetApi.saveSheet(this.queryParam).then(response => {
           this.sheetId = response.data.data.id;
-          
+
           this.$notification["success"]({
             message: "预览之前保存文章" + response.data.message
           });
 
-      //          console.log(this.sheetId)
-      // console.log(this.queryParam)
+          //          console.log(this.sheetId)
+          // console.log(this.queryParam)
           window.open(preview.Online("sheet", this.sheetId), "_blank");
 
           // this.$router.push("/article/list");
@@ -187,7 +199,8 @@ export default {
       } else {
         window.open(preview.Online("sheet", this.sheetId), "_blank");
       }
-    },save() {
+    },
+    save() {
       // console.log(this.sheetId)
       // if (!this.queryParam.categoryId) {
       //   this.$notification["error"]({
@@ -213,16 +226,14 @@ export default {
       //   });
       //   return;
       // }
-      
+
       if (this.isUpdate) {
-        sheetApi
-          .modifySheet(this.sheetId, this.queryParam)
-          .then(response => {
-            this.sheetId = response.data.data.id;
-            this.$notification["success"]({
-              message: "更新页面成功:" + response.data.message
-            });
+        sheetApi.modifySheet(this.sheetId, this.queryParam).then(response => {
+          this.sheetId = response.data.data.id;
+          this.$notification["success"]({
+            message: "更新页面成功:" + response.data.message
           });
+        });
       } else {
         sheetApi.saveSheet(this.queryParam).then(response => {
           this.sheetId = response.data.data.id;
@@ -232,7 +243,7 @@ export default {
           });
         });
       }
-    },
+    }
   }
 };
 </script>
