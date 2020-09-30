@@ -8,8 +8,19 @@
         @change="change"
         style="min-height: 600px;z-index: 1;"
       />
+
+      <a-form-item label="输入CSS">
+        <a-input type="textarea" v-model="queryParam.cssContent"></a-input>
+      </a-form-item>
+
+      <a-form-item label="输入JS">
+        <a-input type="textarea" v-model="queryParam.jsContent"></a-input>
+      </a-form-item>
+
       <div class="article-bottom">
         <div class="article-option">
+          <a-button type="primary" @click="save">保存</a-button>
+          <a-button type="primary" @click="preview">预览</a-button>
           <a-button type="primary" @click="showDrawer">打开发布面板</a-button>
         </div>
       </div>
@@ -54,6 +65,8 @@ import { mavonEditor } from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
 import templateApi from "@/api/template.js";
 // import templateApi from "@/api/template.js";
+import preview from "@/api/preview.js";
+
 import sheetApi from "@/api/sheet.js";
 export default {
   // 注册
@@ -67,11 +80,14 @@ export default {
         templateName: "",
         title: "",
         viewName: "",
-        status: "PUBLISHED"
+        status: "PUBLISHED",
+        cssContent: "",
+        jsContent: ""
       },
       visible: false,
       templates: [],
-      isUpdate: false
+      isUpdate: false,
+      sheetId:null
     };
   },
   beforeRouteEnter(to, from, next) {
@@ -83,8 +99,11 @@ export default {
           const article = response.data.data;
           // console.log(article);
           vm.queryParam.originalContent = article.originalContent; // 输入的markdown
-          // vm.queryParam.haveHtml= article.haveHtml
-          // vm.queryParam.templateId = article.templateId;
+          vm.queryParam.haveHtml = article.haveHtml;
+          vm.sheetId = article.id;
+          vm.queryParam.templateName = article.templateName;
+          vm.queryParam.cssContent = article.cssContent;
+          vm.queryParam.jsContent = article.jsContent;
           vm.queryParam.title = article.title;
           vm.queryParam.viewName = article.viewName;
           vm.queryParam.status = article.status;
@@ -147,7 +166,73 @@ export default {
         this.templates = response.data.data;
         // console.log(response);
       });
-    }
+    },
+    preview() {
+    //  console.log(this.sheetId);
+      if (!this.sheetId) {
+    
+        sheetApi.saveSheet(this.queryParam).then(response => {
+          this.sheetId = response.data.data.id;
+          
+          this.$notification["success"]({
+            message: "预览之前保存文章" + response.data.message
+          });
+
+      //          console.log(this.sheetId)
+      // console.log(this.queryParam)
+          window.open(preview.Online("sheet", this.sheetId), "_blank");
+
+          // this.$router.push("/article/list");
+        });
+      } else {
+        window.open(preview.Online("sheet", this.sheetId), "_blank");
+      }
+    },save() {
+      // console.log(this.sheetId)
+      // if (!this.queryParam.categoryId) {
+      //   this.$notification["error"]({
+      //     message: "文章类别不能为空!!"
+      //   });
+      //   return;
+      // }
+      // if (!this.queryParam.title) {
+      //   this.$notification["error"]({
+      //     message: "文章标题不能为空!!"
+      //   });
+      //   return;
+      // }
+      // if (!this.queryParam.originalContent) {
+      //   this.$notification["error"]({
+      //     message: "文章内容不能为空!!"
+      //   });
+      //   return;
+      // }
+      // if (!this.queryParam.userId) {
+      //   this.$notification["error"]({
+      //     message: "文章用户不能为空!!"
+      //   });
+      //   return;
+      // }
+      
+      if (this.isUpdate) {
+        sheetApi
+          .modifySheet(this.sheetId, this.queryParam)
+          .then(response => {
+            this.sheetId = response.data.data.id;
+            this.$notification["success"]({
+              message: "更新页面成功:" + response.data.message
+            });
+          });
+      } else {
+        sheetApi.saveSheet(this.queryParam).then(response => {
+          this.sheetId = response.data.data.id;
+          this.isUpdate = true;
+          this.$notification["success"]({
+            message: "保存页面" + response.data.message
+          });
+        });
+      }
+    },
   }
 };
 </script>

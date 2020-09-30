@@ -57,6 +57,21 @@ sheetApi.create = (params) => {
     })
 }
 
+sheetApi.saveSheet = (params) => {
+    return service({
+        url: `${baseUrl}/save`,
+        data: params,
+        method: 'post'
+    })
+}
+sheetApi.modifySheet = (id,params) => {
+    return service({
+        url: `${baseUrl}/save/${id}`,
+        data: params,
+        method: 'post'
+    })
+}
+
 sheetApi.update = (id,params) => {
     return service({
         url: `${baseUrl}/update/${id}`,

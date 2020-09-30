@@ -209,7 +209,7 @@ export default {
     },
     editComponent(id) {
       this.$router.push({
-        name: "TemplateCreate",
+        name: "ComponentsCreate",
         query: { id: id }
       });
       // templatePageApi.findDetailsById(id).then(resp => {

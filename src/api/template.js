@@ -3,6 +3,20 @@ const baseUrl = '/api/template'
 
 const templateApi = {}
 
+templateApi.update = (id,templatePageParam) => {
+    return service({
+        url: `${baseUrl}/update/${id}`,
+        data: templatePageParam,
+        method: 'post'
+    })
+}
+templateApi.findDetailsById = (id) => {
+    return service({
+        url: `${baseUrl}/findDetailsById/${id}`,
+        method: 'get'
+    })
+}
+
 templateApi.findByType = (type) => {
     return service({
         url: `${baseUrl}/find/${type}`,

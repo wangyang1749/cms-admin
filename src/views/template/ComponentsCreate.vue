@@ -2,8 +2,12 @@
   <div>
     <span>模板名称:</span>
     <a-input style="width: 20%" v-model="queryParam.name"></a-input>
-     <span>模板类型:{{queryParam.templateType}}</span>
-  
+    <span>路径:</span>
+    <a-input style="width: 20%" v-model="queryParam.path"></a-input>
+    <span>视图名称:</span>
+    <a-input style="width: 20%" v-model="queryParam.viewName"></a-input>
+    <span>数据名称</span>
+    <a-input style="width: 20%" v-model="queryParam.dataName"></a-input>
     <!-- <a-select style="width: 120px" v-model="queryParam.type">
       <a-select-option value="0">文档</a-select-option>
       <a-select-option value="1">首页</a-select-option>
@@ -21,7 +25,7 @@
 
 <script>
 // import TemplateApi from "@/api/template.js";
-import templateApi from "@/api/template.js";
+import templatePageApi from "@/api/templatePage.js";
 
 export default {
   data() {
@@ -43,7 +47,7 @@ export default {
     next(vm => {
       if (id) {
         vm.id = id;
-        templateApi.findDetailsById(id).then(resp => {
+        templatePageApi.findDetailsById(id).then(resp => {
           // console.log(resp);
           vm.queryParam = resp.data.data;
           vm.isUpdate = true;
@@ -61,13 +65,13 @@ export default {
     },
     submit() {
       if (this.isUpdate) {
-        templateApi.update(this.id, this.queryParam).then(resp => {
+        templatePageApi.update(this.id, this.queryParam).then(resp => {
           this.$notification["success"]({
             message: "更新模板[" + resp.data.data.name + "]成功"
           });
         });
       } else {
-        templateApi.add(this.queryParam).then(resp => {
+        templatePageApi.add(this.queryParam).then(resp => {
           this.$notification["success"]({
             message: "添加模板[" + resp.data.data.name + "]成功"
           });

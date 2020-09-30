@@ -46,6 +46,7 @@
           <a-input v-model="categoryParam.name"></a-input>
         </a-form-item>
 
+   
         <a-form-item>
           <a-input v-model="categoryParam.order"></a-input>
         </a-form-item>

@@ -96,10 +96,16 @@ const routes = [
             component: () => import(/* webpackChunkName: "TemplateStaticList" */ '../views/template/TemplateStaticList.vue'),
             meta: { title: '组件模板' }
           }, {
-            path: '/template/create',
+            path: '/template/templateCreate',
             name: 'TemplateCreate',
             component: () => import(/* webpackChunkName: "TemplateCreate" */ '../views/template/TemplateCreate.vue'),
             meta: { title: '创建模板' }
+          },
+          {
+            path: '/template/ComponentsCreate',
+            name: 'ComponentsCreate',
+            component: () => import(/* webpackChunkName: "ComponentsCreate" */ '../views/template/ComponentsCreate.vue'),
+            meta: { title: '创建组件' }
           },
         ]
       },

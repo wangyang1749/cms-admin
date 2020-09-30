@@ -12,8 +12,8 @@
       </div>
 
 
-      <span slot="action" slot-scope="text, record">
-        <a href="javascript:;" @click="handleEditClick(record)">编辑</a>
+      <span slot="action" slot-scope="record">
+        <a href="javascript:;" @click="edit(record.id)">编辑</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="handleShowPostSettings(record)">设置</a>
       </span>
@@ -48,19 +48,15 @@ const columns = [
   },
   {
     title: "模板类型",
-    dataIndex: "type",
-    key: "type"
+    dataIndex: "templateType",
+    key: "templateType"
   },
  {
     title: "视图路径",
-    dataIndex: "path",
-    key: "path"
+    dataIndex: "templateValue",
+    key: "templateValue"
   },
-  {
-    title: "视图名称",
-    dataIndex: "viewName",
-    key: "viewName"
-  }, {
+ {
     title: "是否展示在主页",
     dataIndex: "status",
     key: "status",
@@ -128,7 +124,15 @@ export default {
           message: "操作" + resp.data.message
         });
       })
-    }
+    },edit(id) {
+      this.$router.push({
+        name: "TemplateCreate",
+        query: { id: id }
+      });
+      // templatePageApi.findDetailsById(id).then(resp => {
+      //   console.log(resp);
+      // });
+    },
     // handleEditClick(template) {
     //   console.log(template);
     // },
