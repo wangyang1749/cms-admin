@@ -4,12 +4,19 @@ const baseUrl = '/api/option'
 const optionApi = {}
 
 
-optionApi.list = () => {
+optionApi.initialize = () => {
   return service({
-      url: baseUrl,
+      url: `${baseUrl}/initialize`,
       method: 'get'
   })
 }
+
+optionApi.list = () => {
+    return service({
+        url: baseUrl,
+        method: 'get'
+    })
+  }
 optionApi.save = (params) => {
     return service({
         url: baseUrl,

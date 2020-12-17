@@ -32,6 +32,10 @@
         <a-switch defaultChecked @change="onChangeHtml(record.id)" v-model="record.haveHtml" />
       </div>
 
+      <div slot="top" slot-scope="top,record">
+        <a-switch defaultChecked @change="sendOrCancelTop(record.id)" v-model="record.top" />
+      </div>
+
       <div slot="categoryId" slot-scope="categoryId,record">
         <a-select
           style="width: 100%"
@@ -174,6 +178,11 @@ const columns = [
     dataIndex: "haveHtml",
     key: "haveHtml",
     scopedSlots: { customRender: "haveHtml" }
+  }, {
+    title: "是否置顶",
+    dataIndex: "top",
+    key: "top",
+    scopedSlots: { customRender: "top" }
   },
   {
     title: "发布时间",
@@ -257,7 +266,7 @@ export default {
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
       ArticleApi.query(this.queryParam).then(response => {
-        // console.log(this.formatDate(response.data.data.content[0].createDate));
+        // console.log(response);
         this.article = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
       });
@@ -345,6 +354,15 @@ export default {
     onChangeHtml(id) {
       // console.log(id);
       ArticleApi.haveHtml(id).then(response => {
+        // console.log(response);
+        this.$notification["success"]({
+          message: "操作" + response.data.message
+        });
+        this.loadArticle();
+      });
+    },sendOrCancelTop(id) {
+      // console.log(id);
+      ArticleApi.sendOrCancelTop(id).then(response => {
         // console.log(response);
         this.$notification["success"]({
           message: "操作" + response.data.message

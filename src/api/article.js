@@ -100,6 +100,13 @@ articleApi.haveHtml = articleId => {
     })
 }
 
+articleApi.sendOrCancelTop = articleId => {
+    return service({
+        url: `${baseUrl}/sendOrCancelTop/${articleId}`,
+        method: 'get'
+    })
+}
+
 articleApi.create = (params) => {
     return service({
         url: baseUrl,

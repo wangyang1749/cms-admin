@@ -1,55 +1,22 @@
 <template>
   <div>
-     <a-table
-    :columns="columns"
-    :dataSource="data"
-    :pagination="{ pageSize: 50 }"
-    :scroll="{ y: 240 }"
-  />
-
-  <button @click="testRouter">Button</button>
+    <button @click="initialize">初始化系统</button>
   </div>
 </template>
 <script>
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      width: 150,
-    },
-    {
-      title: 'Age',
-      dataIndex: 'age',
-      width: 150,
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-    },
-  ];
+import optionApi from "@/api/option.js";
 
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      key: i,
-      name: `Edward King ${i}`,
-      age: 32,
-      address: `London, Park Lane no. ${i}`,
-    });
-  }
+export default {
 
-  export default {
-    data() {
-      return {
-        data,
-        columns,
-      };
-    },
-    methods:{
-      testRouter(){
-      //  console.log("testRouter")
-        this.$router.push("/article/list")
-      }
+  methods: {
+    initialize() {
+      optionApi.initialize().then(response => {
+        // console.log(response)
+        this.$notification["success"]({
+          message: "操作" + response.data
+        });
+      });
     }
-  };
+  }
+};
 </script>
