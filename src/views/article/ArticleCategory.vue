@@ -3,85 +3,80 @@
     <a-button type="primary" @click="append">添加分类</a-button>
     <a-button @click="updateAll(false)">生成所有分类HTML</a-button>
     <a-button @click="updateAll(true)">生成所有分类HTML更新模板</a-button>
-    <a-tabs defaultActiveKey="-1" @change="tabCallback">
-      <a-tab-pane :tab="itemTab.name" :key="itemTab.enName" v-for="itemTab in templates">
-        <a-table
-          :columns="columns"
-          :dataSource="categorys"
-          :pagination="false"
-          :rowKey="category => category.id"
-          size="small"
-          class="table"
-          :scroll="{ x: 1500 }"
-        >
-          <a
-            slot="name"
-            slot-scope="name, record"
-            href="javascript:;"
-            @click="preview(record.id)"
-          >{{name}}</a>
-          <a
-            slot="viewName"
-            slot-scope="viewName, record"
-            href="javascript:;"
-            @click="openHtml(record)"
-          >{{viewName}}</a>
+    <!-- <a-tabs defaultActiveKey="-1" @change="tabCallback"> -->
+    <!-- <a-tab-pane :tab="itemTab.name" :key="itemTab.enName" v-for="itemTab in templates"> -->
+    <a-table
+      :columns="columns"
+      :dataSource="categorys"
+      :pagination="false"
+      :rowKey="category => category.id"
+      size="small"
+      class="table"
+      :scroll="{ x: 1500 }"
+    >
+      <a
+        slot="name"
+        slot-scope="name, record"
+        href="javascript:;"
+        @click="preview(record.id)"
+      >{{name}}</a>
+      <a
+        slot="viewName"
+        slot-scope="viewName, record"
+        href="javascript:;"
+        @click="openHtml(record)"
+      >{{viewName}}</a>
 
-          <a
-            slot="firstArticle"
-            slot-scope="firstArticle, record"
-            href="javascript:;"
-            @click="openHtmlFirstArticle(record)"
-          >{{firstArticle}}</a>
+      <a
+        slot="firstArticle"
+        slot-scope="firstArticle, record"
+        href="javascript:;"
+        @click="openHtmlFirstArticle(record)"
+      >{{firstArticle}}</a>
 
-          <div slot="recommend" slot-scope="recommend,record">
-            <a-switch defaultChecked @change="onChange(record.id)" v-model="record.recommend" />
-          </div>
+      <div slot="recommend" slot-scope="recommend,record">
+        <a-switch defaultChecked @change="onChange(record.id)" v-model="record.recommend" />
+      </div>
 
-          <div slot="existNav" slot-scope="existNav,record">
-            <a-switch defaultChecked @change="onChangeNav(record.id)" v-model="record.existNav" />
-          </div>
+      <div slot="existNav" slot-scope="existNav,record">
+        <a-switch defaultChecked @change="onChangeNav(record.id)" v-model="record.existNav" />
+      </div>
 
-          <div slot="haveHtml" slot-scope="haveHtml,record">
-            <a-switch defaultChecked @change="onChangeHtml(record.id)" v-model="record.haveHtml" />
-          </div>
-          <span slot="action" slot-scope="text, record">
-            <!-- <a href="javascript:;">Invite 一 {{record.name}}</a>
-            <a-divider type="vertical" />-->
+      <div slot="haveHtml" slot-scope="haveHtml,record">
+        <a-switch defaultChecked @change="onChangeHtml(record.id)" v-model="record.haveHtml" />
+      </div>
+      <span slot="action" slot-scope="text, record">
+        <!-- <a href="javascript:;">Invite 一 {{record.name}}</a>
+        <a-divider type="vertical" />-->
 
-            <!-- <a href="javascript:;" @click="preview(record.id)">在线预览</a> -->
-            <!-- <a-divider type="vertical" />
-            <a href="javascript:;" @click="openHtml(record)">预览Html</a>-->
-            <a-divider type="vertical" />
-            <a href="javascript:;" @click="articleListShow(record.id)">查看文章</a>
-            <a-divider type="vertical" />
-            <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
+        <!-- <a href="javascript:;" @click="preview(record.id)">在线预览</a> -->
+        <!-- <a-divider type="vertical" />
+        <a href="javascript:;" @click="openHtml(record)">预览Html</a>-->
+        <a-divider type="vertical" />
+        <a href="javascript:;" @click="articleListShow(record.id)">查看文章</a>
+        <a-divider type="vertical" />
+        <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
 
-            <a-divider type="vertical" />
-            <a href="javascript:;" @click="()=> edit(record.id)">编辑</a>
+        <a-divider type="vertical" />
+        <a href="javascript:;" @click="()=> edit(record.id)">编辑</a>
 
-            <a-divider type="vertical" />
-            <a href="javascript:;" @click="(e)=> remove(record.id)">删除分类</a>
-            <!-- <a href="javascript:;" class="ant-dropdown-link">
+        <a-divider type="vertical" />
+        <a href="javascript:;" @click="(e)=> remove(record.id)">删除分类</a>
+        <!-- <a href="javascript:;" class="ant-dropdown-link">
         More actions
         <a-icon type="down" />
-            </a>-->
-          </span>
-        </a-table>
-      </a-tab-pane>
+        </a>-->
+      </span>
+    </a-table>
+    <!-- </a-tab-pane> -->
 
-      <!-- <a-tab-pane tab="使用说明" ></a-tab-pane> -->
-    </a-tabs>
+    <!-- <a-tab-pane tab="使用说明" ></a-tab-pane> -->
+    <!-- </a-tabs> -->
 
     <a-modal title="添加分类" v-model="visible" @ok="handleOk">
-      <a-input-number id="inputNumber" v-model="categoryParam.articleListSize" />
-      <!-- <a-form-item label="是否为降序">
-        <a-select style="width: 100%" v-model="categoryParam.desc">
-          <a-select-option :key="1" :value="1">是</a-select-option>
-           <a-select-option :key="0" :value="0">否</a-select-option>
-        </a-select>
-      </a-form-item>-->
-      <!-- <a-switch defaultChecked  /> -->
+      <a-form-item label="一页文章数量">
+        <a-input-number id="inputNumber" v-model="categoryParam.articleListSize" />
+      </a-form-item>
       <a-switch defaultChecked v-model="categoryParam.desc" />
 
       <a-form layout="horizontal">
@@ -112,16 +107,6 @@
           </a-select>
         </a-form-item>
 
-        <!-- <a-form-item label="选择文章显示的模板">
-          <a-select style="width: 100%" v-model="categoryParam.firstArticle">
-            <a-select-option
-              :value="item.viewName"
-              v-for="item in articles"
-              :key="item.viewName"
-            >{{item.title}}</a-select-option>
-          </a-select>
-        </a-form-item>-->
-
         <a-form-item label="分类的描述">
           <a-textarea v-model="categoryParam.description"></a-textarea>
         </a-form-item>
@@ -146,16 +131,20 @@
           <a-input placeholder="直接粘贴图片路径" v-model="categoryParam.picPath"></a-input>
         </a-form-item>
 
-        <a-form-item>
-          <a-input v-model="categoryParam.order"></a-input>
+        <a-form-item label="父ID">
+          <a-select style="width: 100%" v-model="categoryParam.parentId">
+            <a-select-option
+              :value="item.id"
+              v-for="item in categorys"
+              :key="item.id"
+            >{{item.name}}</a-select-option>
+          </a-select>
         </a-form-item>
 
-        <!-- <a-form-item label="是否需要静态化">
-          <a-radio-group v-model="categoryParam.haveHtml" defaultValue="1">
-            <a-radio :value="1">是</a-radio>
-            <a-radio :value="0">否</a-radio>
-          </a-radio-group>
-        </a-form-item>-->
+
+        <a-form-item label="排序">
+          <a-input v-model="categoryParam.order"></a-input>
+        </a-form-item>
       </a-form>
     </a-modal>
 
@@ -268,14 +257,13 @@ export default {
         articleTemplateName: "",
         firstArticle: "",
         articleListSize: 10,
-        desc: 1
+        desc: true,
+        parentId: 0
       }
     };
   },
   created() {
-    // this.loadParentCategory();
-    // this.loadcategory(-1)
-    this.loadParentCategory();
+    this.loadcategory();
   },
   computed: {
     upload() {
@@ -289,11 +277,6 @@ export default {
     }
   },
   methods: {
-    tabCallback(key) {
-      // console.log(key);
-      this.currentTabId = key;
-      this.loadcategory(key);
-    },
     loadTempalte() {
       templateApi.findByType("CATEGORY").then(response => {
         this.templates = response.data.data;
@@ -305,10 +288,14 @@ export default {
         // console.log(response);
       });
     },
-    loadcategory(templateEnName) {
-      categoryApi.pageBy(templateEnName).then(resp => {
-        // console.log(resp.data.data.content);
-        this.categorys = resp.data.data.content;
+    loadcategory() {
+      // categoryApi.pageBy(templateEnName).then(resp => {
+      //   console.log(resp.data.data.content);
+      //   this.categorys = resp.data.data.content;
+      // });
+      categoryApi.listTree().then(resp => {
+        // console.log(resp.data.data);
+        this.categorys = resp.data.data;
       });
       // console.log("loadcategory");
       // categoryApi.listByParent(id).then(response => {
@@ -340,7 +327,7 @@ export default {
       // console.log(id+"-"+order)
       ArticleApi.updateOrderBy(id, order).then(resp => {
         this.$notification["success"]({
-          message: "成功更改文章" + resp.data.data.title+"的顺序!"
+          message: "成功更改文章" + resp.data.data.title + "的顺序!"
         });
         this.loadArticle(this.categoryId);
       });
@@ -360,6 +347,7 @@ export default {
     },
 
     handleOk() {
+      // console.log(this.categoryParam)
       if (!this.categoryParam.name) {
         this.$notification["error"]({
           message: "分类标题不能为空!!"
@@ -373,14 +361,14 @@ export default {
           this.$notification["success"]({
             message: "成功更新数据:" + response.data.data.name
           });
-          this.loadcategory(this.currentTabId);
+           this.loadcategory();
         });
       } else {
         categoryApi.add(this.categoryParam).then(response => {
           this.$notification["success"]({
             message: "成功添加:" + response.data.data.name
           });
-          this.loadcategory(this.currentTabId);
+           this.loadcategory();
         });
       }
 
@@ -450,7 +438,7 @@ export default {
             message: "成功移除" + data.name + "Html"
           });
         }
-        // console.log(response);
+        this.loadcategory();
       });
     },
     remove(value) {

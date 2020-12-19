@@ -17,9 +17,9 @@ categoryApi.list = () => {
       method: 'get'
   })
 }
-categoryApi.listBaseCategory = () => {
+categoryApi.listTree = () => {
   return service({
-      url: `${baseUrl}/listBaseCategory`,
+      url: `${baseUrl}/listCategoryVo`,
       method: 'get'
   })
 }

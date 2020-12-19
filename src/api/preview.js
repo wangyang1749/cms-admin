@@ -8,7 +8,7 @@ preview.Online = (name,id) => {
 
 
 preview.Html = (viewName) => {
-    return  `http://${Golbal.baseUrl}/${viewName}.html`;
+    return  `http://${Golbal.baseUrl}:${Golbal.port}/${viewName}.html`;
 }
 
 export default preview
