@@ -34,6 +34,8 @@ import { List } from 'ant-design-vue';
 
 import { Row } from 'ant-design-vue';
 import { Col ,Checkbox} from 'ant-design-vue';
+import VueCookies from 'vue-cookies'
+Vue.use(VueCookies)
 
 Vue.use(Menu);
 Vue.use(Layout);

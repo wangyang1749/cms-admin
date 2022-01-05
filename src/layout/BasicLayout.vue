@@ -95,7 +95,8 @@ export default {
   },
   methods: {
     logout() {
-      localStorage.removeItem("jwtToken");
+      localStorage.removeItem("Authorization");
+      this.$cookies.remove("Authorization"); 
       localStorage.removeItem("user");
       this.$router.replace("/login");
       // UserApi.logout().then(response => {

@@ -171,12 +171,12 @@ export default {
       return attachmentApi.upload();
     },
     headers() {
-      var token = localStorage.getItem("jwtToken");
+      var token = localStorage.getItem("Authorization");
       return {
         Authorization: "Bearer " + token
       };
     }
-  },
+  }, 
   created() {
     this.loadAttachment();
   },

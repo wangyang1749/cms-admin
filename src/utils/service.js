@@ -22,7 +22,7 @@ service.interceptors.request.use(function (config) {
     // if (user) {
     //     token = user.token;
     // }
-    var token = localStorage.getItem('jwtToken');
+    var token = localStorage.getItem('Authorization');
     // let user = JSON.parse(localStorage.getItem("user"));
     // if(user){
         
@@ -48,8 +48,9 @@ service.interceptors.response.use(
         const response = error.response
         const data = response ? response.data : null
         if (data) {
+            // console.log(data)
             if (data.status === 401) {
-                localStorage.removeItem('jwtToken');
+                localStorage.removeItem('Authorization');
                 localStorage.removeItem("user");
                 router.push("/login")
                 message.error(data.message);

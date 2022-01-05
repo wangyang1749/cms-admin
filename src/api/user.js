@@ -42,7 +42,7 @@ userApi.find = (id) => {
 
 userApi.login = (data) => {
     return service({
-        url: "/user/authenticate",
+        url: "/api/user/login",
         data: data,
         method: 'post'
     })
