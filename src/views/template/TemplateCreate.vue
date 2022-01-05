@@ -92,7 +92,7 @@ export default {
           });
         });
       } else {
-          console.log(this.queryParam)
+          // console.log(this.queryParam)
         templateApi.add(this.queryParam).then((resp) => {
           this.$notification["success"]({
             message: "添加模板[" + resp.data.data.name + "]成功",

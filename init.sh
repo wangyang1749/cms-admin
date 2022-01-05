@@ -1,7 +1,7 @@
 CMS_PATH=~/cms/html/admin
 
 # echo $CMS_PATH
-# npm run build
+npm run build
 
 if [ ! -d $CMS_PATH ];then
     mkdir -p $CMS_PATH
