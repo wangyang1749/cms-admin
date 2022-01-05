@@ -31,6 +31,14 @@ templateApi.setStatus = id => {
     })
 }
 
+templateApi.deleteById = id => {
+    return service({
+        url: `${baseUrl}/delete/${id}`,
+        method: 'get'
+    })
+}
+
+
 templateApi.list =(params)=>{
     return service({
         url:baseUrl,
@@ -38,7 +46,7 @@ templateApi.list =(params)=>{
         method:'get'
     })
 }
-templateApi.create = (params) => {
+templateApi.add = (params) => {
     return service({
         url: baseUrl,
         data: params,

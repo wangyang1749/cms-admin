@@ -44,6 +44,10 @@ const columns = [
     title: "页面的名称",
     dataIndex: "viewName",
     key: "viewName"
+  },{
+    title: "模板",
+    dataIndex: "templateName",
+    key: "templateName"
   },
   {
     title: "创建时间",

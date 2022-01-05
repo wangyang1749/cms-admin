@@ -2,28 +2,31 @@
   <div>
     <div>
       <a-input placeholder="请输入标题" v-model="queryParam.title" />
+      <a-switch v-model="queryParam.isSource" @change="onChange" />
+
       <mavon-editor
         v-model="queryParam.originalContent"
         ref="md"
         @change="change"
-        style="min-height: 600px;z-index: 1;"
+        style="min-height: 600px; z-index: 1"
         @imgAdd="imgAdd"
         @imgDel="imgDel"
       />
 
-      <a-form-item label="输入CSS">
+      <!-- <a-form-item label="输入CSS">
         <a-input type="textarea" v-model="queryParam.cssContent"></a-input>
       </a-form-item>
 
       <a-form-item label="输入JS">
         <a-input type="textarea" v-model="queryParam.jsContent"></a-input>
-      </a-form-item>
+      </a-form-item> -->
 
       <div class="article-bottom">
         <div class="article-option">
           <a-button type="primary" @click="save">保存</a-button>
           <a-button type="primary" @click="preview">预览</a-button>
           <a-button type="primary" @click="showDrawer">打开发布面板</a-button>
+          <a-button type="primary" @click="openAttachement">附件库</a-button>
         </div>
       </div>
 
@@ -40,7 +43,10 @@
         </a-form-item>
         <a-form>
           <a-form-item label="视图路径">
-            <a-input placeholder="请输入视图路径" v-model="queryParam.viewName" />
+            <a-input
+              placeholder="请输入视图路径"
+              v-model="queryParam.viewName"
+            />
           </a-form-item>
 
           <a-form-item label="选择模板">
@@ -49,7 +55,8 @@
                 :value="item.enName"
                 v-for="item in templates"
                 :key="item.id"
-              >{{item.name}}</a-select-option>
+                >{{ item.name }}</a-select-option
+              >
             </a-select>
           </a-form-item>
 
@@ -58,6 +65,61 @@
           </a-form-item>
         </a-form>
       </a-drawer>
+
+      <a-drawer
+        title="附件库"
+        placement="right"
+        :closable="false"
+        @close="
+          () => {
+            attachemnetVisible = false;
+          }
+        "
+        :visible="attachemnetVisible"
+        width="30rem"
+      >
+        <a-list :grid="{ gutter: 16, column: 2 }" :dataSource="attachments">
+          <a-list-item slot="renderItem" slot-scope="item">
+            <a-card :title="item.fileKey">
+              <img :src="item.path" width="100%" height="100px" />
+              <a href="javascript:;" @click="addToTextarea(item)">详情</a>
+            </a-card>
+          </a-list-item>
+        </a-list>
+        <a-button @click="nextPage(-1)">上一页</a-button>
+        <a-button @click="nextPage(1)">下一页</a-button>
+      </a-drawer>
+
+      <a-modal title="附件详情" v-model="attachmentDetailsFlag">
+        <a-form v-if="attachmentDetails">
+          <a-form-item label="路径">
+            <a-input v-model="attachmentDetails.path"></a-input>
+          </a-form-item>
+          <a-form-item
+            label="ThumbPath"
+            v-show="handlePictureType(attachmentDetails)"
+          >
+            <a-input v-model="attachmentDetails.thumbPath"></a-input>
+          </a-form-item>
+          <div v-if="handleVideoType(attachmentDetails)">
+            <video
+              :src="attachmentDetails.path"
+              controls
+              style="width: 100%"
+            ></video>
+          </div>
+          <div v-if="handlePictureType(attachmentDetails)">
+            <img :src="attachmentDetails.path" controls style="width: 100%" />
+          </div>
+          <div v-if="handleMusicType(attachmentDetails)">
+            <audio
+              :src="attachmentDetails.path"
+              controls
+              style="width: 100%"
+            ></audio>
+          </div>
+        </a-form>
+      </a-modal>
     </div>
   </div>
 </template>
@@ -69,12 +131,14 @@ import templateApi from "@/api/template.js";
 // import templateApi from "@/api/template.js";
 import preview from "@/api/preview.js";
 import uploadApi from "@/api/upload.js";
+import attachmentApi from "@/api/attachment.js";
 
 import sheetApi from "@/api/sheet.js";
+
 export default {
   // 注册
   components: {
-    mavonEditor
+    mavonEditor,
   },
   data() {
     return {
@@ -84,33 +148,40 @@ export default {
         title: "",
         viewName: "",
         status: "PUBLISHED",
-        cssContent: "",
-        jsContent: ""
+        // cssContent: "",
+        // jsContent: "",
+        isSource: false,
       },
       visible: false,
       templates: [],
       isUpdate: false,
       sheetId: null,
       img_file: {},
+      attachments: [],
+      attachemnetVisible: false,
+      attachmentDetailsFlag: false,
+      attachmentDetails: null,
     };
   },
+
   beforeRouteEnter(to, from, next) {
     // Get post id from query
     const articleId = to.query.sheetId;
-    next(vm => {
+    next((vm) => {
       if (articleId) {
-        sheetApi.findById(articleId).then(response => {
+        sheetApi.findById(articleId).then((response) => {
           const article = response.data.data;
           // console.log(article);
           vm.queryParam.originalContent = article.originalContent; // 输入的markdown
           vm.queryParam.haveHtml = article.haveHtml;
           vm.sheetId = article.id;
           vm.queryParam.templateName = article.templateName;
-          vm.queryParam.cssContent = article.cssContent;
-          vm.queryParam.jsContent = article.jsContent;
+          // vm.queryParam.cssContent = article.cssContent;
+          // vm.queryParam.jsContent = article.jsContent;
           vm.queryParam.title = article.title;
           vm.queryParam.viewName = article.viewName;
           vm.queryParam.status = article.status;
+          vm.queryParam.isSource = article.isSource;
           //     tagIds: []
           // categoryIds: []
           vm.isUpdate = true;
@@ -119,15 +190,22 @@ export default {
     });
   },
   methods: {
+    loadAttachment() {
+      attachmentApi.list(this.pagination).then((resp) => {
+        // console.log(resp);
+        this.attachments = resp.data.data.content;
+      });
+    },
     imgAdd(pos, $file) {
       var formdata = new FormData();
       formdata.append("file", $file);
       this.img_file[pos] = $file;
-      uploadApi.upload(formdata).then(response => {
+      uploadApi.upload(formdata).then((response) => {
         // console.log(response.data.data.path);
         this.$refs.md.$img2Url(pos, response.data.data.thumbPath);
       });
-    },  imgDel() {},
+    },
+    imgDel() {},
     // 所有操作都会被解析重新渲染
     change(value, render) {
       // render 为 markdown 解析后的结果[html]
@@ -144,21 +222,21 @@ export default {
       if (this.isUpdate) {
         sheetApi
           .update(this.$route.query.sheetId, this.queryParam)
-          .then(response => {
+          .then((response) => {
             // console.log(response);
 
             this.$notification["success"]({
-              message: "更新成功:" + response.data.message
+              message: "更新成功:" + response.data.message,
             });
 
             this.$router.push({ name: "PageList" });
           });
       } else {
         // console.log(this.queryParam);
-        sheetApi.create(this.queryParam).then(response => {
+        sheetApi.create(this.queryParam).then((response) => {
           // console.log(response);
           this.$notification["success"]({
-            message: "添加成功" + response.data.message
+            message: "添加成功" + response.data.message,
           });
           this.$router.push({ name: "PageList" });
         });
@@ -175,7 +253,7 @@ export default {
       this.queryParam.channelId = value;
     },
     loadTemplate() {
-      templateApi.findByType("SHEET").then(response => {
+      templateApi.findByType("SHEET").then((response) => {
         this.templates = response.data.data;
         // console.log(response);
       });
@@ -183,11 +261,11 @@ export default {
     preview() {
       //  console.log(this.sheetId);
       if (!this.sheetId) {
-        sheetApi.saveSheet(this.queryParam).then(response => {
+        sheetApi.saveSheet(this.queryParam).then((response) => {
           this.sheetId = response.data.data.id;
 
           this.$notification["success"]({
-            message: "预览之前保存文章" + response.data.message
+            message: "预览之前保存文章" + response.data.message,
           });
 
           //          console.log(this.sheetId)
@@ -228,23 +306,87 @@ export default {
       // }
 
       if (this.isUpdate) {
-        sheetApi.modifySheet(this.sheetId, this.queryParam).then(response => {
+        sheetApi.modifySheet(this.sheetId, this.queryParam).then((response) => {
           this.sheetId = response.data.data.id;
           this.$notification["success"]({
-            message: "更新页面成功:" + response.data.message
+            message: "更新页面成功:" + response.data.message,
           });
         });
       } else {
-        sheetApi.saveSheet(this.queryParam).then(response => {
+        sheetApi.saveSheet(this.queryParam).then((response) => {
           this.sheetId = response.data.data.id;
           this.isUpdate = true;
           this.$notification["success"]({
-            message: "保存页面" + response.data.message
+            message: "保存页面" + response.data.message,
           });
         });
       }
-    }
-  }
+    },
+    onChange(checked) {
+      console.log(`a-switch to ${checked}`);
+      this.queryParam.isSource = checked;
+    },
+    openAttachement() {
+      this.attachemnetVisible = true;
+      this.loadAttachment();
+    },
+    addToTextarea(item) {
+      this.attachmentDetailsFlag = true;
+      // console.log(item);
+      this.attachmentDetails = item;
+    },
+    handlePictureType(attachment) {
+      var mediaType = attachment.mediaType;
+      // 判断文件类型
+      if (mediaType) {
+        var prefix = mediaType.split("/")[0];
+
+        if (prefix === "image") {
+          // 是图片
+          return true;
+        } else {
+          // 非图片
+          return false;
+        }
+      }
+      // 没有获取到文件返回false
+      return false;
+    },
+    handleMusicType(attachment) {
+      var mediaType = attachment.mediaType;
+      // 判断文件类型
+      if (mediaType) {
+        var prefix = mediaType.split("/")[0];
+
+        if (prefix === "audio") {
+          // 是音乐
+          return true;
+        } else {
+          // 非图片
+          return false;
+        }
+      }
+      // 没有获取到文件返回false
+      return false;
+    },
+    handleVideoType(attachment) {
+      var mediaType = attachment.mediaType;
+      // 判断文件类型
+      if (mediaType) {
+        var prefix = mediaType.split("/")[0];
+
+        if (prefix === "video") {
+          // 是音乐
+          return true;
+        } else {
+          // 非图片
+          return false;
+        }
+      }
+      // 没有获取到文件返回false
+      return false;
+    },
+  },
 };
 </script>
 

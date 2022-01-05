@@ -4,21 +4,25 @@
       :columns="columns"
       :dataSource="template"
       :pagination="false"
-      :rowKey="template => template.id"
+      :rowKey="(template) => template.id"
     >
-
-    <div slot="status" slot-scope="status,record">
-        <a-switch defaultChecked @change="onChangeStatus(record.id)" v-model="record.status" />
+      <div slot="status" slot-scope="status, record">
+        <a-switch
+          defaultChecked
+          @change="onChangeStatus(record.id)"
+          v-model="record.status"
+        />
       </div>
 
-
       <span slot="action" slot-scope="record">
+        <a href="javascript:;" @click="deleteById(record.id)">删除</a>
+        <a-divider type="vertical" />
         <a href="javascript:;" @click="edit(record.id)">编辑</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="handleShowPostSettings(record)">设置</a>
       </span>
     </a-table>
-    <div class="page-wrapper" :style="{ textAlign: 'right'}">
+    <div class="page-wrapper" :style="{ textAlign: 'right' }">
       <a-pagination
         class="pagination"
         :current="pagination.page"
@@ -37,43 +41,41 @@ const columns = [
   {
     title: "模板名称",
     dataIndex: "name",
-    key: "name"
+    key: "name",
   },
-  
 
   {
     title: "英文名称",
     key: "enName",
-    dataIndex: "enName"
+    dataIndex: "enName",
   },
   {
     title: "模板类型",
     dataIndex: "templateType",
-    key: "templateType"
+    key: "templateType",
   },
- {
+  {
     title: "视图路径",
     dataIndex: "templateValue",
-    key: "templateValue"
+    key: "templateValue",
   },
- {
+  {
     title: "是否展示在主页",
     dataIndex: "status",
     key: "status",
-    scopedSlots: { customRender: "status" }
+    scopedSlots: { customRender: "status" },
   },
   {
     title: "创建时间",
     dataIndex: "createDate",
-    key: "createDate"
+    key: "createDate",
   },
   {
     title: "Action",
     key: "action",
-    scopedSlots: { customRender: "action" }
-  }
+    scopedSlots: { customRender: "action" },
+  },
 ];
-
 
 import TemplateApi from "@/api/template.js";
 export default {
@@ -82,7 +84,7 @@ export default {
       pagination: {
         page: 1,
         size: 5,
-        sort: null
+        sort: null,
       },
       queryParam: {
         page: 0,
@@ -90,11 +92,11 @@ export default {
         sort: null,
         keyword: null,
         categoryId: null,
-        status: null
+        status: null,
       },
       columns,
       article: [],
-      template: []
+      template: [],
     };
   },
   created() {
@@ -105,9 +107,9 @@ export default {
       this.queryParam.page = this.pagination.page - 1;
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
-      TemplateApi.list(this.queryParam).then(response => {
+      TemplateApi.list(this.queryParam).then((response) => {
         this.template = response.data.data.content;
-        this.pagination.total = response.data.data.totalElements
+        this.pagination.total = response.data.data.totalElements;
         // console.log(response);
       });
     },
@@ -117,21 +119,32 @@ export default {
       this.pagination.page = page;
       this.pagination.size = pageSize;
       this.loadTemplate();
-    },onChangeStatus(id){
+    },
+    onChangeStatus(id) {
       // console.log(id)
-      TemplateApi.setStatus(id).then(resp=>{
-         this.$notification["success"]({
-          message: "操作" + resp.data.message
+      TemplateApi.setStatus(id).then((resp) => {
+        this.$notification["success"]({
+          message: "操作" + resp.data.message,
         });
-      })
-    },edit(id) {
+      });
+    },
+    edit(id) {
       this.$router.push({
         name: "TemplateCreate",
-        query: { id: id }
+        query: { id: id },
       });
       // templatePageApi.findDetailsById(id).then(resp => {
       //   console.log(resp);
       // });
+    },
+    deleteById(value) {
+      TemplateApi.deleteById(value).then((response) => {
+        //  console.log(response);
+        this.$notification["success"]({
+          message: response.data.message,
+        });
+        this.loadTemplate();
+      });
     },
     // handleEditClick(template) {
     //   console.log(template);
@@ -139,6 +152,6 @@ export default {
     // handleShowPostSettings(template) {
     //   console.log(template);
     // }
-  }
+  },
 };
 </script>
