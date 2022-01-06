@@ -1,4 +1,5 @@
 import service from '@/utils/service'
+import Golbal from '@/api/global_variable.js'
 const baseUrl = '/api/template'
 
 const templateApi = {}
@@ -53,6 +54,8 @@ templateApi.add = (params) => {
         method: 'post'
     })
 }
-
+templateApi.upload=()=>{
+    return `http://${Golbal.baseUrl}:${Golbal.port}/api/template/upload`
+  }
 
 export default templateApi

@@ -1,5 +1,25 @@
 <template>
   <div>
+    <!-- <a-button @click="() => (attachmentUploadVisible = true)"
+      >上传附件</a-button
+    > -->
+
+    <!-- <form action="http://localhost:8080/api/template/upload" method="post"  enctype="multipart/form-data">  
+        <p>选择文件:<input type="file" name="file"></p>
+        <p>选择文件:<input type="file" name="file"></p>
+        <p><input type="submit" value="提交"></p>
+    </form>   -->
+
+    <a-upload
+      name="file"
+      :multiple="true"
+      :action="upload"
+      @change="uploadAttachment"
+      :headers="headers"
+    >
+      <a-button> <a-icon type="upload" /> 安装模板 </a-button>
+    </a-upload>
+
     <a-table
       :columns="columns"
       :dataSource="template"
@@ -34,6 +54,26 @@
         @change="handlePaginationChange"
       />
     </div>
+
+    <!-- <a-modal title="附件上传" v-model="attachmentUploadVisible">
+      <a-upload-dragger
+        name="file"
+        :multiple="true"
+        :action="upload"
+        @change="uploadAttachment"
+        :headers="headers"
+        :withCredentials="true"
+      >
+        <p class="ant-upload-drag-icon">
+          <img :src="queryParam.picPath" width="100%" alt srcset />
+        </p>
+        <p class="ant-upload-text">Click or drag file to this area to upload</p>
+        <p class="ant-upload-hint">
+          Support for a single or bulk upload. Strictly prohibit from uploading
+          company data or other band files
+        </p>
+      </a-upload-dragger>
+    </a-modal> -->
   </div>
 </template>
 <script>
@@ -97,7 +137,16 @@ export default {
       columns,
       article: [],
       template: [],
+      attachmentUploadVisible: false,
     };
+  },
+  computed: {
+    headers() {
+      var token = localStorage.getItem("Authorization");
+      return {
+        Authorization: "Bearer " + token,
+      };
+    },
   },
   created() {
     this.loadTemplate();
@@ -145,6 +194,22 @@ export default {
         });
         this.loadTemplate();
       });
+    },
+    upload() {
+      return TemplateApi.upload();
+    },
+    uploadAttachment(info) {
+      // if (info.file.status !== "uploading") {
+      //   console.log(info.file, info.fileList);
+      // }
+      if (info.file.status === "done") {
+        this.$message.success(`${info.file.name} file uploaded successfully`);
+        // console.log(info.file.response)
+      } else if (info.file.status === "error") {
+        this.$message.error(`${info.file.response.message} file upload failed.`);
+        // console.log(info.file.response.message)
+      }
+      this.loadTemplate()
     },
     // handleEditClick(template) {
     //   console.log(template);
