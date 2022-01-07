@@ -148,7 +148,7 @@ export default {
       // console.log("logout");
     },
     openHtml() {
-      window.open(preview.Html("index"), "_blank");
+      window.open(preview.Html("/"), "_blank");
     },
   },
 };

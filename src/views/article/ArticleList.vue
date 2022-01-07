@@ -4,45 +4,78 @@
       :columns="columns"
       :dataSource="article"
       :pagination="false"
-      :rowKey="article => article.id"
+      :rowKey="(article) => article.id"
       size="small"
       class="table"
       :scroll="{ x: 1500 }"
     >
       <template slot="title">
+        <a-input-search
+          placeholder="input search text"
+          style="width: 200px"
+          v-model="queryParam.keyword"
+          @search="onSearch"
+        />
+        <a-select
+          @change="onSearchCategory()"
+        >
+          <a-select-option
+            :value="item.id"
+            v-for="item in categorys"
+            :key="item.id"
+            >{{ item.name }}</a-select-option
+          >
+        </a-select>
         <a-button @click="updateAll(false)">生成所有文章HTML</a-button>
-        <a-button @click="updateAll(true)">生成所有文章HTML更新文章内容</a-button>
+        <a-button @click="updateAll(true)"
+          >生成所有文章HTML更新文章内容</a-button
+        >
       </template>
-      <div slot="title_" slot-scope="title_,record">
-        <a href="javascript:;" @click="preview(record.id)">{{title_}}</a>
+      <div slot="title_" slot-scope="title_, record">
+        <a href="javascript:;" @click="preview(record.id)">{{ title_ }}</a>
       </div>
 
-      <div slot="viewName" slot-scope="viewName,record">
-        <a href="javascript:;" @click="openHtml(record)">{{viewName}}</a>
+      <div slot="viewName" slot-scope="viewName, record">
+        <a href="javascript:;" @click="openHtml(record)">{{ viewName }}</a>
       </div>
 
-      <div slot="commentNum" slot-scope="commentNum,record">
-        <a href="javascript:;" @click="commentList(record.id)">{{commentNum}}</a>
+      <div slot="commentNum" slot-scope="commentNum, record">
+        <a href="javascript:;" @click="commentList(record.id)">{{
+          commentNum
+        }}</a>
       </div>
-      <div slot="openComment" slot-scope="openComment,record">
-        <a-switch defaultChecked @change="onChangeComment(record.id)" v-model="record.openComment" />
+      <div slot="openComment" slot-scope="openComment, record">
+        <a-switch
+          defaultChecked
+          @change="onChangeComment(record.id)"
+          v-model="record.openComment"
+        />
       </div>
 
-      <div slot="haveHtml" slot-scope="haveHtml,record">
+      <!-- <div slot="haveHtml" slot-scope="haveHtml,record">
         <a-switch defaultChecked @change="onChangeHtml(record.id)" v-model="record.haveHtml" />
+      </div> -->
+
+      <div slot="top" slot-scope="top, record">
+        <a-switch
+          defaultChecked
+          @change="sendOrCancelTop(record.id)"
+          v-model="record.top"
+        />
       </div>
 
-      <div slot="top" slot-scope="top,record">
-        <a-switch defaultChecked @change="sendOrCancelTop(record.id)" v-model="record.top" />
-      </div>
-
-      <div slot="categoryId" slot-scope="categoryId,record">
+      <div slot="categoryId" slot-scope="categoryId, record">
         <a-select
           style="width: 100%"
           v-model="record.categoryId"
-          @change="selectCategory(record.id,$event)"
+          @change="selectCategory(record.id, $event)"
         >
-          <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{item.name}}</a-select-option>
+          <a-select-option
+            :value="item.id"
+            v-for="item in categorys"
+            :key="item.id"
+            >{{ item.name }}</a-select-option
+          >
         </a-select>
       </div>
       <!-- <span slot="haveHtml" slot-scope="haveHtml,record">
@@ -53,7 +86,9 @@
         <a-tag :color="'geekblue'" v-if="category">{{category.name}}</a-tag>
       </span>-->
       <span slot="tags" slot-scope="tags">
-        <a-tag v-for="tag in tags" :color="'green'" :key="tag.id">{{tag.name}}</a-tag>
+        <a-tag v-for="tag in tags" :color="'green'" :key="tag.id">{{
+          tag.name
+        }}</a-tag>
       </span>
 
       <span slot="action" slot-scope="text, record">
@@ -65,14 +100,16 @@
         <a-divider type="vertical" />
         <a href="javascript:;" @click="articleSettings(record.id)">设置</a>
         <a-divider type="vertical" />
-        <a href="javascript:;" @click="deleteArticleById(record.id)">删除文章</a>
+        <a href="javascript:;" @click="deleteArticleById(record.id)"
+          >删除文章</a
+        >
         <!-- <a href="javascript:;" class="ant-dropdown-link">
         More actions
         <a-icon type="down" />
         </a>-->
       </span>
       <template slot="footer">
-        <div class="page-wrapper" :style="{ textAlign: 'right'}">
+        <div class="page-wrapper" :style="{ textAlign: 'right' }">
           <a-pagination
             class="pagination"
             :current="pagination.page"
@@ -87,15 +124,18 @@
       </template>
     </a-table>
 
-    <a-modal title="添加到组件" v-model="visible">
-    </a-modal>
+    <a-modal title="添加到组件" v-model="visible"> </a-modal>
 
     <a-drawer
       title="查看评论"
       placement="right"
       :closable="true"
       :visible="commentVisible"
-      @close="()=>{commentVisible=false}"
+      @close="
+        () => {
+          commentVisible = false;
+        }
+      "
       width="40rem"
     >
       <a-form>
@@ -110,7 +150,7 @@
           <a slot="actions" @click="delComment(item.id)">删除</a>
           <a slot="actions">回复</a>
           <a-list-item-meta :description="item.content">
-            <a slot="title">{{item.username}}</a>
+            <a slot="title">{{ item.username }}</a>
           </a-list-item-meta>
         </a-list-item>
       </a-list>
@@ -125,77 +165,78 @@ const columns = [
     key: "title",
     // fixed: "left",
 
-    scopedSlots: { customRender: "title_" }
+    scopedSlots: { customRender: "title_" },
   },
   {
     title: "视图名称",
     dataIndex: "viewName",
     key: "viewName",
-    scopedSlots: { customRender: "viewName" }
+    scopedSlots: { customRender: "viewName" },
   },
   {
     title: "Article模板",
     dataIndex: "templateName",
-    key: "templateName"
+    key: "templateName",
   },
   {
     title: "分类",
     dataIndex: "categoryId",
     key: "categoryId",
-    scopedSlots: { customRender: "categoryId" }
+    scopedSlots: { customRender: "categoryId" },
   },
   {
     title: "标签",
     key: "tags",
     dataIndex: "tags",
-    scopedSlots: { customRender: "tags" }
+    scopedSlots: { customRender: "tags" },
   },
 
   {
     title: "访问",
     dataIndex: "visits",
-    key: "visits"
+    key: "visits",
   },
   {
     title: "状态",
     dataIndex: "status",
-    key: "status"
+    key: "status",
   },
   {
     title: "评论",
     dataIndex: "commentNum",
     key: "commentNum",
-    scopedSlots: { customRender: "commentNum" }
+    scopedSlots: { customRender: "commentNum" },
   },
   {
     title: "是否开启评论",
     dataIndex: "openComment",
     key: "openComment",
-    scopedSlots: { customRender: "openComment" }
+    scopedSlots: { customRender: "openComment" },
   },
+  // {
+  //   title: "是否生成HTML",
+  //   dataIndex: "haveHtml",
+  //   key: "haveHtml",
+  //   scopedSlots: { customRender: "haveHtml" }
+  // },
   {
-    title: "是否生成HTML",
-    dataIndex: "haveHtml",
-    key: "haveHtml",
-    scopedSlots: { customRender: "haveHtml" }
-  }, {
     title: "是否置顶",
     dataIndex: "top",
     key: "top",
-    scopedSlots: { customRender: "top" }
+    scopedSlots: { customRender: "top" },
   },
   {
     title: "发布时间",
     dataIndex: "createDate",
-    key: "createDate"
+    key: "createDate",
   },
   {
     title: "Action",
     key: "action",
     fixed: "right",
     //   width: 200,
-    scopedSlots: { customRender: "action" }
-  }
+    scopedSlots: { customRender: "action" },
+  },
 ];
 import commentApi from "@/api/comment.js";
 import ArticleApi from "@/api/article.js";
@@ -207,7 +248,7 @@ export default {
       pagination: {
         page: 1,
         size: 5,
-        sort: null
+        sort: null,
       },
       queryParam: {
         page: 0,
@@ -215,7 +256,7 @@ export default {
         sort: null,
         keyword: null,
         categoryId: null,
-        status: null
+        status: null,
       },
       categorys: [],
       channels: [],
@@ -226,9 +267,9 @@ export default {
       comments: [],
       articleId: null,
       commentContent: "", //评论内容绑定
-      visible:false,
-      
-      selecetComponentsId:null
+      visible: false,
+
+      selecetComponentsId: null,
     };
   },
   created() {
@@ -265,7 +306,7 @@ export default {
       this.queryParam.page = this.pagination.page - 1;
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
-      ArticleApi.query(this.queryParam).then(response => {
+      ArticleApi.query(this.queryParam).then((response) => {
         // console.log(response);
         this.article = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
@@ -273,7 +314,7 @@ export default {
     },
     loadcategory() {
       // console.log("loadcategory");
-      categoryApi.list().then(response => {
+      categoryApi.list().then((response) => {
         // console.log(response);
         this.categorys = response.data.data;
       });
@@ -293,27 +334,27 @@ export default {
     handleEditClick(article) {
       this.$router.push({
         name: "ArticleWrite",
-        query: { articleId: article.id }
+        query: { articleId: article.id },
       });
       // console.log(article);
     },
     openHtml(value) {
-      if (value.haveHtml) {
-        window.open(preview.Html(value.path + "/" + value.viewName), "_blank");
-      } else {
-        this.$message.error("该文章没有生成HTML");
-      }
-    }, 
+      window.open(preview.Html(value.path + "/" + value.viewName), "_blank");
+      // if (value.haveHtml) {
+
+      // } else {
+      //   this.$message.error("该文章没有生成HTML");
+      // }
+    },
 
     articleSettings() {
       this.visible = true;
-      
     },
     selectCategory(value, select) {
-      ArticleApi.updateCategory(value, select).then(response => {
+      ArticleApi.updateCategory(value, select).then((response) => {
         // console.log(response);
         this.$notification["success"]({
-          message: "操作" + response.data.message
+          message: "操作" + response.data.message,
         });
         this.loadArticle();
       });
@@ -339,50 +380,51 @@ export default {
         okType: "danger",
         cancelText: "No",
         onOk() {
-          ArticleApi.delete(id).then(response => {
+          ArticleApi.delete(id).then((response) => {
             _this.$notification["success"]({
-              message: "成功删除文章" + response.data.data.title
+              message: "成功删除文章" + response.data.data.title,
             });
             _this.loadArticle();
           });
         },
         onCancel() {
           // console.log("Cancel");
-        }
+        },
       });
     },
-    onChangeHtml(id) {
+    // onChangeHtml(id) {
+    //   // console.log(id);
+    //   ArticleApi.haveHtml(id).then(response => {
+    //     // console.log(response);
+    //     this.$notification["success"]({
+    //       message: "操作" + response.data.message
+    //     });
+    //     this.loadArticle();
+    //   });
+    // },
+    sendOrCancelTop(id) {
       // console.log(id);
-      ArticleApi.haveHtml(id).then(response => {
+      ArticleApi.sendOrCancelTop(id).then((response) => {
         // console.log(response);
         this.$notification["success"]({
-          message: "操作" + response.data.message
-        });
-        this.loadArticle();
-      });
-    },sendOrCancelTop(id) {
-      // console.log(id);
-      ArticleApi.sendOrCancelTop(id).then(response => {
-        // console.log(response);
-        this.$notification["success"]({
-          message: "操作" + response.data.message
+          message: "操作" + response.data.message,
         });
         this.loadArticle();
       });
     },
     onChangeComment(id) {
-      ArticleApi.openOrCloseComment(id).then(response => {
+      ArticleApi.openOrCloseComment(id).then((response) => {
         // console.log(response);
         this.$notification["success"]({
-          message: "操作" + response.data.message
+          message: "操作" + response.data.message,
         });
         this.loadArticle();
       });
     },
     generateHtml(id) {
-      ArticleApi.generateHtml(id).then(response => {
+      ArticleApi.generateHtml(id).then((response) => {
         this.$notification["success"]({
-          message: "成功生成" + response.data.data.title + "的HTML"
+          message: "成功生成" + response.data.data.title + "的HTML",
         });
       });
     },
@@ -396,16 +438,16 @@ export default {
         cancelText: "No",
         onOk() {
           if (more) {
-            ArticleApi.updateAll({ more: true }).then(response => {
+            ArticleApi.updateAll({ more: true }).then((response) => {
               _this.$notification["success"]({
-                message: "成功生成文章Id为:" + response.data.data + "的文章"
+                message: "成功生成文章Id为:" + response.data.data + "的文章",
               });
               _this.loadArticle();
             });
           } else {
-            ArticleApi.updateAll().then(response => {
+            ArticleApi.updateAll().then((response) => {
               _this.$notification["success"]({
-                message: "成功生成文章Id为:" + response.data.data + "的文章"
+                message: "成功生成文章Id为:" + response.data.data + "的文章",
               });
               _this.loadArticle();
             });
@@ -414,7 +456,7 @@ export default {
 
         onCancel() {
           // console.log("Cancel");
-        }
+        },
       });
     },
     commentList(id) {
@@ -422,16 +464,16 @@ export default {
       this.articleId = id;
       // console.log("--" + id);
       // console.log(id);
-      commentApi.listByArticleId(id).then(resp => {
+      commentApi.listByArticleId(id).then((resp) => {
         let content = resp.data.data.content;
         this.comments = content;
       });
     },
     delComment(id) {
       // console.log(id);
-      commentApi.deleteById(id).then(resp => {
+      commentApi.deleteById(id).then((resp) => {
         this.$notification["success"]({
-          message: "成功删除评论" + resp.content
+          message: "成功删除评论" + resp.content,
         });
         this.commentList(this.articleId);
       });
@@ -442,17 +484,22 @@ export default {
         userId: this.$user.id,
         email: this.$user.email,
         articleId: this.articleId,
-        content: this.commentContent
+        content: this.commentContent,
       };
       //console.log(data)
-      commentApi.add(data).then(resp => {
+      commentApi.add(data).then((resp) => {
         this.$notification["success"]({
-          message: "成功添加" + resp
+          message: "成功添加" + resp,
         });
         this.commentList(this.articleId);
       });
+    },
+    onSearch() {
+      this.loadArticle();
+    },onSearchCategory(){
+
     }
-  }
+  },
 };
 </script>
 <style>

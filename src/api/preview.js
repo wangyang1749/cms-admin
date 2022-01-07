@@ -11,4 +11,8 @@ preview.Html = (viewName) => {
     return  `http://${Golbal.baseUrl}:${Golbal.port}/${viewName}.html`;
 }
 
+preview.Url = (viewName) => {
+    return  `http://${Golbal.baseUrl}:${Golbal.port}/${viewName}`;
+}
+
 export default preview

@@ -33,6 +33,9 @@
           v-model="record.status"
         />
       </div>
+      <div slot="name" slot-scope="name, record">
+        <a href="javascript:;" @click="openHtml(record)">{{ name }}</a>
+      </div>
 
       <span slot="action" slot-scope="record">
         <a href="javascript:;" @click="deleteById(record.id)">删除</a>
@@ -82,6 +85,7 @@ const columns = [
     title: "模板名称",
     dataIndex: "name",
     key: "name",
+    scopedSlots: { customRender: "name" },
   },
 
   {
@@ -116,7 +120,7 @@ const columns = [
     scopedSlots: { customRender: "action" },
   },
 ];
-
+import preview from "@/api/preview.js";
 import TemplateApi from "@/api/template.js";
 export default {
   data() {
@@ -206,10 +210,16 @@ export default {
         this.$message.success(`${info.file.name} file uploaded successfully`);
         // console.log(info.file.response)
       } else if (info.file.status === "error") {
-        this.$message.error(`${info.file.response.message} file upload failed.`);
+        this.$message.error(
+          `${info.file.response.message} file upload failed.`
+        );
         // console.log(info.file.response.message)
       }
-      this.loadTemplate()
+      this.loadTemplate();
+    },
+    openHtml(value) {
+      // console.log(value.templateValue)
+      window.open(preview.Html(value.templateValue), "_blank");
     },
     // handleEditClick(template) {
     //   console.log(template);
