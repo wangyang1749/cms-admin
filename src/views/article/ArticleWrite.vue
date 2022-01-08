@@ -5,9 +5,14 @@
         <a-input placeholder="请输入标题" v-model="queryParam.title" />
       </a-form-item>
 
-      <a-form-item label="选择分类">
-        <a-select v-model="queryParam.categoryId" style=" min-width: 300px;">
-          <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{item.name}}</a-select-option>
+      <a-form-item label="选择分类" >
+        <a-select @change="handleChange" v-model="queryParam.categoryId" style="min-width: 300px">
+          <a-select-option
+            :value="item.id"
+            v-for="item in categorys"
+            :key="item.id"
+            >{{ item.name }}</a-select-option
+          >
         </a-select>
       </a-form-item>
       <a-form-item>
@@ -15,7 +20,9 @@
         <!-- <a-button @click="insert('myValue')">11 </a-button> -->
       </a-form-item>
       <a-form-item>
-        <a-button @click="()=>attachmentUploadVisible=true">上传附件</a-button>
+        <a-button @click="() => (attachmentUploadVisible = true)"
+          >上传附件</a-button
+        >
         <!-- <a-button @click="insert('myValue')">11 </a-button> -->
       </a-form-item>
     </a-form>
@@ -23,7 +30,7 @@
     <mavon-editor
       v-model="queryParam.originalContent"
       ref="md"
-      style="min-height: 600px;z-index: 1;"
+      style="min-height: 600px; z-index: 1"
       @imgAdd="imgAdd"
       @imgDel="imgDel"
     />
@@ -58,6 +65,9 @@
         <a-form-item label="静态页面视图的名称" help="不写,默认自动生成">
           <a-input placeholder="请输入视图名称" v-model="queryParam.viewName" />
         </a-form-item>
+        <a-form-item label="资源" v-if="category">
+          <a-textarea v-model="category.resource" />
+        </a-form-item>
         <!-- 
           <a-form-item label="选择模板">
             <a-select style="width: 100%" v-model="queryParam.templateName">
@@ -80,15 +90,21 @@
           >
             <a-select-option
               v-for="item in tags"
-              :key="item.id+''"
+              :key="item.id + ''"
               :value="item.name"
-            >{{item.id}}-{{item.name}}</a-select-option>
+              >{{ item.id }}-{{ item.name }}</a-select-option
+            >
           </a-select>
         </a-form-item>
 
-        <a-form-item label="选择分类">
-          <a-select style="width: 100%" v-model="queryParam.categoryId">
-            <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{item.name}}</a-select-option>
+        <a-form-item label="选择分类" >
+          <a-select style="width: 100%" v-model="queryParam.categoryId" @change="handleChange">
+            <a-select-option
+              :value="item.id"
+              v-for="item in categorys"
+              :key="item.id"
+              >{{ item.name }}</a-select-option
+            >
           </a-select>
         </a-form-item>
 
@@ -109,10 +125,13 @@
               <!-- <a-icon type="inbox" /> -->
               <img :src="queryParam.picPath" width="100%" alt srcset />
             </p>
-            <p class="ant-upload-text">Click or drag file to this area to upload</p>
-            <p
-              class="ant-upload-hint"
-            >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
+            <p class="ant-upload-text">
+              Click or drag file to this area to upload
+            </p>
+            <p class="ant-upload-hint">
+              Support for a single or bulk upload. Strictly prohibit from
+              uploading company data or other band files
+            </p>
           </a-upload-dragger>
           <a-input v-model="queryParam.picPath"></a-input>
         </a-form-item>
@@ -134,7 +153,11 @@
       title="附件库"
       placement="right"
       :closable="false"
-      @close="()=>{attachemnetVisible=false}"
+      @close="
+        () => {
+          attachemnetVisible = false;
+        }
+      "
       :visible="attachemnetVisible"
       width="30rem"
     >
@@ -164,9 +187,10 @@
           <img :src="queryParam.picPath" width="100%" alt srcset />
         </p>
         <p class="ant-upload-text">Click or drag file to this area to upload</p>
-        <p
-          class="ant-upload-hint"
-        >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
+        <p class="ant-upload-hint">
+          Support for a single or bulk upload. Strictly prohibit from uploading
+          company data or other band files
+        </p>
       </a-upload-dragger>
     </a-modal>
 
@@ -175,17 +199,28 @@
         <a-form-item label="路径">
           <a-input v-model="attachmentDetails.path"></a-input>
         </a-form-item>
-        <a-form-item label="ThumbPath" v-show="handlePictureType(attachmentVisible)">
+        <a-form-item
+          label="ThumbPath"
+          v-show="handlePictureType(attachmentVisible)"
+        >
           <a-input v-model="attachmentDetails.thumbPath"></a-input>
         </a-form-item>
         <div v-if="handleVideoType(attachmentDetails)">
-          <video :src="attachmentDetails.path" controls style="width:100%"></video>
+          <video
+            :src="attachmentDetails.path"
+            controls
+            style="width: 100%"
+          ></video>
         </div>
         <div v-if="handlePictureType(attachmentDetails)">
-          <img :src="attachmentDetails.path" controls style="width:100%" />
+          <img :src="attachmentDetails.path" controls style="width: 100%" />
         </div>
         <div v-if="handleMusicType(attachmentDetails)">
-          <audio :src="attachmentDetails.path" controls style="width:100%"></audio>
+          <audio
+            :src="attachmentDetails.path"
+            controls
+            style="width: 100%"
+          ></audio>
         </div>
       </a-form>
     </a-modal>
@@ -204,11 +239,12 @@ import uploadApi from "@/api/upload.js";
 import attachmentApi from "@/api/attachment.js";
 import preview from "@/api/preview.js";
 import latexApi from "@/api/latex.js";
+import dynamicLoad from "@/utils/dynamicLoad.js";
 
 export default {
   // 注册
   components: {
-    mavonEditor
+    mavonEditor,
   },
   data() {
     return {
@@ -222,12 +258,12 @@ export default {
         summary: "",
         status: "PUBLISHED",
         pathPic: "",
-        userId: 1
+        userId: 1,
       },
       pagination: {
         page: 0,
         size: 10,
-        sort: null
+        sort: null,
       },
       img_file: {},
       visible: false,
@@ -246,23 +282,21 @@ export default {
       attachments: [],
       attachmentVisible: false,
       attachmentDetails: null,
-      attachmentUploadVisible: false
+      attachmentUploadVisible: false,
+      category:undefined
     };
   },
   watch: {
     latexContent(value) {
       this.getLatexSvg(value);
       // console.log(value);
-    }
-  },
-  created() {
-    this.loadcategory();
+    },
   },
   computed: {
     tagIdMap() {
       const tagIdMap = {};
       //获得tags的id map
-      this.tags.forEach(tag => {
+      this.tags.forEach((tag) => {
         tagIdMap[tag.id] = tag;
       });
       return tagIdMap;
@@ -270,7 +304,7 @@ export default {
     tagNameMap() {
       const tagNameMap = {};
       //获得tags的 name map
-      this.tags.forEach(tag => {
+      this.tags.forEach((tag) => {
         tagNameMap[tag.name] = tag;
       });
 
@@ -282,18 +316,18 @@ export default {
     headers() {
       var token = localStorage.getItem("Authorization");
       return {
-        Authorization: "Bearer " + token
+        Authorization: "Bearer " + token,
       };
-    }
+    },
   },
   beforeRouteEnter(to, from, next) {
     // Get post id from query
     const articleId = to.query.articleId;
 
-    next(vm => {
+    next((vm) => {
       if (articleId) {
         vm.articleId = articleId;
-        articleApi.findById(articleId).then(response => {
+        articleApi.findById(articleId).then((response) => {
           const article = response.data.data;
           vm.queryParam = article;
 
@@ -309,6 +343,8 @@ export default {
           //     tagIds: []
           // categoryIds: []
           vm.isUpdate = true;
+          // console.log(article.categoryId)
+          vm.loadcategory(article.categoryId);
         });
       }
     });
@@ -318,7 +354,7 @@ export default {
       var formdata = new FormData();
       formdata.append("file", $file);
       this.img_file[pos] = $file;
-      uploadApi.upload(formdata).then(response => {
+      uploadApi.upload(formdata).then((response) => {
         // console.log(response.data.data.path);
         this.$refs.md.$img2Url(pos, response.data.data.thumbPath);
       });
@@ -328,45 +364,45 @@ export default {
     submit() {
       if (!this.queryParam.categoryId) {
         this.$notification["error"]({
-          message: "文章类别不能为空!!"
+          message: "文章类别不能为空!!",
         });
         return;
       }
       if (!this.queryParam.title) {
         this.$notification["error"]({
-          message: "文章标题不能为空!!"
+          message: "文章标题不能为空!!",
         });
         return;
       }
       if (!this.queryParam.originalContent) {
         this.$notification["error"]({
-          message: "文章内容不能为空!!"
+          message: "文章内容不能为空!!",
         });
         return;
       }
       if (!this.queryParam.userId) {
         this.$notification["error"]({
-          message: "文章用户不能为空!!"
+          message: "文章用户不能为空!!",
         });
         return;
       }
       if (this.isUpdate) {
         articleApi
           .update(this.$route.query.articleId, this.queryParam)
-          .then(response => {
+          .then((response) => {
             // console.log(response);
             this.$notification["success"]({
-              message: "更新成功:" + response.data.message
+              message: "更新成功:" + response.data.message,
             });
             this.$router.push("/article/list");
             // this.$router.push("/article/list");
           });
       } else {
         // console.log(this.queryParam);
-        articleApi.create(this.queryParam).then(response => {
+        articleApi.create(this.queryParam).then((response) => {
           // console.log(response);
           this.$notification["success"]({
-            message: "成功创建文章" + response.data.message
+            message: "成功创建文章" + response.data.message,
           });
           this.$router.push("/article/list");
         });
@@ -375,43 +411,43 @@ export default {
     save() {
       if (!this.queryParam.categoryId) {
         this.$notification["error"]({
-          message: "文章类别不能为空!!"
+          message: "文章类别不能为空!!",
         });
         return;
       }
       if (!this.queryParam.title) {
         this.$notification["error"]({
-          message: "文章标题不能为空!!"
+          message: "文章标题不能为空!!",
         });
         return;
       }
       if (!this.queryParam.originalContent) {
         this.$notification["error"]({
-          message: "文章内容不能为空!!"
+          message: "文章内容不能为空!!",
         });
         return;
       }
       if (!this.queryParam.userId) {
         this.$notification["error"]({
-          message: "文章用户不能为空!!"
+          message: "文章用户不能为空!!",
         });
         return;
       }
       if (this.isUpdate) {
         articleApi
           .updateArticle(this.articleId, this.queryParam)
-          .then(response => {
+          .then((response) => {
             this.articleId = response.data.data.id;
             this.$notification["success"]({
-              message: "更新文章成功:" + response.data.message
+              message: "更新文章成功:" + response.data.message,
             });
           });
       } else {
-        articleApi.saveArticle(this.queryParam).then(response => {
+        articleApi.saveArticle(this.queryParam).then((response) => {
           this.articleId = response.data.data.id;
           this.isUpdate = true;
           this.$notification["success"]({
-            message: "保存文章" + response.data.message
+            message: "保存文章" + response.data.message,
           });
         });
       }
@@ -461,7 +497,6 @@ export default {
     },
     showDrawer() {
       this.loadTags();
-      // this.loadcategory();
       this.loadTempalte();
       this.visible = true;
     },
@@ -471,26 +506,26 @@ export default {
     /**获得tagsid */
     handleBlur() {
       const tagNamesToCreate = this.selectedTagNames.filter(
-        tagName => !this.tagNameMap[tagName]
+        (tagName) => !this.tagNameMap[tagName]
       );
       // console.log(tagNamesToCreate);
       // console.log(tagNamesToCreate.length);
       if (tagNamesToCreate.length == 0) {
         this.queryParam.tagIds = this.selectedTagNames.map(
-          tagName => this.tagNameMap[tagName].id
+          (tagName) => this.tagNameMap[tagName].id
         );
         // console.log( this.queryParam.tagIds)
         // If empty
         return;
       }
-      const createPromises = tagNamesToCreate.map(tagName =>
+      const createPromises = tagNamesToCreate.map((tagName) =>
         tagsApi.createWithName(tagName)
       );
       axios.all(createPromises).then(
         axios.spread(() => {
           this.loadTags(() => {
             this.queryParam.tagIds = this.selectedTagNames.map(
-              tagName => this.tagNameMap[tagName].id
+              (tagName) => this.tagNameMap[tagName].id
             );
           });
         })
@@ -499,19 +534,19 @@ export default {
     nextPage(num) {
       this.pagination.page = this.pagination.page + num;
       // console.log(this.pagination);
-      attachmentApi.list(this.pagination).then(resp => {
+      attachmentApi.list(this.pagination).then((resp) => {
         // console.log(resp);
         this.attachments = resp.data.data.content;
       });
     },
     loadAttachment() {
-      attachmentApi.list(this.pagination).then(resp => {
+      attachmentApi.list(this.pagination).then((resp) => {
         // console.log(resp);
         this.attachments = resp.data.data.content;
       });
     },
     loadTags(callback) {
-      tagsApi.list().then(response => {
+      tagsApi.list().then((response) => {
         this.tags = response.data.data;
         if (callback) {
           callback();
@@ -519,13 +554,14 @@ export default {
         // console.log(response.data.data);
       });
     },
-    loadcategory() {
-      categoryApi.list().then(response => {
+    loadcategory(id) {
+      categoryApi.list().then((response) => {
         this.categorys = response.data.data;
+        this.handleChange(id);
       });
     },
     loadTempalte() {
-      templateApi.findByType("ARTICLE").then(response => {
+      templateApi.findByType("ARTICLE").then((response) => {
         this.templates = response.data.data;
         // console.log(response);
       });
@@ -533,29 +569,29 @@ export default {
     preview() {
       if (!this.queryParam.categoryId) {
         this.$notification["error"]({
-          message: "文章类别不能为空!!"
+          message: "文章类别不能为空!!",
         });
         return;
       }
       if (!this.queryParam.title) {
         this.$notification["error"]({
-          message: "文章标题不能为空!!"
+          message: "文章标题不能为空!!",
         });
         return;
       }
       if (!this.queryParam.originalContent) {
         this.$notification["error"]({
-          message: "文章内容不能为空!!"
+          message: "文章内容不能为空!!",
         });
         return;
       }
 
       if (!this.articleId) {
-        articleApi.saveArticle(this.queryParam).then(response => {
+        articleApi.saveArticle(this.queryParam).then((response) => {
           this.articleId = response.data.data.id;
           // console.log(this.articleId);
           this.$notification["success"]({
-            message: "预览之前保存文章" + response.data.message
+            message: "预览之前保存文章" + response.data.message,
           });
           window.open(preview.Online("article", this.articleId), "_blank");
 
@@ -589,7 +625,7 @@ export default {
       }
     },
     getLatexSvg(latex) {
-      latexApi.preview(latex).then(resp => {
+      latexApi.preview(latex).then((resp) => {
         this.latexForamt = resp.data;
       });
     },
@@ -597,7 +633,7 @@ export default {
       if (!this.latexContent) {
         return;
       }
-      latexApi.save(this.latexContent).then(resp => {
+      latexApi.save(this.latexContent).then((resp) => {
         if (resp.data.message) {
           this.insert("![](/latex/" + resp.data.message + ")");
         }
@@ -663,8 +699,51 @@ export default {
       }
       // 没有获取到文件返回false
       return false;
-    }
-  }
+    },
+    handleChange(value) {
+      // console.log(value);
+      if (this.category) {
+        // this.templateCurr=undefined
+
+        if (this.category && this.category.resource) {
+          let resource = this.category.resource;
+          resource = JSON.parse(resource);
+          // console.log(resource);
+          // console.log(resource);
+          if (resource.css) {
+            resource.css.forEach((item) => {
+              dynamicLoad.removejscssfile(item, "css");
+            });
+          }
+          if (resource.js) {
+            resource.js.forEach((item) => {
+              dynamicLoad.removejscssfile(item, "js");
+            });
+          }
+        }
+      }
+
+      this.category = this.categorys.filter((item) => item.id == value)[0];
+      // console.log(this.category)
+      if (this.category && this.category.resource) {
+        let resource = this.category.resource;
+        resource = JSON.parse(resource);
+        // console.log(resource);
+        if (resource.css) {
+          resource.css.forEach((item) => {
+            // console.log(item);
+            dynamicLoad.css(dynamicLoad.addPrefix(item));
+          });
+        }
+        if (resource.js) {
+          resource.js.forEach((item) => {
+            // console.log(item);
+            dynamicLoad.js(dynamicLoad.addPrefix(item));
+          });
+        }
+      }
+    },
+  },
 };
 </script>
 

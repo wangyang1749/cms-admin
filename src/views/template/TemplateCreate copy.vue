@@ -52,25 +52,24 @@
         v-model="queryParam.templateContent"
       />
     </form>
-    <a-button type="primary" @click="showModal"> Open Modal </a-button>
-    <a-modal
-      class="visibleEditor"
-      v-model="visibleEditor"
-      title="Basic Modal"
-      @ok="handleOk"
-    >
-      <a-textarea v-model="sourceCode" ref="textarea"></a-textarea>
-    </a-modal>
-    <div id="div1">
-      <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p>
-    </div>
 
-    <iframe
-      name="iframeResult"
-      style="width: 100%; height: 500px"
-      ref="iframe"
-    ></iframe>
-
+    <a-row>
+      <a-col :span="12">
+        <!-- <a-textarea
+          v-model="queryParam.templateContent"
+          placeholder="Autosize height based on content lines"
+          autosize
+        /> -->
+        <textarea ref="textarea"></textarea>
+      </a-col>
+      <a-col :span="12">
+        <iframe
+          name="iframeResult"
+          style="width: 100%; height: 500px"
+          ref="iframe"
+        ></iframe>
+      </a-col>
+    </a-row>
     <!-- <div id="div1">
     </div> -->
     <!-- <textarea
@@ -97,10 +96,9 @@ import enumApi from "@/api/enum.js";
 import uploadApi from "@/api/upload.js";
 // import { mavonEditor } from "mavon-editor";
 // import "mavon-editor/dist/css/index.css";
-import E from "wangeditor";
+// import E from "wangeditor";
 import _CodeMirror from "codemirror";
 const CodeMirror = window.CodeMirror || _CodeMirror;
-import dynamicLoad from "@/utils/dynamicLoad.js";
 
 // 核心样式
 import "codemirror/lib/codemirror.css";
@@ -127,8 +125,7 @@ export default {
       id: null,
       isUpdate: false,
       templateType: [],
-      visibleEditor: false,
-      sourceCode: "",
+
       // 内部真实的内容
       code: "",
       // 默认的语法类型
@@ -207,9 +204,7 @@ export default {
         return preview.Url("preview/templates/add");
       }
     },
-    formatSourceCode() {
-      return this.getTemplateContent();
-    },
+    
   },
   mounted() {
     enumApi.list("TemplateType").then((resp) => {
@@ -218,21 +213,15 @@ export default {
     });
 
     // const E = window.wangEditor;
-    this.editor = new E("#div1");
-    // const $text1 = $("#text1");
-    let setTemplateContent = this.setTemplateContent;
-    this.editor.config.onchange = function (val) {
-      // 第二步，监控变化，同步更新到 textarea
-      // console.log(val);
-      setTemplateContent(val);
-      // templateContent = val;
+    // this.editor = new E("#div1");
+    // // const $text1 = $("#text1");
+    // this.editor.config.onchange = function () {
+    //   // 第二步，监控变化，同步更新到 textarea
+    //   // $text1.val(html);
+    // };
+    // this.editor.create();
 
-      // $text1.val(html);
-    };
-    this.editor.config.height = 500;
-
-    this.editor.create();
-
+    this._initialize();
     // 第一步，初始化 textarea 的值
     // $text1.val(editor.txt.html());
     // let he = window.HE.getEditor('editor')
@@ -255,9 +244,8 @@ export default {
           // console.log(resp);
           vm.queryParam = resp.data.data;
           vm.isUpdate = true;
-
-          vm.editor.txt.html(vm.formatSourceCode);
-          // vm.coder.setValue(vm.queryParam.templateContent);
+          // console.log(vm.editor)
+          vm.coder.setValue(vm.queryParam.templateContent);
           // vm.run()
         });
         // articleApi.findById(articleId).then(response => {
@@ -270,27 +258,6 @@ export default {
   methods: {
     handleChange() {
       //console.log(`selected ${value}`);
-    },
-    setTemplateContent(html) {
-      // console.log(dynamicLoad.prefix()+"/templates")
-      html = html.replaceAll(dynamicLoad.prefix()+"/templates", "/templates");
-      html = "<!DOCTYPE html> \n" + html;
-      html = html.replace(/body_replace>/g, "body>");
-      html = html.replace(/head_replace>/g, "head>");
-      html = html.replace(/html_replace>/g, "html>");
-      // html = html.replace(/\\<body_replace\\>/g, "<\\body>");
-      this.queryParam.templateContent = html;
-      // console.log(this.queryParam.templateContent);
-    },
-    getTemplateContent() {
-      let html = this.queryParam.templateContent;
-
-      html = html.replaceAll("/templates", dynamicLoad.prefix()+"/templates");
-      html = html.replace(/body>/g, "body_replace>");
-      html = html.replace(/head>/g, "head_replace>");
-      html = html.replace(/html>/g, "html_replace>");
-      // console.log(html);
-      return html;
     },
     submit() {
       if (this.isUpdate) {
@@ -326,15 +293,11 @@ export default {
 
       // 支持双向绑定
       this.coder.on("change", (coder) => {
-        let html = coder.getValue();
-        html = html.replace(/\/templates/g, "http://127.0.0.1:5500/templates");
-        // console.log(coder.getValue());
-        this.editor.txt.html(html);
-        // this.queryParam.templateContent = coder.getValue();
+        this.queryParam.templateContent = coder.getValue();
         // console.log(this.queryParam.templateContent)
-        // if (this.$emit) {
-        //   this.$emit("input", this.queryParam.templateContent);
-        // }
+        if (this.$emit) {
+          this.$emit("input", this.queryParam.templateContent);
+        }
       });
 
       // 尝试从父容器获取语法类型
@@ -402,19 +365,6 @@ export default {
       //   this.htmlUrl +
       //   '?aa2" style="width: 100%; height: 500px" ref="iframe"></iframe>';
     },
-    showModal() {
-      this.visibleEditor = true;
-      this.sourceCode = this.queryParam.templateContent;
-      // console.log(this.editor.txt.html());
-      // this._initialize();
-      // this.coder = CodeMirror.fromTextArea(this.$refs.textarea, this.options);
-    },
-    handleOk() {
-      this.visibleEditor = false;
-      // this.queryParam.templateContent = this.sourceCode;
-      this.setTemplateContent(this.sourceCode);
-      this.editor.txt.html(this.formatSourceCode);
-    },
     // submitTryit() {
     //   var form = document.createElement("form");
     //   form.setAttribute("id", "iframeResult");
@@ -432,13 +382,4 @@ export default {
 </script>
 
 <style>
-.sidebar {
-  position: absolute !important;
-}
-.w-e-toolbar {
-  z-index: 999 !important;
-}
-.w-e-text-container {
-  z-index: 1000 !important;
-}
 </style>

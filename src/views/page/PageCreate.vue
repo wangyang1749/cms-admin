@@ -12,7 +12,6 @@
         @imgAdd="imgAdd"
         @imgDel="imgDel"
       />
-
       <!-- <a-form-item label="输入CSS">
         <a-input type="textarea" v-model="queryParam.cssContent"></a-input>
       </a-form-item>
@@ -41,6 +40,9 @@
         <a-form-item label="页面名称">
           <a-input v-model="queryParam.title"></a-input>
         </a-form-item>
+        <a-form-item label="资源" v-if="template">
+          <a-textarea  v-model="template.resource" />
+        </a-form-item>
         <a-form>
           <a-form-item label="视图路径">
             <a-input
@@ -50,7 +52,11 @@
           </a-form-item>
 
           <a-form-item label="选择模板">
-            <a-select style="width: 100%" v-model="queryParam.templateName">
+            <a-select
+              style="width: 100%"
+              v-model="queryParam.templateName"
+              @change="handleChange"
+            >
               <a-select-option
                 :value="item.enName"
                 v-for="item in templates"
@@ -134,6 +140,8 @@ import uploadApi from "@/api/upload.js";
 import attachmentApi from "@/api/attachment.js";
 
 import sheetApi from "@/api/sheet.js";
+import dynamicLoad from "@/utils/dynamicLoad.js";
+
 
 export default {
   // 注册
@@ -154,6 +162,7 @@ export default {
       },
       visible: false,
       templates: [],
+      template: undefined,
       isUpdate: false,
       sheetId: null,
       img_file: {},
@@ -185,10 +194,13 @@ export default {
           //     tagIds: []
           // categoryIds: []
           vm.isUpdate = true;
+          vm.loadTemplate(article.templateName);
+          // console.log(article.templateName)
         });
       }
     });
   },
+  mounted() {},
   methods: {
     loadAttachment() {
       attachmentApi.list(this.pagination).then((resp) => {
@@ -243,18 +255,67 @@ export default {
       }
     },
     showDrawer() {
-      this.loadTemplate();
       this.visible = true;
+      // console.log(this.queryParam.templateName);
     },
     onClose() {
       this.visible = false;
     },
     handleChange(value) {
-      this.queryParam.channelId = value;
+      // let items = {};
+      // this.templates.forEach((item) => {
+      //   // console.log(item)
+      //   items[item.enName] = item;
+      // });
+      // // console.log(this.templates)
+      // console.log(items[value]);
+      // // console.log(value);
+
+      if (this.template) {
+        // this.templateCurr=undefined
+
+        if (this.template && this.template.resource) {
+          let resource = this.template.resource;
+          resource = JSON.parse(resource);
+          // console.log(resource);
+          // console.log(resource);
+          if (resource.css) {
+            resource.css.forEach((item) => {
+              dynamicLoad.removejscssfile(item, "css");
+            });
+          }
+          if (resource.js) {
+            resource.js.forEach((item) => {
+              dynamicLoad.removejscssfile(item, "js");
+            });
+          }
+        }
+      }
+
+      this.template = this.templates.filter((item) => item.enName == value)[0];
+
+      if (this.template && this.template.resource) {
+        let resource = this.template.resource;
+        resource = JSON.parse(resource);
+        // console.log(resource);
+        if (resource.css) {
+          resource.css.forEach((item) => {
+            // console.log(item);
+            dynamicLoad.css(dynamicLoad.addPrefix(item));
+          });
+        }
+        if (resource.js) {
+          resource.js.forEach((item) => {
+            // console.log(item);
+            dynamicLoad.js(dynamicLoad.addPrefix(item));
+          });
+        }
+      }
     },
-    loadTemplate() {
+    loadTemplate(name) {
       templateApi.findByType("SHEET").then((response) => {
         this.templates = response.data.data;
+        this.handleChange(name);
         // console.log(response);
       });
     },
