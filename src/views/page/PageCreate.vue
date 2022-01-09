@@ -41,7 +41,7 @@
           <a-input v-model="queryParam.title"></a-input>
         </a-form-item>
         <a-form-item label="资源" v-if="template">
-          <a-textarea  v-model="template.resource" />
+          <a-textarea v-model="template.resource" />
         </a-form-item>
         <a-form>
           <a-form-item label="视图路径">
@@ -142,7 +142,6 @@ import attachmentApi from "@/api/attachment.js";
 import sheetApi from "@/api/sheet.js";
 import dynamicLoad from "@/utils/dynamicLoad.js";
 
-
 export default {
   // 注册
   components: {
@@ -200,7 +199,14 @@ export default {
       }
     });
   },
-  mounted() {},
+  destroyed() {
+    this.removejscssfile();
+  },
+  mounted() {
+    if (!this.isUpdate) {
+      this.loadTemplate();
+    }
+  },
   methods: {
     loadAttachment() {
       attachmentApi.list(this.pagination).then((resp) => {
@@ -261,16 +267,7 @@ export default {
     onClose() {
       this.visible = false;
     },
-    handleChange(value) {
-      // let items = {};
-      // this.templates.forEach((item) => {
-      //   // console.log(item)
-      //   items[item.enName] = item;
-      // });
-      // // console.log(this.templates)
-      // console.log(items[value]);
-      // // console.log(value);
-
+    removejscssfile() {
       if (this.template) {
         // this.templateCurr=undefined
 
@@ -291,8 +288,26 @@ export default {
           }
         }
       }
-
+    },
+    handleChange(value) {
+      // let items = {};
+      // this.templates.forEach((item) => {
+      //   // console.log(item)
+      //   items[item.enName] = item;
+      // });
+      // // console.log(this.templates)
+      // console.log(items[value]);
+      // // console.log(value);
+      this.removejscssfile();
       this.template = this.templates.filter((item) => item.enName == value)[0];
+      if (!this.isUpdate) {
+        // console.log(this.template)
+        if (this.template && this.template.base) {
+          this.queryParam.originalContent = this.template.base;
+        }else {
+          this.queryParam.originalContent=""
+        }
+      }
 
       if (this.template && this.template.resource) {
         let resource = this.template.resource;
@@ -315,7 +330,10 @@ export default {
     loadTemplate(name) {
       templateApi.findByType("SHEET").then((response) => {
         this.templates = response.data.data;
-        this.handleChange(name);
+        if (name) {
+          this.handleChange(name);
+        }
+
         // console.log(response);
       });
     },
@@ -377,6 +395,7 @@ export default {
         sheetApi.saveSheet(this.queryParam).then((response) => {
           this.sheetId = response.data.data.id;
           this.isUpdate = true;
+          this.$router.replace({ query: { sheetId: this.sheetId } });
           this.$notification["success"]({
             message: "保存页面" + response.data.message,
           });

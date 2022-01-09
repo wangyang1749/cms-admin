@@ -53,14 +53,29 @@
       />
     </form>
     <a-button type="primary" @click="showModal"> Open Modal </a-button>
-    <a-modal
+    <!-- <a-modal
       class="visibleEditor"
       v-model="visibleEditor"
       title="Basic Modal"
       @ok="handleOk"
     >
-      <a-textarea v-model="sourceCode" ref="textarea"></a-textarea>
-    </a-modal>
+    </a-modal> -->
+
+    <a-drawer
+      title="Basic Drawer"
+      placement="right"
+      :closable="false"
+      width="80%"
+      :visible="visibleEditor"
+      @close="handleOk"
+    >
+      <a-textarea
+        :rows="30" 
+        v-model="sourceCode"
+        ref="textarea"
+      ></a-textarea>
+    </a-drawer>
+
     <div id="div1">
       <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p>
     </div>
@@ -273,7 +288,7 @@ export default {
     },
     setTemplateContent(html) {
       // console.log(dynamicLoad.prefix()+"/templates")
-      html = html.replaceAll(dynamicLoad.prefix()+"/templates", "/templates");
+      html = html.replaceAll(dynamicLoad.prefix() + "/templates", "/templates");
       html = "<!DOCTYPE html> \n" + html;
       html = html.replace(/body_replace>/g, "body>");
       html = html.replace(/head_replace>/g, "head>");
@@ -285,7 +300,7 @@ export default {
     getTemplateContent() {
       let html = this.queryParam.templateContent;
 
-      html = html.replaceAll("/templates", dynamicLoad.prefix()+"/templates");
+      html = html.replaceAll("/templates", dynamicLoad.prefix() + "/templates");
       html = html.replace(/body>/g, "body_replace>");
       html = html.replace(/head>/g, "head_replace>");
       html = html.replace(/html>/g, "html_replace>");
@@ -436,9 +451,9 @@ export default {
   position: absolute !important;
 }
 .w-e-toolbar {
-  z-index: 999 !important;
+      position: unset !important;
 }
 .w-e-text-container {
-  z-index: 1000 !important;
+      position: unset !important;
 }
 </style>
