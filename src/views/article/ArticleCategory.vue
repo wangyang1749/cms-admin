@@ -394,7 +394,7 @@ export default {
       //   this.categorys = resp.data.data.content;
       // });
       categoryApi.listVoTree().then(resp => {
-        console.log(resp.data.data);
+        // console.log(resp.data.data);
         this.categorys = resp.data.data;
       });
       // console.log("loadcategory");
@@ -412,13 +412,13 @@ export default {
     },
     loadArticle(id) {
       ArticleApi.listVoTree(id).then(response => {
-        console.log(response);
+        // console.log(response);
         this.articles = response.data.data;
       });
       // console.log(id)
     },
     articleListShow(id) {
-      console.log(id)
+      // console.log(id)
       this.categoryId = id;
       // console.log(id);
       this.loadArticle(id);
@@ -608,11 +608,11 @@ export default {
         this.generateHtml(this.updateId)
       })
     },onDropArticle(info){
-      console.log(info);
+      // console.log(info);
        this.onDrop(info,"articles","children")
     },onDropCategory(info){
       
-      console.log(info);
+      // console.log(info);
       this.onDrop(info,"categorys","children")
         //  children: 'childCategories',
         // title: 'name',
@@ -675,7 +675,7 @@ export default {
         }
       }
       this[name]  = data;
-      console.log(this[name] )
+      // console.log(this[name] )
 
     },
     updateAll(more) {
