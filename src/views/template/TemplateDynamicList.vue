@@ -30,9 +30,11 @@
         <a-switch
           defaultChecked
           @change="onChangeStatus(record.id)"
-          v-model="record.status"
+          v-model="record.tree"
         />
       </div>
+
+      
       <div slot="name" slot-scope="name, record">
         <a href="javascript:;" @click="openHtml(record)">{{ name }}</a>
       </div>
@@ -104,7 +106,7 @@ const columns = [
     key: "templateValue",
   },
   {
-    title: "是否展示在主页",
+    title: "是否使用Tree",
     dataIndex: "status",
     key: "status",
     scopedSlots: { customRender: "status" },
@@ -175,7 +177,7 @@ export default {
     },
     onChangeStatus(id) {
       // console.log(id)
-      TemplateApi.setStatus(id).then((resp) => {
+      TemplateApi.tree(id).then((resp) => {
         this.$notification["success"]({
           message: "操作" + resp.data.message,
         });

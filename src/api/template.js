@@ -25,9 +25,9 @@ templateApi.findByType = (type) => {
     })
 }
 
-templateApi.setStatus = id => {
+templateApi.tree = id => {
     return service({
-        url: `${baseUrl}/setStatus/${id}`,
+        url: `${baseUrl}/tree/${id}`,
         method: 'get'
     })
 }

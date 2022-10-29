@@ -1,11 +1,12 @@
 <template>
   <div>
-    <a-button type="primary" @click="append">添加分类</a-button>
+    <a-button type="primary" @click="initEdit">添加分类</a-button>
     <a-button @click="updateAll(false)">生成所有分类HTML</a-button>
     <a-button @click="updateAll(true)">生成所有分类HTML更新模板</a-button>
+       <a-button type="primary" @click="updateCategoryPos">更新顺序</a-button>
     <!-- <a-tabs defaultActiveKey="-1" @change="tabCallback"> -->
     <!-- <a-tab-pane :tab="itemTab.name" :key="itemTab.enName" v-for="itemTab in templates"> -->
-    <a-table
+    <!-- <a-table
       :columns="columns"
       :dataSource="categorys"
       :pagination="false"
@@ -46,12 +47,7 @@
         <a-switch defaultChecked @change="onChangeHtml(record.id)" v-model="record.haveHtml" />
       </div>
       <span slot="action" slot-scope="text, record">
-        <!-- <a href="javascript:;">Invite 一 {{record.name}}</a>
-        <a-divider type="vertical" />-->
-
-        <!-- <a href="javascript:;" @click="preview(record.id)">在线预览</a> -->
-        <!-- <a-divider type="vertical" />
-        <a href="javascript:;" @click="openHtml(record)">预览Html</a>-->
+     
         <a-divider type="vertical" />
         <a href="javascript:;" @click="articleListShow(record.id)">查看文章</a>
         <a-divider type="vertical" />
@@ -62,18 +58,86 @@
 
         <a-divider type="vertical" />
         <a href="javascript:;" @click="(e)=> remove(record.id)">删除分类</a>
-        <!-- <a href="javascript:;" class="ant-dropdown-link">
-        More actions
-        <a-icon type="down" />
-        </a>-->
+     
       </span>
-    </a-table>
+    </a-table> -->
     <!-- </a-tab-pane> -->
 
     <!-- <a-tab-pane tab="使用说明" ></a-tab-pane> -->
     <!-- </a-tabs> -->
 
-    <a-modal title="添加分类" v-model="visible" @ok="handleOk">
+    <a-drawer
+      title="文章列表"
+      placement="right"
+      :closable="true"
+      :visible="articleListDrawer"
+      @close="()=>{articleListDrawer=false}"
+      width="40rem"
+    >
+    <a-button type="primary" @click="updateArticlePos">更新文章顺序</a-button>
+
+         <a-tree
+        class="draggable-tree"
+        draggable
+        block-node
+        :tree-data="articles"
+        :replace-fields="articleFieldNames"
+        @drop="onDropArticle"
+         
+      />
+      <!-- <a-list bordered :dataSource="articles">
+        <a-list-item slot="renderItem" slot-scope="item">
+
+          <a-input-number slot="actions" v-model="item.order" />
+          <a slot="actions" @click="updateArticleOrder(item.id,item.order)">更新文章Order</a>
+          <a-list-item-meta :description="item.content">
+            <a slot="title">{{item.title}}</a>
+          </a-list-item-meta>
+        </a-list-item>
+      </a-list> -->
+    </a-drawer>
+
+  <a-row>
+    <a-col :span="8">
+        <a-tree
+        class="draggable-tree"
+        draggable
+        block-node
+        :tree-data="categorys"
+        :replace-fields="fieldNames"
+         @dragenter="onDragEnter"
+         @select="onSelect"
+        @drop="onDropCategory"
+         
+      />
+      <!-- @select="onSelect" -->
+        <!-- :replace-fields="fieldNames" -->
+
+    </a-col>
+    <a-col :span="16">
+
+      <div v-if="isUpdate">
+         <a-button  @click="preview(updateId)">预览</a-button>
+         <a-button  @click="openHtml()">查看Html</a-button>
+          <a-button  @click="remove(updateId)">删除分类</a-button>
+          <a-button  @click="articleListShow(updateId)">查看文章</a-button>
+           <a-button  @click="generateHtml(updateId)">生成HTML</a-button>
+           是否推荐首页
+          <a-switch defaultChecked @change="onChange(updateId)" v-model="categoryParam.recommend" />
+
+          是否添加到导航
+           <a-switch defaultChecked @change="onChangeNav(updateId)" v-model="categoryParam.existNav" />
+          是否生成Html
+            <a-switch defaultChecked @change="onChangeHtml(updateId)" v-model="categoryParam.haveHtml" />
+
+           <!-- <a-switch defaultChecked @change="onChange(this.updateId)" /> -->
+           
+          <hr>
+      </div>
+
+        <!-- <a-input v-model:value="value" placeholder="Basic usage" /> -->
+
+    <!-- <a-modal title="添加分类" v-model="visible" @ok="handleOk"> -->
       <a-form-item label="一页文章数量">
         <a-input-number id="inputNumber" v-model="categoryParam.articleListSize" />
       </a-form-item>
@@ -146,30 +210,16 @@
           <a-input v-model="categoryParam.order"></a-input>
         </a-form-item>
       </a-form>
-    </a-modal>
+      <a-button @click="handleOk">确认</a-button>
+    <!-- </a-modal> -->
 
-    <a-drawer
-      title="文章列表"
-      placement="right"
-      :closable="true"
-      :visible="articleListDrawer"
-      @close="()=>{articleListDrawer=false}"
-      width="40rem"
-    >
-      <!-- <a-button type="primary" @click="updateArticleOrder">提交排序结果</a-button> -->
-      <a-list bordered :dataSource="articles">
-        <a-list-item slot="renderItem" slot-scope="item">
-          <!-- <a slot="actions">编辑</a>
-          <a slot="actions" @click="delComment(item.id)">删除</a>
-          <a slot="actions">回复</a>-->
-          <a-input-number slot="actions" v-model="item.order" />
-          <a slot="actions" @click="updateArticleOrder(item.id,item.order)">更新文章Order</a>
-          <a-list-item-meta :description="item.content">
-            <a slot="title">{{item.title}}</a>
-          </a-list-item-meta>
-        </a-list-item>
-      </a-list>
-    </a-drawer>
+    </a-col>
+  </a-row>
+
+
+  
+
+
   </div>
 </template>
 
@@ -230,6 +280,42 @@ import preview from "@/api/preview.js";
 // import uploadApi from "@/api/upload.js";
 import attachmentApi from "@/api/attachment.js";
 import ArticleApi from "@/api/article.js";
+
+// // import {  ref } from 'vue';
+// const x = 3;
+// const y = 2;
+// const z = 1;
+// const genData = [];
+
+// const generateData = (_level, _preKey, _tns) => {
+//   const preKey = _preKey || '0';
+//   const tns = _tns || genData;
+//   const children = [];
+
+//   for (let i = 0; i < x; i++) {
+//     const key = `${preKey}-${i}`;
+//     tns.push({
+//       title: key,
+//       key,
+//     });
+
+//     if (i < y) {
+//       children.push(key);
+//     }
+//   }
+
+//   if (_level < 0) {
+//     return tns;
+//   }
+
+//   const level = _level - 1;
+//   children.forEach((key, index) => {
+//     tns[index].children = [];
+//     return generateData(level, key, tns[index].children);
+//   });
+// };
+
+// generateData(z);
 export default {
   data() {
     return {
@@ -238,6 +324,7 @@ export default {
       categorys: [],
       parentCategory: [],
       articles: [],
+      // gData:[],
       // value: "",
       templates: [],
       articleTemplate: [],
@@ -259,11 +346,24 @@ export default {
         articleListSize: 10,
         desc: true,
         parentId: 0
+      },
+      fieldNames:{
+        children: 'children',
+        title: 'name',
+        key:'id'
+      },articleFieldNames:{
+        children: 'children',
+        title: 'title',
+        key:'id'
       }
     };
   },
   created() {
     this.loadcategory();
+    // this.gData = genData;
+    // console.log(genData)
+    this.initEdit()
+    // console.log(this.categorys )
   },
   computed: {
     upload() {
@@ -293,8 +393,8 @@ export default {
       //   console.log(resp.data.data.content);
       //   this.categorys = resp.data.data.content;
       // });
-      categoryApi.listTree().then(resp => {
-        // console.log(resp.data.data);
+      categoryApi.listVoTree().then(resp => {
+        console.log(resp.data.data);
         this.categorys = resp.data.data;
       });
       // console.log("loadcategory");
@@ -311,27 +411,28 @@ export default {
       });
     },
     loadArticle(id) {
-      ArticleApi.pageDtoBy(id).then(response => {
-        // console.log(response);
-        this.articles = response.data.data.content;
+      ArticleApi.listVoTree(id).then(response => {
+        console.log(response);
+        this.articles = response.data.data;
       });
       // console.log(id)
     },
     articleListShow(id) {
+      console.log(id)
       this.categoryId = id;
       // console.log(id);
       this.loadArticle(id);
       this.articleListDrawer = true;
     },
-    updateArticleOrder(id, order) {
-      // console.log(id+"-"+order)
-      ArticleApi.updateOrderBy(id, order).then(resp => {
-        this.$notification["success"]({
-          message: "成功更改文章" + resp.data.data.title + "的顺序!"
-        });
-        this.loadArticle(this.categoryId);
-      });
-    },
+    // updateArticleOrder(id, order) {
+    //   // console.log(id+"-"+order)
+    //   ArticleApi.updateOrderBy(id, order).then(resp => {
+    //     this.$notification["success"]({
+    //       message: "成功更改文章" + resp.data.data.title + "的顺序!"
+    //     });
+    //     this.loadArticle(this.categoryId);
+    //   });
+    // },
     handleChange(info) {
       const status = info.file.status;
       if (status !== "uploading") {
@@ -374,10 +475,10 @@ export default {
 
       this.visible = false;
     },
-    append() {
+    initEdit() {
       this.loadTempalte();
       this.loadArticleTempalte();
-
+      this.categoryParam={}
       this.isUpdate = false;
       this.visible = true;
     },
@@ -387,10 +488,11 @@ export default {
       // this.loadArticle(id);
 
       this.loadArticleTempalte();
-      this.isUpdate = true;
-
-      this.updateId = id;
+     
       categoryApi.findById(id).then(response => {
+         this.isUpdate = true;
+
+        this.updateId = id;
         this.categoryParam = response.data.data;
         // console.log(this.categoryParam);
         // this.categoryParam.haveHtml = 0;
@@ -454,12 +556,13 @@ export default {
       window.open(preview.Online("category", value), "_blank");
     },
 
-    openHtml(value) {
-      if (value.haveHtml) {
-        window.open(preview.Html(value.path + "/" + value.viewName), "_blank");
-      } else {
-        this.$message.error("该分类没有生成HTML");
-      }
+    openHtml() {
+        window.open(preview.Html(this.categoryParam.path + "/" + this.categoryParam.viewName), "_blank");
+
+      // if (this.categoryParam.value.haveHtml) {
+      // } else {
+      //   this.$message.error("该分类没有生成HTML");
+      // }
     },
     openHtmlFirstArticle(value) {
       if (value.haveHtml) {
@@ -482,6 +585,98 @@ export default {
           message: "成功生成" + response.data.data.name + "的HTML"
         });
       });
+    },onSelect(selectedKeys){
+      // console.log(selectedKeys);
+      // console.log(info)
+      this.edit(selectedKeys)
+    },onDragEnter(){
+        // console.log(info)
+    },updateCategoryPos(){
+        categoryApi.updatePos(this.categorys ).then(resp=>{
+          this.loadcategory();
+
+          this.initEdit()
+          this.$notification["success"]({
+          message: "顺序更新" + resp.data.message 
+          });
+        })
+    },updateArticlePos(){
+      ArticleApi.updatePos(this.categoryId ,this.articles).then(resp=>{
+          this.$notification["success"]({
+          message: "顺序更新" + resp.data.message 
+          });
+        this.generateHtml(this.updateId)
+      })
+    },onDropArticle(info){
+      console.log(info);
+       this.onDrop(info,"articles","children")
+    },onDropCategory(info){
+      
+      console.log(info);
+      this.onDrop(info,"categorys","children")
+        //  children: 'childCategories',
+        // title: 'name',
+        // key:'id'
+     
+    },onDrop(info,name,childName){
+      const dropKey = info.node.eventKey;
+      const dragKey = info.dragNode.eventKey;
+      const dropPos = info.node.pos.split('-');
+      const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
+      const loop = (data, id, callback) => {
+        data.forEach((item, index, arr) => {
+          if (item.id === id) {
+            return callback(item, index, arr);
+          }
+
+          if (item[childName]) {
+            return loop(item[childName], id, callback);
+          }
+        });
+      };
+      // console.log(this.categorys)
+      const data = [...this[name]]; // Find dragObject
+
+      let dragObj = {};
+      loop(data, dragKey, (item, index, arr) => {
+        arr.splice(index, 1);
+        dragObj = item;
+      });
+
+      if (!info.dropToGap) {
+        // Drop on the content
+        loop(data, dropKey, item => {
+          item[childName] = item[childName] || []; // where to insert 示例添加到尾部，可以是随意位置
+
+          item[childName].push(dragObj);
+        });
+      } else if (
+        (info.node[childName] || []).length > 0 && // Has children
+        info.node.expanded && // Is expanded
+        dropPosition === 1 // On the bottom gap
+      ) {
+        loop(data, dropKey, item => {
+          item[childName] = item[childName] || []; // where to insert 示例添加到尾部，可以是随意位置
+
+          item[childName].unshift(dragObj);
+        });
+      } else {
+        let ar = [];
+        let i = 0;
+        loop(data, dropKey, (item, index, arr) => {
+          ar = arr;
+          i = index;
+        });
+
+        if (dropPosition === -1) {
+          ar.splice(i, 0, dragObj);
+        } else {
+          ar.splice(i + 1, 0, dragObj);
+        }
+      }
+      this[name]  = data;
+      console.log(this[name] )
+
     },
     updateAll(more) {
       var _this = this;

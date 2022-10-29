@@ -73,9 +73,9 @@ articleApi.pageByTagId = (tagId,params) => {
 }
 
 
-articleApi.pageDtoBy = (articleId,params) => {
+articleApi.listVoTree = (articleId,params) => {
     return service({
-        url: `${baseUrl}/pageDtoBy/${articleId}`,
+        url: `${baseUrl}/listVoTree/${articleId}`,
         params:params,
         method: 'get'
     })
@@ -121,6 +121,15 @@ articleApi.saveArticle = (params) => {
         method: 'post'
     })
 }
+
+articleApi.updatePos = (id,params) => {
+    return service({
+        url: `${baseUrl}/updatePos/${id}`,
+        data: params,
+        method: 'post'
+    })
+}
+
 articleApi.updateArticle = (id,params) => {
     return service({
         url: `${baseUrl}/save/${id}`,

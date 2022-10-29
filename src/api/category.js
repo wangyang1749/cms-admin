@@ -17,9 +17,9 @@ categoryApi.list = () => {
       method: 'get'
   })
 }
-categoryApi.listTree = () => {
+categoryApi.listVoTree = () => {
   return service({
-      url: `${baseUrl}/listCategoryVo`,
+      url: `${baseUrl}/listVoTree`,
       method: 'get'
   })
 }
@@ -39,6 +39,16 @@ categoryApi.add = data=>{
     data:data
   })
 }
+
+
+categoryApi.updatePos = data=>{
+  return service({
+    url:`${baseUrl}/updatePos`,
+    method:'post',
+    data:data
+  })
+}
+
 categoryApi.update = (id,data)=>{
   return service({
     url:`${baseUrl}/update/${id}`,
