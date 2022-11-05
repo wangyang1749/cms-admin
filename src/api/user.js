@@ -27,7 +27,7 @@ userApi.update = (id,params) => {
 
 userApi.delete = (id) => {
     return service({
-        url: `${baseUrl}/delete/${id}`,
+        url: `${baseUrl}/dell/${id}`,
         method: 'get'
     })
 }

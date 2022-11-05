@@ -47,6 +47,12 @@ const routes = [
             name: 'ArticleCategory',
             component: () => import(/* webpackChunkName: "ArticleCategory" */ '../views/article/ArticleCategory.vue'),
             meta: { title: '文章分类' }
+          },
+          {
+            path: '/article/literature',
+            name: 'Literature',
+            component: () => import(/* webpackChunkName: "Literature" */ '../views/article/Literature.vue'),
+            meta: { title: '文献管理' }
           }
           // , {
           //   path: '/article/channel',
