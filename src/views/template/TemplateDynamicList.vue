@@ -36,7 +36,7 @@
 
       
       <div slot="name" slot-scope="name, record">
-        <a href="javascript:;" @click="openHtml(record)">{{ name }}</a>
+        <a href="javascript:;" @click="preview(record.id)">{{ name }}</a>
       </div>
 
       <span slot="action" slot-scope="record">
@@ -219,9 +219,10 @@ export default {
       }
       this.loadTemplate();
     },
-    openHtml(value) {
+    preview(value) {
       // console.log(value.templateValue)
-      window.open(preview.Html(value.templateValue), "_blank");
+      // window.open(preview.Html(value), "_blank");
+      window.open(preview.Online("template", value), "_blank");
     },
     // handleEditClick(template) {
     //   console.log(template);

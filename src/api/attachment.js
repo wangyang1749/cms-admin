@@ -8,6 +8,10 @@ attachmentApi.upload=()=>{
   return `http://${Golbal.baseUrl}:${Golbal.port}/api/attachment/upload`
 }
 
+attachmentApi.uploadBib=()=>{
+  return `http://${Golbal.baseUrl}:${Golbal.port}/api/attachment/uploadBib?update=true`
+}
+
 attachmentApi.list = (params) => {
   return service({
       url: baseUrl,

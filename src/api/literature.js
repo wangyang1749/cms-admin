@@ -4,10 +4,11 @@ const baseUrl = '/api/literature'
 const literatureApi = {}
 
 
-literatureApi.list = () => {
+literatureApi.list = (params) => {
   return service({
       url: baseUrl,
-      method: 'get'
+      method: 'get',
+      params:params
   })
 }
 literatureApi.delete= (id)=>{

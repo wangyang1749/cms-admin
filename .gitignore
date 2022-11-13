@@ -20,3 +20,5 @@ yarn-error.log*
 *.sln
 *.sw?
 push.sh
+global_variable.js
+src/api/global_variable.js

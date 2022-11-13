@@ -1,5 +1,6 @@
 // const baseUrl = "localhost"
-const baseUrl = "bioinfo.online"
+const baseUrl = "192.168.0.134"
+// const baseUrl = "bioinfo.online"
 
 const port = 8080
 
