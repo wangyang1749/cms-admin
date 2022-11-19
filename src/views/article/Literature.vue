@@ -1,5 +1,7 @@
 <template>
   <div>
+    <a-button @click="importData">导入</a-button>
+    <a-button @click="generateHtml">HTML</a-button>
     <a-button @click="addMenu">添加菜单</a-button>
     <a-button
       type="primary"
@@ -18,6 +20,9 @@
       <!-- <div slot="existNav" slot-scope="existNav,record">
         <a-switch defaultChecked @change="onChangeNav(record.id)" v-model="record.existNav" />
       </div> -->
+     <div slot="title_" slot-scope="title_">
+        <a href="javascript:;">{{ title_ }}</a>
+      </div>
 
       <span slot="action" slot-scope="text, record">
          <a href="javascript:;" @click="edit(record)">更新</a>
@@ -97,11 +102,12 @@
 <script>
 import literatureApi from "@/api/literature.js";
 import attachmentApi from "@/api/attachment.js";
+import preview from "@/api/preview.js";
 const columns = [
      { title: "id", dataIndex: "id", key: "id" },
 
    { title: "Key", dataIndex: "key", key: "key" },
-  { title: "Title", dataIndex: "title", key: "title" },
+  { title: "Title", dataIndex: "title", key: "title",scopedSlots: { customRender: "title_" }},
   {
     title: "Action",
     key: "action",
@@ -203,6 +209,21 @@ export default {
         });
         this.loadLiterature();
       });
+    },importData(){
+      literatureApi.import().then(resp=>{
+        // console.log(resp)
+        this.$message.success(resp.data.message);
+        this.loadLiterature()
+      })
+    },generateHtml(){
+      literatureApi.generateHtml().then(resp=>{
+        // console.log(resp)
+        this.$message.success(resp.data.message);
+        this.loadLiterature()
+      })
+    }, preview(id) {
+      window.open(preview.Online("literatureList", id), "_blank");
+      // window.location.href='https://www.baidu.com/'
     },
     // updateMenu(value) {
     //   // console.log(value);

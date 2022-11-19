@@ -4,6 +4,21 @@ const baseUrl = '/api/literature'
 const literatureApi = {}
 
 
+literatureApi.import = () => {
+  return service({
+      url: `${baseUrl}/import`,
+      method: 'get'
+  })
+}
+
+literatureApi.generateHtml = () => {
+  return service({
+      url: `${baseUrl}/generateHtml`,
+      method: 'get'
+  })
+}
+
+
 literatureApi.list = (params) => {
   return service({
       url: baseUrl,
