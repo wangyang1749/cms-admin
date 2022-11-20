@@ -2,7 +2,19 @@ import service from '@/utils/service'
 const baseUrl = '/api/menu'
 
 const menuApi = {}
-
+menuApi.listVoTree = () => {
+  return service({
+      url: `${baseUrl}/listVoTree`,
+      method: 'get'
+  })
+}
+menuApi.updatePos = data=>{
+  return service({
+    url:`${baseUrl}/updatePos`,
+    method:'post',
+    data:data
+  })
+}
 
 menuApi.list = () => {
   return service({
