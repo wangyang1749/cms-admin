@@ -150,6 +150,9 @@
         <a-form-item label="分类名称">
           <a-input v-model="categoryParam.name"></a-input>
         </a-form-item>
+        <a-form-item label="icon">
+          <a-input v-model="categoryParam.icon"></a-input>
+        </a-form-item>
 
         <a-form-item label="选择分类信息模板">
           <a-select style="width: 100%" v-model="categoryParam.templateName">
@@ -344,6 +347,7 @@ export default {
         articleTemplateName: "",
         firstArticle: "",
         articleListSize: 10,
+        icon:"",
         desc: true,
         parentId: 0
       },
@@ -459,6 +463,7 @@ export default {
         // this.desc=1
         // console.log(this.categoryParam);
         categoryApi.update(this.updateId, this.categoryParam).then(response => {
+          // console.log(this.categoryParam)
           this.$notification["success"]({
             message: "成功更新数据:" + response.data.data.name
           });
