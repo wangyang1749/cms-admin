@@ -134,6 +134,7 @@
             </p>
           </a-upload-dragger>
           <a-input v-model="queryParam.picPath"></a-input>
+          <a-input v-model="queryParam.picThumbPath"></a-input>
         </a-form-item>
         <!-- 
           <a-form-item label="是否需要静态化">
@@ -258,6 +259,7 @@ export default {
         summary: "",
         status: "PUBLISHED",
         pathPic: "",
+        picThumbPath:"",
         userId: 1,
       },
       pagination: {
@@ -488,7 +490,8 @@ export default {
       //   // console.log(info.file, info.fileList);
       // }
       if (status === "done") {
-        this.queryParam.picPath = info.file.response.data.thumbPath;
+        this.queryParam.picThumbPath = info.file.response.data.thumbPath;
+        this.queryParam.picPath = info.file.response.data.path;
         // console.log(info.file.response.data.path);
         this.$message.success(`${info.file.name} file uploaded successfully.`);
       } else if (status === "error") {

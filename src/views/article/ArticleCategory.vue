@@ -196,6 +196,7 @@
             >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
           </a-upload-dragger>
           <a-input placeholder="直接粘贴图片路径" v-model="categoryParam.picPath"></a-input>
+          <a-input placeholder="直接粘贴图片路径" v-model="categoryParam.picThumbPath"></a-input>
         </a-form-item>
 
         <a-form-item label="父ID">
@@ -349,7 +350,8 @@ export default {
         articleListSize: 10,
         icon:"",
         desc: true,
-        parentId: 0
+        parentId: 0,
+        picThumbPath:""
       },
       fieldNames:{
         children: 'children',
@@ -444,6 +446,7 @@ export default {
       }
       if (status === "done") {
         this.categoryParam.picPath = info.file.response.data.path;
+        this.categoryParam.picThumbPath = info.file.response.data.thumbPath;
         // console.log(info.file.response.data.path);
         this.$message.success(`${info.file.name} file uploaded successfully.`);
       } else if (status === "error") {
