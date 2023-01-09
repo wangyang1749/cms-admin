@@ -283,8 +283,8 @@ import templateApi from "@/api/template.js";
 import preview from "@/api/preview.js";
 // import uploadApi from "@/api/upload.js";
 import attachmentApi from "@/api/attachment.js";
-import ArticleApi from "@/api/article.js";
-
+// import ArticleApi from "@/api/article.js";
+import contentAPI from "@/api/content.js";
 // // import {  ref } from 'vue';
 // const x = 3;
 // const y = 2;
@@ -417,7 +417,7 @@ export default {
       });
     },
     loadArticle(id) {
-      ArticleApi.listVoTree(id).then(response => {
+      contentAPI.listVoTree(id).then(response => {
         // console.log(response);
         this.articles = response.data.data;
       });
@@ -609,7 +609,7 @@ export default {
           });
         })
     },updateArticlePos(){
-      ArticleApi.updatePos(this.categoryId ,this.articles).then(resp=>{
+      contentAPI.updatePos(this.categoryId ,this.articles).then(resp=>{
           this.$notification["success"]({
           message: "顺序更新" + resp.data.message 
           });

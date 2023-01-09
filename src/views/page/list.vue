@@ -4,8 +4,14 @@
       <div slot="existNav" slot-scope="existNav,record">
         <a-switch defaultChecked @change="onChangeNav(record.id)" v-model="record.existNav" />
       </div>
-
+      <div slot="categoryId" slot-scope="categoryId, record">
+          <a-select style="width: 100%" v-model="record.categoryId" @change="selectCategory(record.id, $event)">
+            <a-select-option  :key="0">没有分类</a-select-option>
+            <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{ item.name }}</a-select-option>
+          </a-select>
+        </div>
       <span slot="action" slot-scope="text, record">
+ 
         <a href="javascript:;" @click="edit(record.id)">编辑</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
@@ -18,17 +24,10 @@
       </span>
 
       <template slot="footer">
-        <div class="page-wrapper" :style="{ textAlign: 'right'}">
-          <a-pagination
-            class="pagination"
-            :current="pagination.page"
-            :total="pagination.total"
-            :defaultPageSize="pagination.size"
-            :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']"
-            showSizeChanger
-            @showSizeChange="handlePaginationChange"
-            @change="handlePaginationChange"
-          />
+        <div class="page-wrapper" :style="{ textAlign: 'right' }">
+          <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
+            :defaultPageSize="pagination.size" :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']"
+            showSizeChanger @showSizeChange="handlePaginationChange" @change="handlePaginationChange" />
         </div>
       </template>
     </a-table>
@@ -38,16 +37,25 @@
 <script>
 import sheetApi from "@/api/sheet.js";
 import preview from "@/api/preview.js";
+import categoryApi from "@/api/category.js";
+import contentAPI from "@/api/content.js";
+
 const columns = [
   { title: "Title", dataIndex: "title", key: "title" },
   {
     title: "页面的名称",
     dataIndex: "viewName",
     key: "viewName"
-  },{
+  }, {
     title: "模板",
     dataIndex: "templateName",
     key: "templateName"
+  },
+  {
+    title: "分类",
+    dataIndex: "categoryId",
+    key: "categoryId",
+    scopedSlots: { customRender: "categoryId" },
   },
   {
     title: "创建时间",
@@ -81,14 +89,17 @@ export default {
         sort: null,
         keyword: null,
         categoryId: null,
-        status: null
+        status: null,
+        
       },
+      categorys:[],
       data: [],
       columns
     };
   },
   created() {
     this.loadSheet();
+    this.loadcategory() 
   },
   methods: {
     loadSheet() {
@@ -99,6 +110,22 @@ export default {
         this.data = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
         // console.log(response);
+      });
+    },
+    loadcategory() {
+      // console.log("loadcategory");
+      categoryApi.list().then((response) => {
+        // console.log(response);
+        this.categorys = response.data.data;
+      });
+    },  selectCategory(value, select) {
+      // console.log(value,select)
+      contentAPI.updateCategory(value, select).then((response) => {
+        // console.log(response);
+        this.$notification["success"]({
+          message: "操作" + response.data.message,
+        });
+        this.loadArticle();
       });
     },
     handlePaginationChange(page, pageSize) {
@@ -126,7 +153,7 @@ export default {
     onChangeNav(id) {
       // console.log(id);
       sheetApi.addOrRemoveToMenu(id).then(response => {
-         if (response.data.data.existNav) {
+        if (response.data.data.existNav) {
           this.$notification["success"]({
             message: "成功添加" + response.data.data.title + "到导航!!"
           });
@@ -161,4 +188,5 @@ export default {
 </script>
 
 <style>
+
 </style>
