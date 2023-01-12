@@ -54,17 +54,24 @@
       @close="()=>{articleListDrawer=false}"
       width="40rem"
     >
-      <a-input v-model="articleViewName"></a-input>
+      <a-input v-model="articleViewName" min="1" :max="10"></a-input>
       <a-button @click="addByArticleViewName">添加文章</a-button>
+
+      
       <a-list bordered :dataSource="articles">
         <a-list-item slot="renderItem" slot-scope="item">
           <!-- <a slot="actions">编辑</a>
           <a slot="actions" @click="delComment(item.id)">删除</a>
           <a slot="actions">回复</a>-->
+
+          <a slot="actions" @click="updateArticleInComponentOrder(item.id,item.articleInComponentOrder)">更新顺序</a>
           <a slot="actions" @click="removeArticle(item.id)">从组件移除文章</a>
-          <a-list-item-meta :description="item.content">
+
+          <a-list-item-meta >
             <a slot="title" @click="openArticleHtml(item)">{{item.title}}</a>
+            <a-input-number slot="title" v-model="item.articleInComponentOrder"></a-input-number>
           </a-list-item-meta>
+
         </a-list-item>
       </a-list>
     </a-drawer>
@@ -127,7 +134,7 @@ export default {
       columns,
       articles: [],
       template: [],
-
+      articleInComponentOrder:3,
       componentId: null,
       articleListDrawer: false,
       articleViewName: ""
@@ -146,6 +153,12 @@ export default {
         this.pagination.total = response.data.data.totalElements;
         // console.log(response);
       });
+    },updateArticleInComponentOrder(id,order){
+      ArticleApi.updateArticleInComponentOrder(id,order).then(resp=>{
+        this.$notification["success"]({
+          message: resp.data.message
+        });
+      })
     },
     handlePaginationChange(page, pageSize) {
       // console.log("111")

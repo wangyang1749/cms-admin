@@ -1,4 +1,5 @@
 CMS_PATH=~/cms/html/admin
+export NODE_OPTIONS=--openssl-legacy-provider
 
 # echo $CMS_PATH
 npm run build

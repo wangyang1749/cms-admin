@@ -154,5 +154,11 @@ articleApi.generateHtml=(id) => {
     })
 }
 
+articleApi.updateArticleInComponentOrder=(id,order) => {
+    return service({
+        url: `${baseUrl}/updateArticleInComponentOrder?id=${id}&order=${order}`,
+        method: 'get'
+    })
+}
 
 export default articleApi
