@@ -321,6 +321,8 @@ export default {
         Authorization: "Bearer " + token,
       };
     },
+  },mounted(){
+    this.loadcategory()
   },
   beforeRouteEnter(to, from, next) {
     // Get post id from query
@@ -560,7 +562,10 @@ export default {
     loadcategory(id) {
       categoryApi.list().then((response) => {
         this.categorys = response.data.data;
-        this.handleChange(id);
+        if(id){
+          this.handleChange(id);
+        }
+        
       });
     },
     loadTempalte() {

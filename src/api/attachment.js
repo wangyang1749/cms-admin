@@ -5,11 +5,11 @@ const baseUrl = '/api/attachment'
 const attachmentApi = {}
 
 attachmentApi.upload=()=>{
-  return `http://${Golbal.baseUrl}:${Golbal.port}/api/attachment/upload`
+  return `${Golbal.protocol}://${Golbal.baseUrl}:${Golbal.port}/api/attachment/upload`
 }
 
 attachmentApi.uploadBib=()=>{
-  return `http://${Golbal.baseUrl}:${Golbal.port}/api/attachment/uploadBib?update=true`
+  return `{}://${Golbal.baseUrl}:${Golbal.port}/api/attachment/uploadBib?update=true`
 }
 
 attachmentApi.list = (params) => {
