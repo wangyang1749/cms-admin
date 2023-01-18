@@ -224,7 +224,7 @@ export default {
     },
     handleOk() {
       if (this.isUpdate) {
-        console.log(this.form);
+        // console.log(this.form);
         UserApi.update(this.form.id,this.form).then(resp=>{
           this.modal_visible = false;
           // console.log(resp)
@@ -235,7 +235,7 @@ export default {
           });
         })
       } else {
-        console.log(this.form);
+        // console.log(this.form);
         UserApi.add(this.form).then((resp) => {
           this.modal_visible = false;
           // console.log(resp)
