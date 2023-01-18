@@ -86,7 +86,11 @@ const columns = [
     key: "name",
     scopedSlots: { customRender: "templateName" }
   },
-
+{
+    title: "模板名称",
+    dataIndex: "enName",
+    key: "enName"
+  },
   {
     title: "数据来源",
     key: "dataName",

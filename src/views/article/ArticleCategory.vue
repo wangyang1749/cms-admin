@@ -66,12 +66,28 @@
     <!-- <a-tab-pane tab="使用说明" ></a-tab-pane> -->
     <!-- </a-tabs> -->
 
-    <a-drawer title="文章列表" placement="right" :closable="true" :visible="articleListDrawer"
-      @close="() => { articleListDrawer = false }" width="40rem">
+    <a-drawer
+      title="文章列表"
+      placement="right"
+      :closable="true"
+      :visible="articleListDrawer"
+      @close="
+        () => {
+          articleListDrawer = false;
+        }
+      "
+      width="40rem"
+    >
       <a-button type="primary" @click="updateArticlePos">更新文章顺序</a-button>
 
-      <a-tree class="draggable-tree" draggable block-node :tree-data="articles" :replace-fields="articleFieldNames"
-        @drop="onDropArticle" />
+      <a-tree
+        class="draggable-tree"
+        draggable
+        block-node
+        :tree-data="articles"
+        :replace-fields="articleFieldNames"
+        @drop="onDropArticle"
+      />
       <!-- <a-list bordered :dataSource="articles">
         <a-list-item slot="renderItem" slot-scope="item">
 
@@ -86,14 +102,20 @@
 
     <a-row>
       <a-col :span="8">
-        <a-tree class="draggable-tree" draggable block-node :tree-data="categorys" :replace-fields="fieldNames"
-          @dragenter="onDragEnter" @select="onSelect" @drop="onDropCategory" />
+        <a-tree
+          class="draggable-tree"
+          draggable
+          block-node
+          :tree-data="categorys"
+          :replace-fields="fieldNames"
+          @dragenter="onDragEnter"
+          @select="onSelect"
+          @drop="onDropCategory"
+        />
         <!-- @select="onSelect" -->
         <!-- :replace-fields="fieldNames" -->
-
       </a-col>
       <a-col :span="16">
-
         <div v-if="isUpdate">
           <a-button @click="preview(updateId)">预览</a-button>
           <a-button @click="openHtml()">查看Html</a-button>
@@ -101,23 +123,38 @@
           <a-button @click="articleListShow(updateId)">查看文章</a-button>
           <a-button @click="generateHtml(updateId)">生成HTML</a-button>
           是否推荐首页
-          <a-switch defaultChecked @change="onChange(updateId)" v-model="categoryParam.recommend" />
+          <a-switch
+            defaultChecked
+            @change="onChange(updateId)"
+            v-model="categoryParam.recommend"
+          />
 
           是否添加到导航
-          <a-switch defaultChecked @change="onChangeNav(updateId)" v-model="categoryParam.existNav" />
+          <a-switch
+            defaultChecked
+            @change="onChangeNav(updateId)"
+            v-model="categoryParam.existNav"
+          />
           是否生成Html
-          <a-switch defaultChecked @change="onChangeHtml(updateId)" v-model="categoryParam.haveHtml" />
+          <a-switch
+            defaultChecked
+            @change="onChangeHtml(updateId)"
+            v-model="categoryParam.haveHtml"
+          />
 
           <!-- <a-switch defaultChecked @change="onChange(this.updateId)" /> -->
 
-          <hr>
+          <hr />
         </div>
 
         <!-- <a-input v-model:value="value" placeholder="Basic usage" /> -->
 
         <!-- <a-modal title="添加分类" v-model="visible" @ok="handleOk"> -->
         <a-form-item label="一页文章数量">
-          <a-input-number id="inputNumber" v-model="categoryParam.articleListSize" />
+          <a-input-number
+            id="inputNumber"
+            v-model="categoryParam.articleListSize"
+          />
         </a-form-item>
         <a-switch defaultChecked v-model="categoryParam.desc" />
 
@@ -133,27 +170,54 @@
           </a-form-item>
 
           <a-form-item label="选择推荐文章的标签">
-            <a-select allowClear mode="tags" style="width: 100%" @blur="handleBlur" placeholder="Tags Mode"
-              v-model="selectedTagNames">
-              <a-select-option v-for="item in tags" :key="item.id + ''" :value="item.name">{{ item.id }}-{{
-                item.name
-              }}</a-select-option>
+            <a-select
+              allowClear
+              mode="tags"
+              style="width: 100%"
+              @blur="handleBlur"
+              placeholder="Tags Mode"
+              v-model="selectedTagNames"
+            >
+              <a-select-option
+                v-for="item in tags"
+                :key="item.id + ''"
+                :value="item.id + ''"
+                >{{ item.id }}-{{ item.name }}</a-select-option
+              >
             </a-select>
           </a-form-item>
 
           <a-form-item label="选择分类信息模板">
             <a-select style="width: 100%" v-model="categoryParam.templateName">
-              <a-select-option :value="item.enName" v-for="item in templates" :key="item.id">{{
-                item.name
-              }}</a-select-option>
+              <a-select-option
+                :value="item.enName"
+                v-for="item in templates"
+                :key="item.id"
+                >{{ item.name }}</a-select-option
+              >
             </a-select>
           </a-form-item>
-
+          <a-form-item label="分类推荐模板选择">
+            <a-select style="width: 100%" v-model="categoryParam.recommendTemplateName">
+              <a-select-option
+                :value="item.enName"
+                v-for="item in recommendTemplate"
+                :key="item.id"
+                >{{ item.name }}</a-select-option
+              >
+            </a-select>
+          </a-form-item>
           <a-form-item label="选择文章显示的模板">
-            <a-select style="width: 100%" v-model="categoryParam.articleTemplateName">
-              <a-select-option :value="item.enName" v-for="item in articleTemplate" :key="item.enName">{{
-                item.name
-              }}</a-select-option>
+            <a-select
+              style="width: 100%"
+              v-model="categoryParam.articleTemplateName"
+            >
+              <a-select-option
+                :value="item.enName"
+                v-for="item in articleTemplate"
+                :key="item.enName"
+                >{{ item.name }}</a-select-option
+              >
             </a-select>
           </a-form-item>
 
@@ -161,28 +225,44 @@
             <a-textarea v-model="categoryParam.description"></a-textarea>
           </a-form-item>
           <a-form-item>
-            <a-upload-dragger name="file" :multiple="true" :action="upload" @change="handleChange" :headers="headers"
-              :withCredentials="true">
+            <a-upload-dragger
+              name="file"
+              :multiple="true"
+              :action="upload"
+              @change="handleChange"
+              :headers="headers"
+              :withCredentials="true"
+            >
               <p class="ant-upload-drag-icon">
                 <!-- <a-icon type="inbox" /> -->
                 <img :src="categoryParam.picPath" width="100%" alt srcset />
               </p>
               <p class="ant-upload-text"></p>
-              <p class="ant-upload-hint">Support for a single or bulk upload. Strictly prohibit from uploading company
-                data or other band files</p>
+              <p class="ant-upload-hint">
+                Support for a single or bulk upload. Strictly prohibit from
+                uploading company data or other band files
+              </p>
             </a-upload-dragger>
-            <a-input placeholder="直接粘贴图片路径" v-model="categoryParam.picPath"></a-input>
-            <a-input placeholder="直接粘贴图片路径" v-model="categoryParam.picThumbPath"></a-input>
+            <a-input
+              placeholder="直接粘贴图片路径"
+              v-model="categoryParam.picPath"
+            ></a-input>
+            <a-input
+              placeholder="直接粘贴图片路径"
+              v-model="categoryParam.picThumbPath"
+            ></a-input>
           </a-form-item>
 
           <a-form-item label="父ID">
             <a-select style="width: 100%" v-model="categoryParam.parentId">
-              <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{
-                item.name
-              }}</a-select-option>
+              <a-select-option
+                :value="item.id"
+                v-for="item in categorys"
+                :key="item.id"
+                >{{ item.name }}</a-select-option
+              >
             </a-select>
           </a-form-item>
-
 
           <a-form-item label="排序">
             <a-input v-model="categoryParam.order"></a-input>
@@ -190,12 +270,8 @@
         </a-form>
         <a-button @click="handleOk">确认</a-button>
         <!-- </a-modal> -->
-
       </a-col>
     </a-row>
-
-
-
   </div>
 </template>
 
@@ -206,49 +282,49 @@ const columns = [
     dataIndex: "name",
     key: "name",
     // fixed: "left",
-    scopedSlots: { customRender: "name" }
+    scopedSlots: { customRender: "name" },
   },
   {
     title: "视图名称",
     dataIndex: "viewName",
     key: "viewName",
-    scopedSlots: { customRender: "viewName" }
+    scopedSlots: { customRender: "viewName" },
   },
 
   {
     title: "category模板",
     dataIndex: "templateName",
-    key: "templateName"
+    key: "templateName",
   },
   {
     title: "文章模板",
     dataIndex: "articleTemplateName",
-    key: "articleTemplateName"
+    key: "articleTemplateName",
   },
   {
     title: "是否推荐首页",
     dataIndex: "recommend",
     key: "recommend",
-    scopedSlots: { customRender: "recommend" }
+    scopedSlots: { customRender: "recommend" },
   },
   {
     title: "是否添加到导航",
     dataIndex: "existNav",
     key: "existNav",
-    scopedSlots: { customRender: "existNav" }
+    scopedSlots: { customRender: "existNav" },
   },
   {
     title: "是否生成Html",
     dataIndex: "haveHtml",
     key: "haveHtml",
-    scopedSlots: { customRender: "haveHtml" }
+    scopedSlots: { customRender: "haveHtml" },
   },
   {
     title: "Action",
     key: "action",
     fixed: "right",
-    scopedSlots: { customRender: "action" }
-  }
+    scopedSlots: { customRender: "action" },
+  },
 ];
 import axios from "axios";
 import categoryApi from "@/api/category.js";
@@ -306,6 +382,7 @@ export default {
       // value: "",
       templates: [],
       articleTemplate: [],
+      recommendTemplate:[],
       isUpdate: false,
       updateId: null,
       visible: false,
@@ -320,6 +397,7 @@ export default {
         viewName: "",
         description: "",
         picPath: "",
+        recommendTemplateName:"",
         articleTemplateName: "",
         firstArticle: "",
         articleListSize: 10,
@@ -327,25 +405,26 @@ export default {
         desc: true,
         parentId: 0,
         picThumbPath: "",
-        tagIds:[]
+        tagIds: [],
       },
       selectedTagNames: [],
       fieldNames: {
-        children: 'children',
-        title: 'name',
-        key: 'id'
-      }, articleFieldNames: {
-        children: 'children',
-        title: 'title',
-        key: 'id'
-      }
+        children: "children",
+        title: "name",
+        key: "id",
+      },
+      articleFieldNames: {
+        children: "children",
+        title: "title",
+        key: "id",
+      },
     };
   },
   created() {
     this.loadcategory();
     // this.gData = genData;
     // console.log(genData)
-    this.initEdit()
+    this.initEdit();
     this.loadTags();
     // console.log(this.categorys )
   },
@@ -362,7 +441,7 @@ export default {
       const tagNameMap = {};
       //获得tags的 name map
       this.tags.forEach((tag) => {
-        tagNameMap[tag.name] = tag;
+        tagNameMap[tag.id + ""] = tag;
       });
 
       return tagNameMap;
@@ -373,16 +452,22 @@ export default {
     headers() {
       var token = localStorage.getItem("Authorization");
       return {
-        Authorization: "Bearer " + token
+        Authorization: "Bearer " + token,
       };
-    }
+    },
   },
   methods: {
     loadTempalte() {
-      templateApi.findByType("CATEGORY").then(response => {
+      templateApi.findByType("CATEGORY").then((response) => {
         this.templates = response.data.data;
       });
-    }, loadTags(callback) {
+    },
+    loadrecommendTemplate() {
+      templateApi.findByType("ARTICLE_LIST").then((response) => {
+        this.recommendTemplate = response.data.data;
+      });
+    },
+    loadTags(callback) {
       tagsApi.list().then((response) => {
         this.tags = response.data.data;
         if (callback) {
@@ -392,17 +477,18 @@ export default {
       });
     },
     loadArticleTempalte() {
-      templateApi.findByType("ARTICLE").then(response => {
+      templateApi.findByType("ARTICLE").then((response) => {
         this.articleTemplate = response.data.data;
         // console.log(response);
       });
-    }, handleBlur() {
+    },
+    handleBlur() {
       const tagNamesToCreate = this.selectedTagNames.filter(
         (tagName) => !this.tagNameMap[tagName]
       );
       // console.log(tagNamesToCreate);
       // console.log(tagNamesToCreate.length);
-      if (tagNamesToCreate.length == 0) {
+      if (tagNamesToCreate.length != 0) {
         this.categoryParam.tagIds = this.selectedTagNames.map(
           (tagName) => this.tagNameMap[tagName].id
         );
@@ -428,7 +514,7 @@ export default {
       //   console.log(resp.data.data.content);
       //   this.categorys = resp.data.data.content;
       // });
-      categoryApi.listVoTree().then(resp => {
+      categoryApi.listVoTree().then((resp) => {
         // console.log(resp.data.data);
         this.categorys = resp.data.data;
       });
@@ -439,14 +525,14 @@ export default {
       // });
     },
     loadParentCategory() {
-      templateApi.findByType("CATEGORY").then(response => {
+      templateApi.findByType("CATEGORY").then((response) => {
         this.templates = response.data.data;
         this.loadcategory(this.templates[0].enName);
         // console.log(this.templates);
       });
     },
     loadArticle(id) {
-      contentAPI.listVoTree(id).then(response => {
+      contentAPI.listVoTree(id).then((response) => {
         // console.log(response);
         this.articles = response.data.data;
       });
@@ -484,27 +570,30 @@ export default {
     },
 
     handleOk() {
+      // console.log(this.selectedTagNames)
       // console.log(this.categoryParam)
       if (!this.categoryParam.name) {
         this.$notification["error"]({
-          message: "分类标题不能为空!!"
+          message: "分类标题不能为空!!",
         });
         return;
       }
       if (this.isUpdate) {
         // this.desc=1
-        console.log(this.categoryParam);
-        categoryApi.update(this.updateId, this.categoryParam).then(response => {
-          // console.log(this.categoryParam)
-          this.$notification["success"]({
-            message: "成功更新数据:" + response.data.data.name
+        // console.log(this.categoryParam);
+        categoryApi
+          .update(this.updateId, this.categoryParam)
+          .then((response) => {
+            // console.log(this.categoryParam)
+            this.$notification["success"]({
+              message: "成功更新数据:" + response.data.data.name,
+            });
+            this.loadcategory();
           });
-          this.loadcategory();
-        });
       } else {
-        categoryApi.add(this.categoryParam).then(response => {
+        categoryApi.add(this.categoryParam).then((response) => {
           this.$notification["success"]({
-            message: "成功添加:" + response.data.data.name
+            message: "成功添加:" + response.data.data.name,
           });
           this.loadcategory();
         });
@@ -515,22 +604,26 @@ export default {
     initEdit() {
       this.loadTempalte();
       this.loadArticleTempalte();
-      this.categoryParam = {}
+      this.loadrecommendTemplate()
+      this.categoryParam = {};
       this.isUpdate = false;
       this.visible = true;
     },
 
     edit(id) {
-      this.loadTempalte();
-      // this.loadArticle(id);
+      // this.loadTempalte();
+      // // this.loadArticle(id);
 
-      this.loadArticleTempalte();
+      // this.loadArticleTempalte();
 
-      categoryApi.findById(id).then(response => {
+      categoryApi.findById(id).then((response) => {
         this.isUpdate = true;
 
         this.updateId = id;
         this.categoryParam = response.data.data;
+        this.selectedTagNames = response.data.data.tags.map(
+          (item) => item.id + ""
+        );
         // console.log(this.categoryParam);
         // this.categoryParam.haveHtml = 0;
         this.visible = true;
@@ -538,43 +631,43 @@ export default {
     },
     onChange(item) {
       // console.log(item);
-      categoryApi.recommendOrCancel(item).then(response => {
+      categoryApi.recommendOrCancel(item).then((response) => {
         if (response.data.data.recommend) {
           this.$notification["success"]({
-            message: "分类" + response.data.data.name + "成功在首页推荐!!"
+            message: "分类" + response.data.data.name + "成功在首页推荐!!",
           });
         } else {
           this.$notification["success"]({
-            message: "分类" + response.data.data.name + "已经从首页取消推荐!!"
+            message: "分类" + response.data.data.name + "已经从首页取消推荐!!",
           });
         }
       });
     },
     onChangeNav(id) {
       // console.log(id);
-      categoryApi.addOrRemoveToMenu(id).then(response => {
+      categoryApi.addOrRemoveToMenu(id).then((response) => {
         if (response.data.data.existNav) {
           this.$notification["success"]({
-            message: "成功添加" + response.data.data.name + "到导航!!"
+            message: "成功添加" + response.data.data.name + "到导航!!",
           });
         } else {
           this.$notification["success"]({
-            message: "成功移除" + response.data.data.name + "到导航!!"
+            message: "成功移除" + response.data.data.name + "到导航!!",
           });
         }
       });
     },
     onChangeHtml(id) {
       // console.log(id);
-      categoryApi.haveHtml(id).then(response => {
+      categoryApi.haveHtml(id).then((response) => {
         const data = response.data.data;
         if (data.haveHtml) {
           this.$notification["success"]({
-            message: "成功生成" + data.name + "Html"
+            message: "成功生成" + data.name + "Html",
           });
         } else {
           this.$notification["success"]({
-            message: "成功移除" + data.name + "Html"
+            message: "成功移除" + data.name + "Html",
           });
         }
         this.loadcategory();
@@ -582,9 +675,9 @@ export default {
     },
     remove(value) {
       // console.log(value.key);
-      categoryApi.deleteById(value).then(response => {
+      categoryApi.deleteById(value).then((response) => {
         this.$notification["success"]({
-          message: response.data.message
+          message: response.data.message,
         });
         this.loadcategory(this.currentTabId);
       });
@@ -594,7 +687,12 @@ export default {
     },
 
     openHtml() {
-      window.open(preview.Html(this.categoryParam.path + "/" + this.categoryParam.viewName), "_blank");
+      window.open(
+        preview.Html(
+          this.categoryParam.path + "/" + this.categoryParam.viewName
+        ),
+        "_blank"
+      );
 
       // if (this.categoryParam.value.haveHtml) {
       // } else {
@@ -617,49 +715,55 @@ export default {
       this.articleVisible = false;
     },
     generateHtml(id) {
-      categoryApi.generateHtml(id).then(response => {
+      categoryApi.generateHtml(id).then((response) => {
         this.$notification["success"]({
-          message: "成功生成" + response.data.data.name + "的HTML"
+          message: "成功生成" + response.data.data.name + "的HTML",
         });
       });
-    }, onSelect(selectedKeys) {
+    },
+    onSelect(selectedKeys) {
       // console.log(selectedKeys);
       // console.log(info)
-      this.edit(selectedKeys)
-    }, onDragEnter() {
+      this.edit(selectedKeys);
+    },
+    onDragEnter() {
       // console.log(info)
-    }, updateCategoryPos() {
-      categoryApi.updatePos(this.categorys).then(resp => {
+    },
+    updateCategoryPos() {
+      categoryApi.updatePos(this.categorys).then((resp) => {
         this.loadcategory();
 
-        this.initEdit()
+        this.initEdit();
         this.$notification["success"]({
-          message: "顺序更新" + resp.data.message
+          message: "顺序更新" + resp.data.message,
         });
-      })
-    }, updateArticlePos() {
-      contentAPI.updatePos(this.categoryId, this.articles).then(resp => {
+      });
+    },
+    updateArticlePos() {
+      contentAPI.updatePos(this.categoryId, this.articles).then((resp) => {
         this.$notification["success"]({
-          message: "顺序更新" + resp.data.message
+          message: "顺序更新" + resp.data.message,
         });
-        this.generateHtml(this.updateId)
-      })
-    }, onDropArticle(info) {
+        this.generateHtml(this.updateId);
+      });
+    },
+    onDropArticle(info) {
       // console.log(info);
-      this.onDrop(info, "articles", "children")
-    }, onDropCategory(info) {
-
+      this.onDrop(info, "articles", "children");
+    },
+    onDropCategory(info) {
       // console.log(info);
-      this.onDrop(info, "categorys", "children")
+      this.onDrop(info, "categorys", "children");
       //  children: 'childCategories',
       // title: 'name',
       // key:'id'
-
-    }, onDrop(info, name, childName) {
+    },
+    onDrop(info, name, childName) {
       const dropKey = info.node.eventKey;
       const dragKey = info.dragNode.eventKey;
-      const dropPos = info.node.pos.split('-');
-      const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
+      const dropPos = info.node.pos.split("-");
+      const dropPosition =
+        info.dropPosition - Number(dropPos[dropPos.length - 1]);
       const loop = (data, id, callback) => {
         data.forEach((item, index, arr) => {
           if (item.id === id) {
@@ -682,7 +786,7 @@ export default {
 
       if (!info.dropToGap) {
         // Drop on the content
-        loop(data, dropKey, item => {
+        loop(data, dropKey, (item) => {
           item[childName] = item[childName] || []; // where to insert 示例添加到尾部，可以是随意位置
 
           item[childName].push(dragObj);
@@ -692,7 +796,7 @@ export default {
         info.node.expanded && // Is expanded
         dropPosition === 1 // On the bottom gap
       ) {
-        loop(data, dropKey, item => {
+        loop(data, dropKey, (item) => {
           item[childName] = item[childName] || []; // where to insert 示例添加到尾部，可以是随意位置
 
           item[childName].unshift(dragObj);
@@ -713,7 +817,6 @@ export default {
       }
       this[name] = data;
       // console.log(this[name] )
-
     },
     updateAll(more) {
       var _this = this;
@@ -726,16 +829,18 @@ export default {
         onOk() {
           // console.log(_this.currentTabId)
           if (more) {
-            categoryApi.updateAll({ more: true }).then(response => {
+            categoryApi.updateAll({ more: true }).then((response) => {
               _this.$notification["success"]({
-                message: "成功生成栏目Id为:" + response.data.data + "的HTML页面"
+                message:
+                  "成功生成栏目Id为:" + response.data.data + "的HTML页面",
               });
               _this.loadcategory(_this.currentTabId);
             });
           } else {
-            categoryApi.updateAll().then(response => {
+            categoryApi.updateAll().then((response) => {
               _this.$notification["success"]({
-                message: "成功生成栏目Id为:" + response.data.data + "的HTML页面"
+                message:
+                  "成功生成栏目Id为:" + response.data.data + "的HTML页面",
               });
               _this.loadcategory(_this.currentTabId);
             });
@@ -743,10 +848,10 @@ export default {
         },
         onCancel() {
           // console.log("Cancel");
-        }
+        },
       });
-    }
-  }
+    },
+  },
 };
 </script>
 <style>
