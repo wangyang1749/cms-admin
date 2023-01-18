@@ -35,6 +35,17 @@ import { List } from 'ant-design-vue';
 import { Row } from 'ant-design-vue';
 import { Col ,Checkbox} from 'ant-design-vue';
 import VueCookies from 'vue-cookies'
+
+
+
+import { Comment,Descriptions,Badge,FormModel,DatePicker,Tooltip} from 'ant-design-vue';
+Vue.use(Comment);
+Vue.use(Descriptions);
+Vue.use(Badge);
+Vue.use(FormModel);
+Vue.use(DatePicker);
+Vue.use(Tooltip);
+
 Vue.use(VueCookies)
 
 Vue.use(Menu);

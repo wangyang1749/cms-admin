@@ -1,198 +1,269 @@
 <template>
   <div>
+    <a-button type="primary" @click="addUser"> 添加用户</a-button>
+    <a-modal v-model="modal_visible" title="Basic Modal" @ok="handleOk">
+      <a-form-model ref="ruleForm" :model="form">
+        <a-form-model-item ref="username" label="username" prop="username">
+          <a-input v-model="form.username" />
+        </a-form-model-item>
+        <a-form-model-item ref="password" label="password" prop="password">
+          <a-input v-model="form.password" />
+        </a-form-model-item>
+        <a-form-model-item ref="email" label="email" prop="email">
+          <a-input v-model="form.email" />
+        </a-form-model-item>
+      </a-form-model>
+    </a-modal>
+
+    <a-drawer
+      title="用户管理"
+      placement="right"
+      :closable="false"
+      :visible="visible"
+      width="520"
+      @close="onClose"
+    >
+      <div v-if="cur_user">
+        <!-- {{ cur_user }} -->
+      </div>
+      <div>
+        <a-select size="default" style="width: 200px" v-model="selectedRole">
+          <a-select-option v-for="item in roles" :key="item.id">
+            {{ item.name }}
+          </a-select-option>
+        </a-select>
+        <a-button @click="addUserRole">确认</a-button>
+        <a-table
+          :columns="roleListColumns"
+          :data-source="roleList"
+          bordered
+          :pagination="false"
+          :row-key="(record) => record.id"
+        >
+          <span slot="action" slot-scope="text, record">
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="delUserRole(record)">删除</a>
+          </span>
+        </a-table>
+      </div>
+    </a-drawer>
     <a-table
       :columns="columns"
-      :dataSource="users"
+      :row-key="(record) => record.id"
+      :data-source="data"
       :pagination="false"
-      :rowKey="users => users.id"
-      size="small"
-      class="table"
+      :loading="loading"
+      @change="handleTableChange"
     >
-      <template slot="title">
-        <a-button @click="addInput()">添加用户</a-button>
-      </template>
-      <div slot="avatar" slot-scope="avatar">
-        <img :src="avatar" alt width="50px" />
-      </div>
       <span slot="action" slot-scope="text, record">
-        <a href="javascript:;" @click="updateInput(record)">更新</a>
+        <a-divider type="vertical" />
+        <a href="javascript:;" @click="showDrawer(record)">更多</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="delUser(record.id)">删除</a>
+        <a-divider type="vertical" />
+        <a href="javascript:;" @click="updateUser(record)">更新</a>
       </span>
       <template slot="footer">
-        <div class="page-wrapper" :style="{ textAlign: 'right'}">
+        <div class="page-wrapper" :style="{ textAlign: 'right' }">
           <a-pagination
             class="pagination"
             :current="pagination.page"
             :total="pagination.total"
             :defaultPageSize="pagination.size"
-            :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']"
+            :pageSizeOptions="['5', '10', '20', '50', '100']"
             showSizeChanger
-            @showSizeChange="handlePaginationChange"
-            @change="handlePaginationChange"
+            @showSizeChange="handleTableChange"
+            @change="handleTableChange"
           />
         </div>
       </template>
     </a-table>
-
-    <a-modal :title="userOperateTitle" v-model="visible" @ok="addOrUpdate">
-      <a-form>
-        <a-form-item label="用户头像">
-          <a-input type="file" v-model="user.file"></a-input>
-        </a-form-item>
-        <a-form-item label="用户名">
-          <a-input v-model="user.username"></a-input>
-        </a-form-item>
-        <a-form-item label="用户密码">
-          <a-input v-model="user.password"></a-input>
-        </a-form-item>
-        <a-form-item label="电话">
-          <a-input v-model="user.phone"></a-input>
-        </a-form-item>
-        <a-form-item label="权限">
-          <span>
-            <a-tag v-for="role in user.roles" :color="'green'" :key="role.id">{{role.name}}</a-tag>
-          </span>
-        </a-form-item>
-        <a-form-item label="电子邮件">
-          <a-input v-model="user.email"></a-input>
-        </a-form-item>
-      </a-form>
-    </a-modal>
   </div>
 </template>
-
 <script>
-import userApi from "@/api/user.js";
-const columns = [
+import UserApi from "@/api/user.js";
+import RoleApi from "@/api/role.js";
+import UserRoleApi from "@/api/UserRole.js";
+const roleListColumns = [
   {
-    title: "用户名",
-    dataIndex: "avatar",
-    key: "avatar",
-    scopedSlots: { customRender: "avatar" }
+    title: "id",
+    dataIndex: "id",
   },
   {
-    title: "用户名",
-    dataIndex: "username",
-    key: "username"
+    title: "name",
+    dataIndex: "name",
   },
   {
-    title: "邮箱",
-    dataIndex: "email",
-    key: "email"
-  },
-  {
-    title: "创建时间",
-    dataIndex: "createDate",
-    key: "createDate"
+    title: "enName",
+    dataIndex: "enName",
   },
   {
     title: "Action",
     key: "action",
-    scopedSlots: { customRender: "action" }
-  }
+    scopedSlots: { customRender: "action" },
+  },
+];
+const columns = [
+  {
+    title: "id",
+    dataIndex: "id",
+  },
+  {
+    title: "username",
+    dataIndex: "username",
+  },
+  {
+    title: "gender",
+    dataIndex: "gender",
+  },
+  {
+    title: "email",
+    dataIndex: "email",
+  },
+  {
+    title: "Action",
+    key: "action",
+    scopedSlots: { customRender: "action" },
+  },
 ];
 export default {
   data() {
     return {
       pagination: {
         page: 1,
-        size: 5
+        size: 10,
+        sort: null,
       },
       queryParam: {
         page: 0,
-        size: 10
+        size: 10,
+        sort: null,
+        keyword: null,
+        categoryId: null,
+        status: null,
       },
-      users: [],
-      columns: columns,
+      data: [],
+      loading: false,
+      columns,
       visible: false,
-      userOperateTitle: "",
+      modal_visible: false,
+      cur_user: undefined,
+      roles: [],
+      roleList: [],
+      selectedRole: "",
+      roleListColumns,
+      form: {},
       isUpdate: false,
-      userId: null,
-      user: {
-        username: "",
-        password: "",
-        phone: "",
-        email: ""
-      }
     };
   },
-  created() {
-    this.loadUsers();
+  mounted() {
+    this.loadData();
   },
   methods: {
-    loadUsers() {
+    handleTableChange(page, pageSize) {
+      this.pagination.page = page;
+      this.pagination.size = pageSize;
+      this.loadData();
+    },
+    loadData() {
       this.queryParam.page = this.pagination.page - 1;
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
-      userApi.page(this.queryParam).then(resp => {
-        this.users = resp.data.data.content;
-        this.pagination.total = resp.data.data.totalElements;
+      this.loading = true;
+      UserApi.page(this.queryParam).then((resp) => {
         // console.log(resp);
+        // console.log(resp.data.data.totalPages);
+        this.data = resp.data.data.content;
+        this.pagination.total = parseInt(resp.data.data.totalElements);
+        this.loading = false;
       });
     },
-    handlePaginationChange(page, pageSize) {
-      // console.log("111")
-      // this.$log.debug(`Current: ${page}, PageSize: ${pageSize}`)
-      this.pagination.page = page;
-      this.pagination.size = pageSize;
-      this.loadUsers();
-    },
-    addInput() {
-      this.userOperateTitle = "添加用户";
-      this.visible = true;
-      this.isUpdate = false;
-    },
-    updateInput(user) {
-      this.userOperateTitle = "更新用户" + user.username;
-      userApi.find(user.id).then(resp => {
-        this.user = resp.data.data;
-        // console.log(resp);
+    loadRole(id) {
+      RoleApi.findByUserId(id).then((resp) => {
+        this.roleList = resp.data.data;
+        // console.log(resp)
       });
+    },
+    loadWithoutAddRole(id) {
+      RoleApi.findByWithoutUserId(id).then((resp) => {
+        // console.log(resp);
+        this.roles = resp.data.data;
+      });
+    },
+    showDrawer(data) {
+      this.cur_user = data;
       this.visible = true;
-
-      this.isUpdate = true;
-      this.userId = user.id;
+      this.loadWithoutAddRole(data.id);
+      this.loadRole(data.id);
+    },
+    onClose() {
+      this.visible = false;
+    },
+    handleChange() {},
+    addUserRole() {
+      // console.log(this.selectedRole)
+      // console.log(this.cur_user.id)
+      UserRoleApi.add({
+        userId: this.cur_user.id,
+        roleId: this.selectedRole,
+      }).then((resp) => {
+        this.loadRole(this.cur_user.id);
+        this.$notification["success"]({
+          message: "添加成功" + resp.data.message,
+        });
+      });
+    },
+    delUserRole(data) {
+      UserRoleApi.del(data.userRoleId).then((resp) => {
+        this.loadWithoutAddRole(this.cur_user.id);
+        this.loadRole(this.cur_user.id);
+        this.$notification["success"]({
+          message: "删除成功" + resp.data.message,
+        });
+      });
+    },
+    handleOk() {
+      if (this.isUpdate) {
+        console.log(this.form);
+        UserApi.update(this.form.id,this.form).then(resp=>{
+          this.modal_visible = false;
+          // console.log(resp)
+          this.loadData();
+          this.from = {};
+          this.$notification["success"]({
+            message: "更新成功" + resp.data.message,
+          });
+        })
+      } else {
+        console.log(this.form);
+        UserApi.add(this.form).then((resp) => {
+          this.modal_visible = false;
+          // console.log(resp)
+          this.loadData();
+          this.from = {};
+          this.$notification["success"]({
+            message: "添加成功" + resp.data.message,
+          });
+        });
+      }
     },
     delUser(id) {
-      userApi.delete(id).then(resp => {
+      // console.log(data);
+      UserApi.del(id).then((resp) => {
+        this.loadData();
         this.$notification["success"]({
-          message: "操作" + resp.data.message
+          message: "删除成功" + resp.data.message,
         });
-        this.loadUsers();
       });
+    },addUser(){
+      this.modal_visible = true;
+      this.isUpdate = false;
     },
-    addOrUpdate() {
-      let userData = new FormData();
-      userData.append(
-        "file",
-        document.querySelector("input[type=file]").files[0]
-      );
-      userData.append("username", this.user.username);
-      userData.append("password", this.user.password);
-      userData.append("phone", this.user.phone);
-      userData.append("email", this.user.email);
-      if (this.isUpdate) {
-        userApi.update(this.userId, userData).then(resp => {
-          this.$notification["success"]({
-            message: "更新成功"+resp.data.message
-          });
-          this.loadUsers();
-        });
-        this.visible = false;
-      } else {
-        userApi.add(userData).then(resp => {
-         this.$notification["success"]({
-            message: "添加成功"+resp.data.message
-          });
-          this.loadUsers();
-        });
-        this.visible = false;
-      }
-    }
-  }
+    updateUser(data) {
+      this.form = data;
+      this.modal_visible = true;
+      this.isUpdate = true;
+    },
+  },
 };
 </script>
-
-<style>
-</style>

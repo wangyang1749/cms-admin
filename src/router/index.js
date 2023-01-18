@@ -132,6 +132,18 @@ const routes = [
             component: () => import(/* webpackChunkName: "userList" */ '../views/user/userList.vue'),
             meta: { title: '用户列表', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
 
+          },{
+            path: '/role/list',
+            name: 'roleList',
+            component: () => import(/* webpackChunkName: "roleList" */ '../views/user/roleList.vue'),
+            meta: { title: '角色列表', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
+
+          },{
+            path: '/resource/list',
+            name: 'resourceList',
+            component: () => import(/* webpackChunkName: "resourceList" */ '../views/user/resourceList.vue'),
+            meta: { title: '资源列表', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
+
           }
         ]
       },

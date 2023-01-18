@@ -1,64 +1,49 @@
 import service from '@/utils/service'
 const baseUrl = '/api/user'
-const userApi = {}
 
-userApi.page = (params)=>{
+const UserApi = {}
+
+UserApi.page = (params) =>{
     return service({
-        url: baseUrl,
+        url: `${baseUrl}`,
         params: params,
         method: 'get'
     })
 }
-
-userApi.add = (params) => {
+UserApi.add = (params) => {
     return service({
         url: baseUrl,
         data: params,
         method: 'post'
     })
 }
-userApi.update = (id,params) => {
+UserApi.update = (id,params) => {
     return service({
         url: `${baseUrl}/update/${id}`,
         data: params,
         method: 'post'
     })
 }
-
-userApi.delete = (id) => {
+UserApi.login = (data)=>{
     return service({
-        url: `${baseUrl}/dell/${id}`,
+        url:`${baseUrl}/login`,
+        data:data,
+        method: 'post'
+    })
+}
+
+UserApi.listAll = () =>{
+    return service({
+        url: `${baseUrl}/listAll`,
+        method: 'get'
+    })
+}
+UserApi.del = (id) => {
+    return service({
+        url: `${baseUrl}/del/${id}`,
         method: 'get'
     })
 }
 
 
-userApi.find = (id) => {
-    return service({
-        url: `${baseUrl}/find/${id}`,
-        method: 'get'
-    })
-}
-
-userApi.login = (data) => {
-    return service({
-        url: "/api/user/login",
-        data: data,
-        method: 'post'
-    })
-}
-userApi.logout = () => {
-    return service({
-        url: "/logout",
-        method: 'post'
-    })
-}
-
-
-userApi.getCurrentUser=()=>{
-    return service({
-        url:"/api/user/getCurrent",
-        method:'get'
-    })
-}
-export default userApi
+export default UserApi
