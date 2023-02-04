@@ -5,26 +5,34 @@
       :columns="columns"
       :dataSource="template"
       :pagination="false"
-      :rowKey="template => template.id"
+      :rowKey="(template) => template.id"
     >
       <a
         slot="templateName"
         slot-scope="templateName, record"
         href="javascript:;"
         @click="preview(record.id)"
-      >[{{record.id}}]-{{templateName}}</a>
+        >[{{ record.id }}]-{{ templateName }}</a
+      >
 
       <span slot="dataName" slot-scope="dataName, record">
         <a
-          v-if="dataName=='@Article'"
+          v-if="dataName == '@Article'"
           href="javascript:;"
           @click="showArticle(record.id)"
-        >{{dataName}}</a>
-        <span v-else>{{dataName}}</span>
+          >{{ dataName }}</a
+        >
+        <a
+          v-if="dataName == '@Category'"
+          href="javascript:;"
+          @click="showCategory(record.id)"
+          >{{ dataName }}</a
+        >
+        <span v-else>{{ dataName }}</span>
       </span>
 
       <span slot="action" slot-scope="text, record">
-            <a href="javascript:;" @click="deleteComponent(record.id)">删除</a>
+        <a href="javascript:;" @click="deleteComponent(record.id)">删除</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="editComponent(record.id)">编辑</a>
         <a-divider type="vertical" />
@@ -33,7 +41,7 @@
         <a href="javascript:;" @click="generateHtml(record)">生成Html</a>
       </span>
     </a-table>
-    <div class="page-wrapper" :style="{ textAlign: 'right'}">
+    <div class="page-wrapper" :style="{ textAlign: 'right' }">
       <a-pagination
         class="pagination"
         :current="pagination.page"
@@ -45,33 +53,89 @@
         @change="handlePaginationChange"
       />
     </div>
-
     <a-drawer
-      title="文章列表"
+      title="分类列表"
       placement="right"
       :closable="true"
-      :visible="articleListDrawer"
-      @close="()=>{articleListDrawer=false}"
+      :visible="categoryListDrawer"
+      @close="
+        () => {
+          categoryListDrawer = false;
+        }
+      "
       width="40rem"
     >
-      <a-input v-model="articleViewName" min="1" :max="10"></a-input>
-      <a-button @click="addByArticleViewName">添加文章</a-button>
+      <a-input v-model="categoryViewName" min="1" :max="10"></a-input>
+      <a-button @click="addByCategoryViewName">添加分类</a-button>
 
-      
       <a-list bordered :dataSource="articles">
         <a-list-item slot="renderItem" slot-scope="item">
           <!-- <a slot="actions">编辑</a>
           <a slot="actions" @click="delComment(item.id)">删除</a>
           <a slot="actions">回复</a>-->
 
-          <a slot="actions" @click="updateArticleInComponentOrder(item.id,item.articleInComponentOrder)">更新顺序</a>
+          <a
+            slot="actions"
+            @click="
+              updateCategoryInComponentOrder(
+                item.id,
+                item.categoryInComponentOrder
+              )
+            "
+            >更新顺序</a
+          >
+          <a slot="actions" @click="removeCategory(item.id)">从组件移除分类</a>
+
+          <a-list-item-meta>
+            <a slot="title" @click="openCategoryHtml(item)">{{ item.name }}</a>
+            <a-input-number
+              slot="title"
+              v-model="item.categoryInComponentOrder"
+            ></a-input-number>
+          </a-list-item-meta>
+        </a-list-item>
+      </a-list>
+    </a-drawer>
+    <a-drawer
+      title="文章列表"
+      placement="right"
+      :closable="true"
+      :visible="articleListDrawer"
+      @close="
+        () => {
+          articleListDrawer = false;
+        }
+      "
+      width="40rem"
+    >
+      <a-input v-model="articleViewName" min="1" :max="10"></a-input>
+      <a-button @click="addByArticleViewName">添加文章</a-button>
+
+      <a-list bordered :dataSource="articles">
+        <a-list-item slot="renderItem" slot-scope="item">
+          <!-- <a slot="actions">编辑</a>
+          <a slot="actions" @click="delComment(item.id)">删除</a>
+          <a slot="actions">回复</a>-->
+
+          <a
+            slot="actions"
+            @click="
+              updateArticleInComponentOrder(
+                item.id,
+                item.articleInComponentOrder
+              )
+            "
+            >更新顺序</a
+          >
           <a slot="actions" @click="removeArticle(item.id)">从组件移除文章</a>
 
-          <a-list-item-meta >
-            <a slot="title" @click="openArticleHtml(item)">{{item.title}}</a>
-            <a-input-number slot="title" v-model="item.articleInComponentOrder"></a-input-number>
+          <a-list-item-meta>
+            <a slot="title" @click="openArticleHtml(item)">{{ item.title }}</a>
+            <a-input-number
+              slot="title"
+              v-model="item.articleInComponentOrder"
+            ></a-input-number>
           </a-list-item-meta>
-
         </a-list-item>
       </a-list>
     </a-drawer>
@@ -84,48 +148,51 @@ const columns = [
     title: "模板名称",
     dataIndex: "name",
     key: "name",
-    scopedSlots: { customRender: "templateName" }
+    scopedSlots: { customRender: "templateName" },
   },
-{
+  {
     title: "模板名称",
     dataIndex: "enName",
-    key: "enName"
+    key: "enName",
   },
   {
     title: "数据来源",
     key: "dataName",
     dataIndex: "dataName",
-    scopedSlots: { customRender: "dataName" }
+    scopedSlots: { customRender: "dataName" },
   },
 
   {
     title: "视图名称",
     dataIndex: "viewName",
-    key: "viewName"
+    key: "viewName",
   },
   {
     title: "创建时间",
     dataIndex: "createDate",
-    key: "createDate"
+    key: "createDate",
   },
   {
     title: "Action",
     key: "action",
-    scopedSlots: { customRender: "action" }
-  }
+    scopedSlots: { customRender: "action" },
+  },
 ];
+import categoryApi from "@/api/category.js";
 
 import templatePageApi from "@/api/templatePage.js";
 // import preview from "@/api/preview.js";
 import ArticleApi from "@/api/article.js";
 import componentsArticle from "@/api/ComponentsArticle.js";
+import componentsCategory from "@/api/ComponentsCategory.js";
+
 export default {
   data() {
     return {
       pagination: {
         page: 1,
         size: 5,
-        sort: null
+        sort: null,
       },
       queryParam: {
         page: 0,
@@ -133,15 +200,17 @@ export default {
         sort: null,
         keyword: null,
         categoryId: null,
-        status: null
+        status: null,
       },
       columns,
       articles: [],
       template: [],
-      articleInComponentOrder:3,
+      articleInComponentOrder: 3,
       componentId: null,
       articleListDrawer: false,
-      articleViewName: ""
+      categoryListDrawer: false,
+      articleViewName: "",
+      categoryViewName: "",
     };
   },
   created() {
@@ -152,17 +221,24 @@ export default {
       this.queryParam.page = this.pagination.page - 1;
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
-      templatePageApi.list(this.queryParam).then(response => {
+      templatePageApi.list(this.queryParam).then((response) => {
         this.template = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
         // console.log(response);
       });
-    },updateArticleInComponentOrder(id,order){
-      ArticleApi.updateArticleInComponentOrder(id,order).then(resp=>{
+    },
+    updateArticleInComponentOrder(id, order) {
+      ArticleApi.updateArticleInComponentOrder(id, order).then((resp) => {
         this.$notification["success"]({
-          message: resp.data.message
+          message: resp.data.message,
         });
-      })
+      });
+    },updateCategoryInComponentOrder(id, order) {
+      categoryApi.updateCategoryInComponentOrder(id, order).then((resp) => {
+        this.$notification["success"]({
+          message: resp.data.message,
+        });
+      });
     },
     handlePaginationChange(page, pageSize) {
       // console.log("111")
@@ -177,10 +253,10 @@ export default {
     },
     generateHtml(value) {
       // console.log(value.id)
-      templatePageApi.generateHtml(value.id).then(response => {
+      templatePageApi.generateHtml(value.id).then((response) => {
         //  console.log(response)
         this.$notification["success"]({
-          message: response.data.message
+          message: response.data.message,
         });
       });
     },
@@ -192,7 +268,15 @@ export default {
       // console.log(id);
       this.componentId = id;
       this.articleListDrawer = true;
-      ArticleApi.listByComponentsId(id).then(resp => {
+      ArticleApi.listByComponentsId(id).then((resp) => {
+        // console.log(resp);
+        this.articles = resp.data.data;
+      });
+    },
+    showCategory(id) {
+      this.componentId = id;
+      this.categoryListDrawer = true;
+      categoryApi.listByComponentsId(id).then((resp) => {
         // console.log(resp);
         this.articles = resp.data.data;
       });
@@ -204,43 +288,69 @@ export default {
       }
       componentsArticle
         .addByArticleViewName(this.componentId, this.articleViewName)
-        .then(resp => {
+        .then((resp) => {
           this.articleViewName = "";
           this.showArticle(this.componentId);
           this.$notification["success"]({
-            message: "操作" + resp.data.message
+            message: "操作" + resp.data.message,
+          });
+        });
+    },
+    addByCategoryViewName() {
+      if (this.categoryViewName == "") {
+        this.$message.error("视图不能为空");
+        return;
+      }
+      componentsCategory
+        .addByCategoryViewName(this.componentId, this.categoryViewName)
+        .then((resp) => {
+          this.categoryViewName = "";
+          this.showCategory(this.componentId);
+          this.$notification["success"]({
+            message: "操作" + resp.data.message,
           });
         });
     },
     removeArticle(id) {
       // console.log(id);
-      componentsArticle.delete(this.componentId, id).then(resp => {
+      componentsArticle.delete(this.componentId, id).then((resp) => {
         this.showArticle(this.componentId);
         this.$notification["success"]({
-          message: "操作" + resp.data.message
+          message: "操作" + resp.data.message,
+        });
+      });
+    },removeCategory(id) {
+      // console.log(id);
+      componentsCategory.delete(this.componentId, id).then((resp) => {
+        this.showCategory(this.componentId);
+        this.$notification["success"]({
+          message: "操作" + resp.data.message,
         });
       });
     },
     openArticleHtml(value) {
       window.open(preview.Html(value.path + "/" + value.viewName), "_blank");
     },
+    openCategoryHtml(value) {
+      window.open(preview.Html(value.path + "/" + value.viewName), "_blank");
+    },
     editComponent(id) {
       this.$router.push({
         name: "ComponentsCreate",
-        query: { id: id }
+        query: { id: id },
       });
       // templatePageApi.findDetailsById(id).then(resp => {
       //   console.log(resp);
       // });
-    },deleteComponent(id){
-      templatePageApi.delete(id).then(resp=>{
-          this.loadTemplate()
-          this.$notification["success"]({
-            message: "操作" + resp.data.message
-          });
-          
-      })
-    }
-  }
+    },
+    deleteComponent(id) {
+      templatePageApi.delete(id).then((resp) => {
+        this.loadTemplate();
+        this.$notification["success"]({
+          message: "操作" + resp.data.message,
+        });
+      });
+    },
+  },
 };
 </script>

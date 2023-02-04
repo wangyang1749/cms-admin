@@ -40,7 +40,12 @@ categoryApi.add = data=>{
   })
 }
 
-
+categoryApi.listByComponentsId = (id) => {
+  return service({
+      url: `${baseUrl}/listByComponentsId/${id}`,
+      method: 'get'
+  })
+}
 categoryApi.updatePos = data=>{
   return service({
     url:`${baseUrl}/updatePos`,
@@ -143,4 +148,12 @@ function concreteTree(parentCategory, categories) {
     concreteTree(topCategoryNode, categories)
     return topCategoryNode.children
   }
+
+  categoryApi.updateCategoryInComponentOrder=(id,order) => {
+    return service({
+        url: `${baseUrl}/updateCategoryInComponentOrder?id=${id}&order=${order}`,
+        method: 'get'
+    })
+}
+
   export default categoryApi
