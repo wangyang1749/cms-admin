@@ -49,12 +49,6 @@ articleApi.queryTitle = (title) => {
     })
 }
 
-articleApi.listByComponentsId = (id) => {
-    return service({
-        url: `${baseUrl}/listByComponentsId/${id}`,
-        method: 'get'
-    })
-}
 
 articleApi.updateOrderBy = (articleId,order) => {
     return service({
@@ -150,6 +144,12 @@ articleApi.update = (id,params) => {
 articleApi.generateHtml=(id) => {
     return service({
         url: `${baseUrl}/generateHtml/${id}`,
+        method: 'get'
+    })
+}
+articleApi.listByComponentsId = (id) => {
+    return service({
+        url: `${baseUrl}/listByComponentsId/${id}`,
         method: 'get'
     })
 }

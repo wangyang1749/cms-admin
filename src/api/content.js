@@ -153,6 +153,18 @@ contentAPI.generateHtml=(id) => {
         method: 'get'
     })
 }
+contentAPI.listByComponentsId = (id) => {
+    return service({
+        url: `${baseUrl}/listByComponentsId/${id}`,
+        method: 'get'
+    })
+}
 
+contentAPI.updateArticleInComponentOrder=(id,order) => {
+    return service({
+        url: `${baseUrl}/updateArticleInComponentOrder?id=${id}&order=${order}`,
+        method: 'get'
+    })
+}
 
 export default contentAPI

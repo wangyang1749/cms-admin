@@ -182,7 +182,7 @@ import categoryApi from "@/api/category.js";
 
 import templatePageApi from "@/api/templatePage.js";
 // import preview from "@/api/preview.js";
-import ArticleApi from "@/api/article.js";
+import ContentApi from "@/api/content.js";
 import componentsArticle from "@/api/ComponentsArticle.js";
 import componentsCategory from "@/api/ComponentsCategory.js";
 
@@ -228,7 +228,7 @@ export default {
       });
     },
     updateArticleInComponentOrder(id, order) {
-      ArticleApi.updateArticleInComponentOrder(id, order).then((resp) => {
+      ContentApi.updateArticleInComponentOrder(id, order).then((resp) => {
         this.$notification["success"]({
           message: resp.data.message,
         });
@@ -268,7 +268,7 @@ export default {
       // console.log(id);
       this.componentId = id;
       this.articleListDrawer = true;
-      ArticleApi.listByComponentsId(id).then((resp) => {
+      ContentApi.listByComponentsId(id).then((resp) => {
         // console.log(resp);
         this.articles = resp.data.data;
       });
