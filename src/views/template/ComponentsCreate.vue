@@ -1,25 +1,26 @@
 <template>
   <div>
-    <span>模板名称:</span>
-    <a-input style="width: 20%" v-model="queryParam.name"></a-input>
-    <span>路径:</span>
-    <a-input style="width: 20%" v-model="queryParam.path"></a-input>
-    <span>视图名称:</span>
-    <a-input style="width: 20%" v-model="queryParam.viewName"></a-input>
-    <span>数据名称</span>
-    <a-input style="width: 20%" v-model="queryParam.dataName"></a-input>
-    <!-- <a-select style="width: 120px" v-model="queryParam.type">
-      <a-select-option value="0">文档</a-select-option>
-      <a-select-option value="1">首页</a-select-option>
-      <a-select-option value="2">分类页</a-select-option>
-      <a-select-option value="3">其它</a-select-option>
-    </a-select>-->
-    <a-button @click="submit">提交</a-button>
-    <a-textarea
-      v-model="queryParam.templateValue"
-      placeholder="Autosize height based on content lines"
-      autosize
-    />
+
+    <a-form layout="horizontal">
+      <a-form-item label="模板名称">
+        <a-input style="width: 20%" v-model="queryParam.name"></a-input>
+      </a-form-item>
+      <a-form-item label="HTML模板路径">
+        <a-input style="width: 20%" v-model="queryParam.path"></a-input>
+      </a-form-item>
+      <a-form-item label="HTML视图名称">
+        <a-input style="width: 20%" v-model="queryParam.viewName"></a-input>
+      </a-form-item>
+      <a-form-item label="数据来源">
+        <a-input style="width: 20%" v-model="queryParam.dataName"></a-input>
+      </a-form-item>
+      <a-form-item label="模板HTML文件">
+        <a-textarea v-model="queryParam.templateValue" placeholder="Autosize height based on content lines" autosize />
+      </a-form-item>
+      <a-button @click="submit">提交</a-button>
+    </a-form>
+   
+
   </div>
 </template>
 
@@ -69,19 +70,22 @@ export default {
           this.$notification["success"]({
             message: "更新模板[" + resp.data.data.name + "]成功"
           });
+          this.$router.push("/template/staticList");
         });
       } else {
         templatePageApi.add(this.queryParam).then(resp => {
           this.$notification["success"]({
             message: "添加模板[" + resp.data.data.name + "]成功"
           });
+          this.$router.push("/template/staticList");
         });
       }
     }
   }
- 
+
 };
 </script>
 
 <style>
+
 </style>

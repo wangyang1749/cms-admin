@@ -72,5 +72,11 @@ templatePageApi.findDetailsById = (id) => {
         method: 'get'
     })
 }
+templatePageApi.fetchComponents = (path) => {
+    return service({
+        url: `${baseUrl}/fetchComponents?path=${path}`,
+        method: 'get'
+    })
+}
 
 export default templatePageApi

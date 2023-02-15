@@ -1,20 +1,27 @@
 <template>
   <div>
     <span>模板名称:</span>
-    <a-form-item label="选择分类">
-      <a-select style="width: 100%" v-model="queryParam.templateType">
-        <a-select-option
-          :value="item"
-          v-for="item in templateType"
-          :key="item"
-          >{{ item }}</a-select-option
-        >
-      </a-select>
-    </a-form-item>
 
-    <a-input style="width: 20%" v-model="queryParam.name"></a-input>
-    <a-input style="width: 20%" v-model="queryParam.enName"></a-input>
-    <a-input style="width: 20%" v-model="queryParam.templateValue"></a-input>
+    <a-form layout="horizontal">
+      <a-form-item label="选择分类">
+        <a-select style="width: 100%" v-model="queryParam.templateType">
+          <a-select-option :value="item" v-for="item in templateType" :key="item">{{ item }}</a-select-option>
+        </a-select>
+      </a-form-item>
+
+      <a-form-item label="模板名称">
+        <a-input style="width: 20%" v-model="queryParam.name"></a-input>
+      </a-form-item>
+      <a-form-item label="模板enName">
+        <a-input style="width: 20%" v-model="queryParam.enName"></a-input>
+      </a-form-item>
+      <a-form-item label="模板HTML文件">
+        <a-input style="width: 20%" v-model="queryParam.templateValue"></a-input>
+      </a-form-item>
+    </a-form>
+
+
+
 
     <span>模板类型:{{ queryParam.templateType }}</span>
 
@@ -25,83 +32,7 @@
       <a-select-option value="3">其它</a-select-option>
     </a-select>-->
     <a-button @click="submit">提交</a-button>
-    <a-button @click="run">运行</a-button>
-    {{ htmlUrl }}
-    <form
-      style="display: none"
-      ref="runForm"
-      :action="htmlUrl"
-      method="POST"
-      target="iframeResult"
-    >
-      <textarea type="text" name="name" v-model="queryParam.name" />
-      <textarea type="text" name="enName" v-model="queryParam.enName" />
-      <textarea
-        type="text"
-        name="templateValue"
-        v-model="queryParam.templateValue"
-      />
-      <textarea
-        type="text"
-        name="templateType"
-        v-model="queryParam.templateType"
-      />
-      <textarea
-        type="text"
-        name="templateContent"
-        v-model="queryParam.templateContent"
-      />
-    </form>
-    <a-button type="primary" @click="showModal"> Open Modal </a-button>
-    <!-- <a-modal
-      class="visibleEditor"
-      v-model="visibleEditor"
-      title="Basic Modal"
-      @ok="handleOk"
-    >
-    </a-modal> -->
 
-    <a-drawer
-      title="Basic Drawer"
-      placement="right"
-      :closable="false"
-      width="80%"
-      :visible="visibleEditor"
-      @close="handleOk"
-    >
-      <a-textarea
-        :rows="30" 
-        v-model="sourceCode"
-        ref="textarea"
-      ></a-textarea>
-    </a-drawer>
-
-    <div id="div1">
-      <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p>
-    </div>
-
-    <iframe
-      name="iframeResult"
-      style="width: 100%; height: 500px"
-      ref="iframe"
-    ></iframe>
-
-    <!-- <div id="div1">
-    </div> -->
-    <!-- <textarea
-      id="editor"
-      name="editor"
-      rows="5"
-      style="display: block"
-      v-model="queryParam.templateContent"
-    ></textarea> -->
-    <!-- <mavon-editor
-      v-model="queryParam.templateContent"
-      ref="md"
-      style="min-height: 600px; z-index: 1"
-      @imgAdd="imgAdd"
-      @imgDel="imgDel"
-    /> -->
   </div>
 </template>
 
@@ -112,7 +43,7 @@ import enumApi from "@/api/enum.js";
 import uploadApi from "@/api/upload.js";
 // import { mavonEditor } from "mavon-editor";
 // import "mavon-editor/dist/css/index.css";
-import E from "wangeditor";
+// import E from "wangeditor";
 import _CodeMirror from "codemirror";
 const CodeMirror = window.CodeMirror || _CodeMirror;
 import dynamicLoad from "@/utils/dynamicLoad.js";
@@ -160,58 +91,7 @@ export default {
         lineNumbers: true,
         line: true,
       },
-      // 支持切换的语法高亮类型，对应 JS 已经提前引入
-      // 使用的是 MIME-TYPE ，不过作为前缀的 text/ 在后面指定时写死了
-      modes: [
-        {
-          value: "css",
-          label: "CSS",
-        },
-        {
-          value: "javascript",
-          label: "Javascript",
-        },
-        {
-          value: "html",
-          label: "XML/HTML",
-        },
-        {
-          value: "x-java",
-          label: "Java",
-        },
-        {
-          value: "x-objectivec",
-          label: "Objective-C",
-        },
-        {
-          value: "x-python",
-          label: "Python",
-        },
-        {
-          value: "x-rsrc",
-          label: "R",
-        },
-        {
-          value: "x-sh",
-          label: "Shell",
-        },
-        {
-          value: "x-sql",
-          label: "SQL",
-        },
-        {
-          value: "x-swift",
-          label: "Swift",
-        },
-        {
-          value: "x-vue",
-          label: "Vue",
-        },
-        {
-          value: "markdown",
-          label: "Markdown",
-        },
-      ],
+
     };
   },
   computed: {
@@ -232,21 +112,7 @@ export default {
       this.templateType = resp.data.data;
     });
 
-    // const E = window.wangEditor;
-    this.editor = new E("#div1");
-    // const $text1 = $("#text1");
-    let setTemplateContent = this.setTemplateContent;
-    this.editor.config.onchange = function (val) {
-      // 第二步，监控变化，同步更新到 textarea
-      // console.log(val);
-      setTemplateContent(val);
-      // templateContent = val;
 
-      // $text1.val(html);
-    };
-    this.editor.config.height = 500;
-
-    this.editor.create();
 
     // 第一步，初始化 textarea 的值
     // $text1.val(editor.txt.html());
@@ -313,6 +179,7 @@ export default {
           this.$notification["success"]({
             message: "更新模板[" + resp.data.data.name + "]成功",
           });
+          this.$router.push("/template/dynamicList");
         });
       } else {
         // console.log(this.queryParam)
@@ -320,6 +187,7 @@ export default {
           this.$notification["success"]({
             message: "添加模板[" + resp.data.data.name + "]成功",
           });
+          this.$router.push("/template/dynamicList");
         });
       }
     },
@@ -332,7 +200,7 @@ export default {
         this.$refs.md.$img2Url(pos, response.data.data.thumbPath);
       });
     },
-    imgDel() {},
+    imgDel() { },
     _initialize() {
       // 初始化编辑器实例，传入需要被实例化的文本域对象和默认配置
       this.coder = CodeMirror.fromTextArea(this.$refs.textarea, this.options);
@@ -450,10 +318,12 @@ export default {
 .sidebar {
   position: absolute !important;
 }
+
 .w-e-toolbar {
-      position: unset !important;
+  position: unset !important;
 }
+
 .w-e-text-container {
-      position: unset !important;
+  position: unset !important;
 }
 </style>

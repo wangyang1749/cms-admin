@@ -1,5 +1,6 @@
 <template>
   <div>
+    <a-button @click="fetchComponents">从文件中获取模板</a-button>
     <p>生成Html在调试模板事有用</p>
     <a-table
       :columns="columns"
@@ -150,11 +151,11 @@ const columns = [
     key: "name",
     scopedSlots: { customRender: "templateName" },
   },
-  {
-    title: "模板名称",
-    dataIndex: "enName",
-    key: "enName",
-  },
+  // {
+  //   title: "模板名称",
+  //   dataIndex: "enName",
+  //   key: "enName",
+  // },
   {
     title: "数据来源",
     key: "dataName",
@@ -226,6 +227,14 @@ export default {
         this.pagination.total = response.data.data.totalElements;
         // console.log(response);
       });
+    },fetchComponents(){
+      templatePageApi.fetchComponents("").then(resp=>{
+        // console.log(resp)
+        this.loadTemplate();
+        this.$notification["success"]({
+          message: resp.data.message,
+        });
+      })
     },
     updateArticleInComponentOrder(id, order) {
       ContentApi.updateArticleInComponentOrder(id, order).then((resp) => {
