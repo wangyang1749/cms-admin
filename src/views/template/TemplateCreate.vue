@@ -3,9 +3,15 @@
     <span>模板名称:</span>
 
     <a-form layout="horizontal">
-      <a-form-item label="选择分类">
+      <a-form-item label="模板类型">
         <a-select style="width: 100%" v-model="queryParam.templateType">
           <a-select-option :value="item" v-for="item in templateType" :key="item">{{ item }}</a-select-option>
+        </a-select>
+      </a-form-item>
+
+      <a-form-item label="模板数据">
+        <a-select style="width: 100%" v-model="queryParam.templateData">
+          <a-select-option :value="item" v-for="item in templateData" :key="item">{{ item }}</a-select-option>
         </a-select>
       </a-form-item>
 
@@ -73,6 +79,7 @@ export default {
       id: null,
       isUpdate: false,
       templateType: [],
+      templateData:[],
       visibleEditor: false,
       sourceCode: "",
       // 内部真实的内容
@@ -112,7 +119,10 @@ export default {
       this.templateType = resp.data.data;
     });
 
-
+    enumApi.list("TemplateData").then((resp) => {
+      // console.log(resp.data.data);
+      this.templateData = resp.data.data;
+    });
 
     // 第一步，初始化 textarea 的值
     // $text1.val(editor.txt.html());

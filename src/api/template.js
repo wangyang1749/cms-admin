@@ -31,6 +31,12 @@ templateApi.tree = id => {
         method: 'get'
     })
 }
+templateApi.updateAllTemplate = () => {
+    return service({
+        url: `${baseUrl}/updateAllTemplate`,
+        method: 'get'
+    })
+}
 
 templateApi.deleteById = id => {
     return service({
@@ -58,4 +64,31 @@ templateApi.upload=()=>{
     return `http://${Golbal.baseUrl}:${Golbal.port}/api/template/upload`
   }
 
+templateApi.fetchComponents = (path) => {
+    return service({
+        url: `${baseUrl}/fetchComponents?path=${path}`,
+        method: 'get'
+    })
+}
+
+templateApi.addChild = (id,enName) => {
+    return service({
+        url: `${baseUrl}/addChild/${id}?enName=${enName}`,
+        method: 'get'
+    })
+}
+
+templateApi.findByChild = (id) => {
+    return service({
+        url: `${baseUrl}/findByChild/${id}`,
+        method: 'get'
+    })
+}
+
+templateApi.removeChildTemplate = (templateId, templateChildId) => {
+    return service({
+        url: `${baseUrl}/removeChildTemplate?templateId=${templateId}&templateChildId=${templateChildId}`,
+        method: 'get'
+    })
+}
 export default templateApi
