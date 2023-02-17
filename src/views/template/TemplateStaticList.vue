@@ -42,13 +42,13 @@
           >{{ dataName }}</a
         >
          <a
-          v-else-if="dataName == '@CategoryArticlePage'"
+          v-else-if="dataName == dataName.search('@CategoryArticlePage') != -1"
           href="javascript:;"
           @click="showCategory(record.id)"
           >{{ dataName }}</a
         >
              <a
-          v-else-if="dataName == '@CategoryArticleSize'"
+          v-else-if="dataName.search('@CategoryArticleSize') != -1"
           href="javascript:;"
           @click="showCategory(record.id)"
           >{{ dataName }}</a
