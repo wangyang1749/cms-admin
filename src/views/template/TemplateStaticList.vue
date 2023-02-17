@@ -24,7 +24,31 @@
           >{{ dataName }}</a
         >
         <a
-          v-if="dataName == '@Category'"
+          v-else-if="dataName == '@Category'"
+          href="javascript:;"
+          @click="showCategory(record.id)"
+          >{{ dataName }}</a
+        >
+        <a
+          v-else-if="dataName == '@CategoryArticle'"
+          href="javascript:;"
+          @click="showCategory(record.id)"
+          >{{ dataName }}</a
+        >
+        <a
+          v-else-if="dataName == '@CategoryChild'"
+          href="javascript:;"
+          @click="showCategory(record.id)"
+          >{{ dataName }}</a
+        >
+         <a
+          v-else-if="dataName == '@CategoryArticlePage'"
+          href="javascript:;"
+          @click="showCategory(record.id)"
+          >{{ dataName }}</a
+        >
+             <a
+          v-else-if="dataName == '@CategoryArticleSize'"
           href="javascript:;"
           @click="showCategory(record.id)"
           >{{ dataName }}</a
