@@ -78,5 +78,11 @@ templatePageApi.fetchComponents = (path) => {
         method: 'get'
     })
 }
+templatePageApi.installLanguage = (path) => {
+    return service({
+        url: `${baseUrl}/installLanguage?path=${path}`,
+        method: 'get'
+    })
+}
 
 export default templatePageApi
