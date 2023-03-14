@@ -2,6 +2,7 @@
   <div>
     <a-button @click="fetchComponents">从文件中获取模板</a-button>
     <a-button @click="installLanguage">安装语言模板</a-button>
+    <a-button @click="createAllLanguage">创建所有语言模板</a-button>
     <p>生成Html在调试模板事有用</p>
     <a-table
       :columns="columns"
@@ -262,6 +263,14 @@ export default {
       })
     },installLanguage(){
       templatePageApi.installLanguage("").then(resp=>{
+        // console.log(resp)
+        this.loadTemplate();
+        this.$notification["success"]({
+          message: resp.data.message,
+        });
+      })
+    },createAllLanguage(){
+      templatePageApi.createAllLanguage("").then(resp=>{
         // console.log(resp)
         this.loadTemplate();
         this.$notification["success"]({

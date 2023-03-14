@@ -84,5 +84,11 @@ templatePageApi.installLanguage = (path) => {
         method: 'get'
     })
 }
+templatePageApi.createAllLanguage = (path) => {
+    return service({
+        url: `${baseUrl}/createAllLanguage?path=${path}`,
+        method: 'get'
+    })
+}
 
 export default templatePageApi

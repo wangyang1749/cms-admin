@@ -16,6 +16,11 @@
 
     <a-button @click="updateAllTemplate">更新所有模板</a-button>
     <a-button @click="fetchComponents">从文件中获取模板</a-button>
+    <a-button @click="createAllLanguage">创建所有语言模板</a-button>
+
+    <a-select @change="setLang">
+      <a-select-option :value="item" v-for="item in langs" :key="item.id">{{ item }}</a-select-option>
+    </a-select>
 
     <a-table :columns="columns" :dataSource="template" :pagination="false" :rowKey="(template) => template.id">
       <div slot="status" slot-scope="status, record">
@@ -75,9 +80,9 @@
 
       <a-list bordered :dataSource="templatesChild">
         <a-list-item slot="renderItem" slot-scope="item">
-   
+
           <a slot="actions" @click="removeChildTemplate(item.id)">删除子模板</a>
-          {{ item.name }}-{{item.enName}}
+          {{ item.name }}-{{ item.enName }}
 
         </a-list-item>
       </a-list>
@@ -133,6 +138,7 @@ const columns = [
 ];
 import preview from "@/api/preview.js";
 import TemplateApi from "@/api/template.js";
+import enumApi from "@/api/enum.js";
 export default {
   data() {
     return {
@@ -156,7 +162,9 @@ export default {
       templateDrawer: false,
       templateEnName: "",
       record: undefined,
-      templatesChild: []
+      templatesChild: [],
+      langs:[],
+      lang:undefined
     };
   },
   computed: {
@@ -167,19 +175,32 @@ export default {
       };
     },
   },
-  created() {
+  mounted() {
     this.loadTemplate();
+    this.loadLang()
   },
   methods: {
     loadTemplate() {
       this.queryParam.page = this.pagination.page - 1;
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
-      TemplateApi.list(this.queryParam).then((response) => {
+      // if(lang){
+
+      // }
+      TemplateApi.list(this.queryParam,this.lang).then((response) => {
         this.template = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
         // console.log(response);
       });
+    },loadLang(){
+      enumApi.list("Lang").then(resp=>{
+        this.langs = resp.data.data
+       
+      })
+    },setLang(value){
+      this.lang= value
+      // console.log(value)
+      this.loadTemplate()
     }, fetchComponents() {
       TemplateApi.fetchComponents("").then(resp => {
         // console.log(resp)
@@ -188,6 +209,15 @@ export default {
           message: resp.data.message,
         });
       })
+    }, createAllLanguage() {
+      TemplateApi.createAllLanguage("").then(resp => {
+        // console.log(resp)
+        this.loadTemplate();
+        this.$notification["success"]({
+          message: resp.data.message,
+        });
+      })
+
     }, addChildTemplate() {
       TemplateApi.addChild(this.record.id, this.templateEnName).then(resp => {
         this.$notification["success"]({
@@ -195,13 +225,13 @@ export default {
         });
         this.loadTemplateChild(this.record.id)
       })
-    },loadTemplateChild(id){
+    }, loadTemplateChild(id) {
       TemplateApi.findByChild(id).then(resp => {
         this.templatesChild = resp.data.data
       })
     },
-    removeChildTemplate(id){
-      TemplateApi.removeChildTemplate(this.record.id,id).then(resp => {
+    removeChildTemplate(id) {
+      TemplateApi.removeChildTemplate(this.record.id, id).then(resp => {
         // console.log(resp)
         this.$notification["success"]({
           message: resp.data.message,

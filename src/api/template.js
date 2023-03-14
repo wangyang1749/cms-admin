@@ -46,12 +46,21 @@ templateApi.deleteById = id => {
 }
 
 
-templateApi.list =(params)=>{
-    return service({
-        url:baseUrl,
-        params:params,
-        method:'get'
-    })
+templateApi.list =(params,lang)=>{
+    if(lang){
+        return service({
+            url:`${baseUrl}?lang=${lang}`,
+            params:params,
+            method:'get'
+        })
+    }else{
+        return service({
+            url:baseUrl,
+            params:params,
+            method:'get'
+        })
+    }
+
 }
 templateApi.add = (params) => {
     return service({
@@ -64,12 +73,6 @@ templateApi.upload=()=>{
     return `http://${Golbal.baseUrl}:${Golbal.port}/api/template/upload`
   }
 
-templateApi.fetchComponents = (path) => {
-    return service({
-        url: `${baseUrl}/fetchComponents?path=${path}`,
-        method: 'get'
-    })
-}
 
 templateApi.addChild = (id,enName) => {
     return service({
@@ -91,4 +94,20 @@ templateApi.removeChildTemplate = (templateId, templateChildId) => {
         method: 'get'
     })
 }
+
+templateApi.fetchComponents = (path) => {
+    return service({
+        url: `${baseUrl}/fetchComponents?path=${path}`,
+        method: 'get'
+    })
+}
+
+templateApi.createAllLanguage = (path) => {
+    return service({
+        url: `${baseUrl}/createAllLanguage?path=${path}`,
+        method: 'get'
+    })
+}
+
+
 export default templateApi
