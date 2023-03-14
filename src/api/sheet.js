@@ -79,4 +79,14 @@ sheetApi.update = (id,params) => {
         method: 'post'
     })
 }
+
+
+sheetApi.createSheetLanguage=(id) => {
+    return service({
+        url: `${baseUrl}/createSheetLanguage/${id}`,
+        method: 'get'
+    })
+}
+
+
 export default sheetApi

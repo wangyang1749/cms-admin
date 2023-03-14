@@ -98,6 +98,8 @@
         <a-divider type="vertical" />
         <a href="javascript:;" @click="handleEditClick(record)">编辑</a>
         <a-divider type="vertical" />
+        <a href="javascript:;" @click="createArticleLanguage(record.id)">复制英文</a>
+        <a-divider type="vertical" />
         <a href="javascript:;" @click="articleSettings(record.id)">设置</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="deleteArticleById(record.id)"
@@ -318,6 +320,14 @@ export default {
         // console.log(response);
         this.categorys = response.data.data;
       });
+    },createArticleLanguage(id){
+      ArticleApi.createArticleLanguage(id).then(resp=>{
+        // console.log(resp)
+        this.$notification["success"]({
+          message: resp.message
+        });
+        this.loadArticle() 
+      })
     },
 
     handlePaginationChange(page, pageSize) {

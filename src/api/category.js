@@ -156,4 +156,14 @@ function concreteTree(parentCategory, categories) {
     })
 }
 
-  export default categoryApi
+
+
+categoryApi.createCategoryLanguage=(id) => {
+  return service({
+      url: `${baseUrl}/createCategoryLanguage/${id}`,
+      method: 'get'
+  })
+}
+
+
+export default categoryApi

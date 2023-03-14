@@ -161,4 +161,11 @@ articleApi.updateArticleInComponentOrder=(id,order) => {
     })
 }
 
+articleApi.createArticleLanguage=(id) => {
+    return service({
+        url: `${baseUrl}/createArticleLanguage/${id}`,
+        method: 'get'
+    })
+  }
+
 export default articleApi

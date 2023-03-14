@@ -33,6 +33,8 @@
       </div>
 
       <span slot="action" slot-scope="record">
+        <a href="javascript:;" @click="createTemplateLanguage(record.id)">复制英文</a>
+        <a-divider type="vertical" />
         <a href="javascript:;" @click="deleteById(record.id)">删除</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="edit(record.id)">编辑</a>
@@ -196,6 +198,14 @@ export default {
       enumApi.list("Lang").then(resp=>{
         this.langs = resp.data.data
        
+      })
+    },createTemplateLanguage(id){
+      TemplateApi.createTemplateLanguage(id).then(resp=>{
+        // console.log(resp)
+        this.$notification["success"]({
+          message: resp.message
+        });
+        this.loadTemplate() 
       })
     },setLang(value){
       this.lang= value

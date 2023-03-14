@@ -79,7 +79,7 @@
       width="40rem"
     >
       <a-button type="primary" @click="updateArticlePos">更新文章顺序</a-button>
-
+     
       <a-tree
         class="draggable-tree"
         draggable
@@ -122,6 +122,8 @@
           <a-button @click="remove(updateId)">删除分类</a-button>
           <a-button @click="articleListShow(updateId)">查看文章</a-button>
           <a-button @click="generateHtml(updateId)">生成HTML</a-button>
+          <a-button type="primary" @click="createCategoryLanguage(updateId)">创建英文分类</a-button>
+
           是否推荐首页
           <a-switch
             defaultChecked
@@ -466,6 +468,14 @@ export default {
       templateApi.findByType("ARTICLE_LIST").then((response) => {
         this.recommendTemplate = response.data.data;
       });
+    },createCategoryLanguage(updateId){
+      categoryApi.createCategoryLanguage(updateId).then(resp=>{
+        // console.log(resp)
+        this.$notification["success"]({
+          message: resp.message
+        });
+        this.loadcategory() 
+      })
     },
     loadTags(callback) {
       tagsApi.list().then((response) => {

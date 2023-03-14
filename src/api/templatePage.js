@@ -91,4 +91,14 @@ templatePageApi.createAllLanguage = (path) => {
     })
 }
 
+
+templatePageApi.createComponentsLanguage=(id) => {
+    return service({
+        url: `${baseUrl}/createComponentsLanguage/${id}`,
+        method: 'get'
+    })
+}
+
+
+
 export default templatePageApi

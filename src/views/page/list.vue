@@ -14,6 +14,8 @@
  
         <a href="javascript:;" @click="edit(record.id)">编辑</a>
         <a-divider type="vertical" />
+        <a href="javascript:;" @click="createSheetLanguage(record.id)">复制英文</a>
+        <a-divider type="vertical" />
         <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="deleteById(record.id)">删除</a>
@@ -111,6 +113,14 @@ export default {
         this.pagination.total = response.data.data.totalElements;
         // console.log(response);
       });
+    },createSheetLanguage(id){
+      sheetApi.createSheetLanguage(id).then(resp=>{
+        // console.log(resp)
+        this.$notification["success"]({
+          message: resp.message
+        });
+        this.loadSheet() 
+      })
     },
     loadcategory() {
       // console.log("loadcategory");

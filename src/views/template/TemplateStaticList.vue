@@ -59,6 +59,9 @@
       </span>
 
       <span slot="action" slot-scope="text, record">
+        
+        <a href="javascript:;" @click="createComponentsLanguage(record.id)">复制英文</a>
+        <a-divider type="vertical" />
         <a href="javascript:;" @click="deleteComponent(record.id)">删除</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="editComponent(record.id)">编辑</a>
@@ -261,6 +264,16 @@ export default {
           message: resp.data.message,
         });
       })
+    },createComponentsLanguage(id){
+      templatePageApi.createComponentsLanguage(id).then(resp=>{
+        // console.log(resp)
+        this.$notification["success"]({
+          message: resp.message
+        });
+        this.loadTemplate() 
+      })
+
+
     },installLanguage(){
       templatePageApi.installLanguage("").then(resp=>{
         // console.log(resp)

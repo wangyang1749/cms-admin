@@ -109,5 +109,11 @@ templateApi.createAllLanguage = (path) => {
     })
 }
 
+templateApi.createTemplateLanguage=(id) => {
+    return service({
+        url: `${baseUrl}/createTemplateLanguage/${id}`,
+        method: 'get'
+    })
+}
 
 export default templateApi
