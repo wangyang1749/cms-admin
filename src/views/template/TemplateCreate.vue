@@ -14,7 +14,7 @@
           <a-select-option :value="item" v-for="item in templateData" :key="item">{{ item }}</a-select-option>
         </a-select>
       </a-form-item>
-
+ 
       <a-form-item label="模板名称">
         <a-input style="width: 20%" v-model="queryParam.name"></a-input>
       </a-form-item>
@@ -23,6 +23,9 @@
       </a-form-item>
       <a-form-item label="模板HTML文件">
         <a-input style="width: 20%" v-model="queryParam.templateValue"></a-input>
+      </a-form-item>
+      <a-form-item label="文章Size">
+        <a-input style="width: 20%" v-model="queryParam.articleSize"></a-input>
       </a-form-item>
     </a-form>
 
@@ -75,6 +78,7 @@ export default {
         dataName: "",
         templateType: undefined,
         templateContent: "",
+        articleSize:undefined
       },
       id: null,
       isUpdate: false,
