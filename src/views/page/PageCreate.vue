@@ -30,13 +30,16 @@
       </div>
  
       <a-drawer
-        title="创建或跟新页面"
+        title="创建或更新页面"
         placement="right"
         :closable="false"
         @close="onClose"
         :visible="visible"
         width="30rem"
       >
+      <a-form-item label="页面path">
+          <a-input v-model="queryParam.path"></a-input>
+        </a-form-item>
         <a-form-item label="页面名称">
           <a-input v-model="queryParam.title"></a-input>
         </a-form-item>
@@ -157,6 +160,7 @@ export default {
         status: "PUBLISHED",
         // cssContent: "",
         // jsContent: "",
+
         isSource: false,
       },
       visible: false,
@@ -190,6 +194,7 @@ export default {
           vm.queryParam.viewName = article.viewName;
           vm.queryParam.status = article.status;
           vm.queryParam.isSource = article.isSource;
+          vm.queryParam.path = article.path;
           //     tagIds: []
           // categoryIds: []
           vm.isUpdate = true;

@@ -36,7 +36,8 @@ export default {
         viewName: "",
         templateValue: "",
         path: "components",
-        dataName: ""
+        dataName: "",
+        parse:false,
       },
       id: null,
       isUpdate: false

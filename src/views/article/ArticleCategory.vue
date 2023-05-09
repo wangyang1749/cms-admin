@@ -158,9 +158,19 @@
             v-model="categoryParam.articleListSize"
           />
         </a-form-item>
-        <a-switch defaultChecked v-model="categoryParam.desc" />
+        <a-form-item label="desc">
+          <a-switch defaultChecked v-model="categoryParam.isDesc" />
+        </a-form-item>
+        <a-form-item label="articleUseViewName">
+          <a-switch defaultChecked v-model="categoryParam.articleUseViewName" />
+        </a-form-item>
+       
+      
 
         <a-form layout="horizontal">
+          <a-form-item label="视图路径" help="不输入.默认生成">
+            <a-input v-model="categoryParam.path"></a-input>
+          </a-form-item>
           <a-form-item label="视图的名称" help="不输入.默认生成">
             <a-input v-model="categoryParam.viewName"></a-input>
           </a-form-item>
@@ -404,7 +414,7 @@ export default {
         firstArticle: "",
         articleListSize: 10,
         icon: "",
-        desc: true,
+        isDesc: true,
         parentId: 0,
         picThumbPath: "",
         tagIds: [],
