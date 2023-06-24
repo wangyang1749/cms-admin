@@ -147,6 +147,13 @@ articleApi.generateHtml=(id) => {
         method: 'get'
     })
 }
+
+articleApi.publisher=(id) => {
+    return service({
+        url: `${baseUrl}/publisher/${id}`,
+        method: 'get'
+    })
+}
 articleApi.listByComponentsId = (id) => {
     return service({
         url: `${baseUrl}/listByComponentsId/${id}`,

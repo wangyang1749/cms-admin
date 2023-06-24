@@ -105,6 +105,8 @@
         <a href="javascript:;" @click="deleteArticleById(record.id)"
           >删除文章</a
         >
+        <a-divider type="vertical" />
+        <a href="javascript:;" @click="publisher(record.id)">提交到搜索引擎</a>
         <!-- <a href="javascript:;" class="ant-dropdown-link">
         More actions
         <a-icon type="down" />
@@ -435,6 +437,12 @@ export default {
       ArticleApi.generateHtml(id).then((response) => {
         this.$notification["success"]({
           message: "成功生成" + response.data.data.title + "的HTML",
+        });
+      });
+    },  publisher(id) {
+      ArticleApi.publisher(id).then((response) => {
+        this.$notification["success"]({
+          message: "remain:"+response.data.data.remain+ " success:"+response.data.data.success,
         });
       });
     },
