@@ -847,6 +847,7 @@ export default {
         okType: "danger",
         cancelText: "No",
         onOk() {
+          // console.log("aaaaaaaaaaa")
           // console.log(_this.currentTabId)
           if (more) {
             categoryApi.updateAll({ more: true }).then((response) => {

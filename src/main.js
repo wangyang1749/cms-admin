@@ -36,7 +36,10 @@ import { Row } from 'ant-design-vue';
 import { Col ,Checkbox} from 'ant-design-vue';
 import VueCookies from 'vue-cookies'
 
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
 
+Vue.use(ElementUI);
 
 import { Comment,Descriptions,Badge,FormModel,DatePicker,Tooltip} from 'ant-design-vue';
 Vue.use(Comment);
@@ -88,12 +91,9 @@ new Vue({
 }).$mount('#app')
 
 
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
 
-Vue.use(ElementUI);
-new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app')
+// new Vue({
+//   router,
+//   store,
+//   render: h => h(App)
+// }).$mount('#app')
