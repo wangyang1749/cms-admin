@@ -180,7 +180,19 @@
           <a-form-item label="icon">
             <a-input v-model="categoryParam.icon"></a-input>
           </a-form-item>
+          
 
+
+          <a-form-item label="选择管理员">
+            <a-select style="width: 100%" v-model="categoryParam.userId">
+              <a-select-option
+                :value="item.id"
+                v-for="item in users"
+                :key="item.id"
+                >{{ item.username }}</a-select-option
+              >
+            </a-select>
+          </a-form-item>
           <a-form-item label="选择推荐文章的标签">
             <a-select
               allowClear
@@ -198,6 +210,7 @@
               >
             </a-select>
           </a-form-item>
+
 
           <a-form-item label="选择分类信息模板">
             <a-select style="width: 100%" v-model="categoryParam.templateName">
@@ -347,6 +360,7 @@ import attachmentApi from "@/api/attachment.js";
 // import ArticleApi from "@/api/article.js";
 import tagsApi from "@/api/tags.js";
 import contentAPI from "@/api/content.js";
+import userApi from "@/api/user.js";
 // // import {  ref } from 'vue';
 // const x = 3;
 // const y = 2;
@@ -429,7 +443,7 @@ export default {
         children: "children",
         title: "title",
         key: "id",
-      },
+      },users:[]
     };
   },
   created() {
@@ -626,10 +640,14 @@ export default {
       this.loadArticleTempalte();
       this.loadrecommendTemplate()
       this.categoryParam = {};
+      this.loadUser();
       this.isUpdate = false;
       this.visible = true;
+    },loadUser(){
+      userApi.listAll().then(resp=>{
+        this.users= resp.data.data
+      })
     },
-
     edit(id) {
       // this.loadTempalte();
       // // this.loadArticle(id);
