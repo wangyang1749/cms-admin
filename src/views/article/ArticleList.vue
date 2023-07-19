@@ -7,7 +7,7 @@
       :rowKey="(article) => article.id"
       size="small"
       class="table"
-      :scroll="{ x: 1500 }"
+      :scroll="{ x: 2500 }"
     >
       <template slot="title">
         <a-input-search
@@ -61,6 +61,14 @@
           defaultChecked
           @change="sendOrCancelTop(record.id)"
           v-model="record.top"
+        />
+      </div>
+
+      <div slot="isDivision" slot-scope="isDivision, record">
+        <a-switch
+          defaultChecked
+          @change="divisionOkOrCancel(record.id)"
+          v-model="record.isDivision"
         />
       </div>
 
@@ -228,6 +236,11 @@ const columns = [
     dataIndex: "top",
     key: "top",
     scopedSlots: { customRender: "top" },
+  },  {
+    title: "是否是分割",
+    dataIndex: "isDivision",
+    key: "isDivision",
+    scopedSlots: { customRender: "isDivision" },
   },
   {
     title: "发布时间",
@@ -516,6 +529,14 @@ export default {
       this.loadArticle();
     },onSearchCategory(){
 
+    },divisionOkOrCancel(id){
+      ArticleApi.divisionOkOrCancel(id).then((response) => {
+        // console.log(response);
+        this.$notification["success"]({
+          message: "操作" + response.data.message,
+        });
+        this.loadArticle();
+      });
     }
   },
 };

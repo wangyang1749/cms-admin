@@ -93,7 +93,12 @@ articleApi.haveHtml = articleId => {
         method: 'get'
     })
 }
-
+articleApi.divisionOkOrCancel = articleId => {
+    return service({
+        url: `${baseUrl}/divisionOkOrCancel/${articleId}`,
+        method: 'get'
+    })
+}
 articleApi.sendOrCancelTop = articleId => {
     return service({
         url: `${baseUrl}/sendOrCancelTop/${articleId}`,
