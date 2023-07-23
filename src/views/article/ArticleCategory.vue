@@ -158,6 +158,12 @@
             v-model="categoryParam.articleListSize"
           />
         </a-form-item>
+
+        <a-form-item label="isArticleDocLink">
+          <a-switch defaultChecked v-model="categoryParam.isArticleDocLink" />
+        </a-form-item>
+
+
         <a-form-item label="desc">
           <a-switch defaultChecked v-model="categoryParam.isDesc" />
         </a-form-item>
