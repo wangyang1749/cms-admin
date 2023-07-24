@@ -66,28 +66,14 @@
     <!-- <a-tab-pane tab="使用说明" ></a-tab-pane> -->
     <!-- </a-tabs> -->
 
-    <a-drawer
-      title="文章列表"
-      placement="right"
-      :closable="true"
-      :visible="articleListDrawer"
-      @close="
-        () => {
-          articleListDrawer = false;
-        }
-      "
-      width="40rem"
-    >
+    <a-drawer title="文章列表" placement="right" :closable="true" :visible="articleListDrawer" @close="() => {
+        articleListDrawer = false;
+      }
+      " width="40rem">
       <a-button type="primary" @click="updateArticlePos">更新文章顺序</a-button>
-     
-      <a-tree
-        class="draggable-tree"
-        draggable
-        block-node
-        :tree-data="articles"
-        :replace-fields="articleFieldNames"
-        @drop="onDropArticle"
-      />
+
+      <a-tree class="draggable-tree" draggable block-node :tree-data="articles" :replace-fields="articleFieldNames"
+        @drop="onDropArticle" />
       <!-- <a-list bordered :dataSource="articles">
         <a-list-item slot="renderItem" slot-scope="item">
 
@@ -102,16 +88,8 @@
 
     <a-row>
       <a-col :span="8">
-        <a-tree
-          class="draggable-tree"
-          draggable
-          block-node
-          :tree-data="categorys"
-          :replace-fields="fieldNames"
-          @dragenter="onDragEnter"
-          @select="onSelect"
-          @drop="onDropCategory"
-        />
+        <a-tree class="draggable-tree" draggable block-node :tree-data="categorys" :replace-fields="fieldNames"
+          @dragenter="onDragEnter" @select="onSelect" @drop="onDropCategory" />
         <!-- @select="onSelect" -->
         <!-- :replace-fields="fieldNames" -->
       </a-col>
@@ -122,27 +100,16 @@
           <a-button @click="remove(updateId)">删除分类</a-button>
           <a-button @click="articleListShow(updateId)">查看文章</a-button>
           <a-button @click="generateHtml(updateId)">生成HTML</a-button>
+          <a-button @click="generateArticlesByCategoryId(updateId)">生成文章HTML</a-button>
           <a-button type="primary" @click="createCategoryLanguage(updateId)">创建英文分类</a-button>
 
           是否推荐首页
-          <a-switch
-            defaultChecked
-            @change="onChange(updateId)"
-            v-model="categoryParam.recommend"
-          />
+          <a-switch defaultChecked @change="onChange(updateId)" v-model="categoryParam.recommend" />
 
           是否添加到导航
-          <a-switch
-            defaultChecked
-            @change="onChangeNav(updateId)"
-            v-model="categoryParam.existNav"
-          />
+          <a-switch defaultChecked @change="onChangeNav(updateId)" v-model="categoryParam.existNav" />
           是否生成Html
-          <a-switch
-            defaultChecked
-            @change="onChangeHtml(updateId)"
-            v-model="categoryParam.haveHtml"
-          />
+          <a-switch defaultChecked @change="onChangeHtml(updateId)" v-model="categoryParam.haveHtml" />
 
           <!-- <a-switch defaultChecked @change="onChange(this.updateId)" /> -->
 
@@ -153,10 +120,7 @@
 
         <!-- <a-modal title="添加分类" v-model="visible" @ok="handleOk"> -->
         <a-form-item label="一页文章数量">
-          <a-input-number
-            id="inputNumber"
-            v-model="categoryParam.articleListSize"
-          />
+          <a-input-number id="inputNumber" v-model="categoryParam.articleListSize" />
         </a-form-item>
 
         <a-form-item label="isArticleDocLink">
@@ -170,8 +134,8 @@
         <a-form-item label="articleUseViewName">
           <a-switch defaultChecked v-model="categoryParam.articleUseViewName" />
         </a-form-item>
-       
-      
+
+
 
         <a-form layout="horizontal">
           <a-form-item label="视图路径" help="不输入.默认生成">
@@ -186,69 +150,39 @@
           <a-form-item label="icon">
             <a-input v-model="categoryParam.icon"></a-input>
           </a-form-item>
-          
+
 
 
           <a-form-item label="选择管理员">
             <a-select style="width: 100%" v-model="categoryParam.userId">
-              <a-select-option
-                :value="item.id"
-                v-for="item in users"
-                :key="item.id"
-                >{{ item.username }}</a-select-option
-              >
+              <a-select-option :value="item.id" v-for="item in users" :key="item.id">{{ item.username }}</a-select-option>
             </a-select>
           </a-form-item>
           <a-form-item label="选择推荐文章的标签">
-            <a-select
-              allowClear
-              mode="tags"
-              style="width: 100%"
-              @blur="handleBlur"
-              placeholder="Tags Mode"
-              v-model="selectedTagNames"
-            >
-              <a-select-option
-                v-for="item in tags"
-                :key="item.id + ''"
-                :value="item.id + ''"
-                >{{ item.id }}-{{ item.name }}</a-select-option
-              >
+            <a-select allowClear mode="tags" style="width: 100%" @blur="handleBlur" placeholder="Tags Mode"
+              v-model="selectedTagNames">
+              <a-select-option v-for="item in tags" :key="item.id + ''" :value="item.id + ''">{{ item.id }}-{{ item.name
+              }}</a-select-option>
             </a-select>
           </a-form-item>
 
 
           <a-form-item label="选择分类信息模板">
             <a-select style="width: 100%" v-model="categoryParam.templateName">
-              <a-select-option
-                :value="item.enName"
-                v-for="item in templates"
-                :key="item.id"
-                >{{ item.name }}</a-select-option
-              >
+              <a-select-option :value="item.enName" v-for="item in templates" :key="item.id">{{ item.name
+              }}</a-select-option>
             </a-select>
           </a-form-item>
           <a-form-item label="分类推荐模板选择">
             <a-select style="width: 100%" v-model="categoryParam.recommendTemplateName">
-              <a-select-option
-                :value="item.enName"
-                v-for="item in recommendTemplate"
-                :key="item.id"
-                >{{ item.name }}</a-select-option
-              >
+              <a-select-option :value="item.enName" v-for="item in recommendTemplate" :key="item.id">{{ item.name
+              }}</a-select-option>
             </a-select>
           </a-form-item>
           <a-form-item label="选择文章显示的模板">
-            <a-select
-              style="width: 100%"
-              v-model="categoryParam.articleTemplateName"
-            >
-              <a-select-option
-                :value="item.enName"
-                v-for="item in articleTemplate"
-                :key="item.enName"
-                >{{ item.name }}</a-select-option
-              >
+            <a-select style="width: 100%" v-model="categoryParam.articleTemplateName">
+              <a-select-option :value="item.enName" v-for="item in articleTemplate" :key="item.enName">{{ item.name
+              }}</a-select-option>
             </a-select>
           </a-form-item>
 
@@ -256,14 +190,8 @@
             <a-textarea v-model="categoryParam.description"></a-textarea>
           </a-form-item>
           <a-form-item>
-            <a-upload-dragger
-              name="file"
-              :multiple="true"
-              :action="upload"
-              @change="handleChange"
-              :headers="headers"
-              :withCredentials="true"
-            >
+            <a-upload-dragger name="file" :multiple="true" :action="upload" @change="handleChange" :headers="headers"
+              :withCredentials="true">
               <p class="ant-upload-drag-icon">
                 <!-- <a-icon type="inbox" /> -->
                 <img :src="categoryParam.picPath" width="100%" alt srcset />
@@ -274,24 +202,13 @@
                 uploading company data or other band files
               </p>
             </a-upload-dragger>
-            <a-input
-              placeholder="直接粘贴图片路径"
-              v-model="categoryParam.picPath"
-            ></a-input>
-            <a-input
-              placeholder="直接粘贴图片路径"
-              v-model="categoryParam.picThumbPath"
-            ></a-input>
+            <a-input placeholder="直接粘贴图片路径" v-model="categoryParam.picPath"></a-input>
+            <a-input placeholder="直接粘贴图片路径" v-model="categoryParam.picThumbPath"></a-input>
           </a-form-item>
 
           <a-form-item label="父ID">
             <a-select style="width: 100%" v-model="categoryParam.parentId">
-              <a-select-option
-                :value="item.id"
-                v-for="item in categorys"
-                :key="item.id"
-                >{{ item.name }}</a-select-option
-              >
+              <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{ item.name }}</a-select-option>
             </a-select>
           </a-form-item>
 
@@ -363,7 +280,7 @@ import templateApi from "@/api/template.js";
 import preview from "@/api/preview.js";
 // import uploadApi from "@/api/upload.js";
 import attachmentApi from "@/api/attachment.js";
-// import ArticleApi from "@/api/article.js";
+import ArticleApi from "@/api/article.js";
 import tagsApi from "@/api/tags.js";
 import contentAPI from "@/api/content.js";
 import userApi from "@/api/user.js";
@@ -414,7 +331,7 @@ export default {
       // value: "",
       templates: [],
       articleTemplate: [],
-      recommendTemplate:[],
+      recommendTemplate: [],
       isUpdate: false,
       updateId: null,
       visible: false,
@@ -429,7 +346,7 @@ export default {
         viewName: "",
         description: "",
         picPath: "",
-        recommendTemplateName:"",
+        recommendTemplateName: "",
         articleTemplateName: "",
         firstArticle: "",
         articleListSize: 10,
@@ -449,7 +366,7 @@ export default {
         children: "children",
         title: "title",
         key: "id",
-      },users:[]
+      }, users: []
     };
   },
   created() {
@@ -498,13 +415,13 @@ export default {
       templateApi.findByType("ARTICLE_LIST").then((response) => {
         this.recommendTemplate = response.data.data;
       });
-    },createCategoryLanguage(updateId){
-      categoryApi.createCategoryLanguage(updateId).then(resp=>{
+    }, createCategoryLanguage(updateId) {
+      categoryApi.createCategoryLanguage(updateId).then(resp => {
         // console.log(resp)
         this.$notification["success"]({
           message: resp.message
         });
-        this.loadcategory() 
+        this.loadcategory()
       })
     },
     loadTags(callback) {
@@ -649,9 +566,9 @@ export default {
       this.loadUser();
       this.isUpdate = false;
       this.visible = true;
-    },loadUser(){
-      userApi.listAll().then(resp=>{
-        this.users= resp.data.data
+    }, loadUser() {
+      userApi.listAll().then(resp => {
+        this.users = resp.data.data
       })
     },
     edit(id) {
@@ -762,6 +679,12 @@ export default {
       categoryApi.generateHtml(id).then((response) => {
         this.$notification["success"]({
           message: "成功生成" + response.data.data.name + "的HTML",
+        });
+      });
+    }, generateArticlesByCategoryId(id) {
+      ArticleApi.generateArticlesByCategoryId(id).then((response) => {
+        this.$notification["success"]({
+          message:  response.data.data.message ,
         });
       });
     },

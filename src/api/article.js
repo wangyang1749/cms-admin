@@ -105,6 +105,12 @@ articleApi.sendOrCancelTop = articleId => {
         method: 'get'
     })
 }
+articleApi.generateArticlesByCategoryId = categoryId => {
+    return service({
+        url: `${baseUrl}/generateArticlesByCategoryId/${categoryId}`,
+        method: 'get'
+    })
+}
 
 articleApi.create = (params) => {
     return service({
