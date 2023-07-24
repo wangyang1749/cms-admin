@@ -134,7 +134,13 @@
         <a-form-item label="articleUseViewName">
           <a-switch defaultChecked v-model="categoryParam.articleUseViewName" />
         </a-form-item>
+        <a-form-item label="isRecursive">
+          <a-switch defaultChecked v-model="categoryParam.isRecursive" />
+        </a-form-item>
 
+        <a-form-item label="isDivision是否是分割">
+          <a-switch defaultChecked v-model="categoryParam.isDivision" />
+        </a-form-item>
 
 
         <a-form layout="horizontal">
