@@ -27,6 +27,9 @@
       <a-form-item label="文章Size">
         <a-input style="width: 20%" v-model="queryParam.articleSize"></a-input>
       </a-form-item>
+      <a-form-item label="parentOrder">
+        <a-input style="width: 20%" v-model="queryParam.parentOrder"></a-input>
+      </a-form-item>
     </a-form>
 
 
