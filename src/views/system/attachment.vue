@@ -38,61 +38,47 @@
           <div style="margin-top: 10px;">
             <!-- 第二行操作 -->
             <a-button type="primary" icon="cloud-upload" @click="() => (uploadVisible = true)">上传</a-button>
-            <a-button
-              icon="select"
-              v-show="!supportMultipleSelection"
-              @click="handleMultipleSelection"
-            >批量操作</a-button>
-            <a-button
-              type="danger"
-              icon="delete"
-              v-show="supportMultipleSelection"
-              @click="handleDeleteAttachmentInBatch"
-            >删除</a-button>
-            <a-button
-              icon="close"
-              v-show="supportMultipleSelection"
-              @click="handleCancelMultipleSelection"
-            >取消</a-button>
+            <a-button type="primary" icon="cloud-upload" @click="() => {visible = true; updateAttachmentId = undefined}">添加svg</a-button>
+            <a-button icon="select" v-show="!supportMultipleSelection" @click="handleMultipleSelection">批量操作</a-button>
+            <a-button type="danger" icon="delete" v-show="supportMultipleSelection"
+              @click="handleDeleteAttachmentInBatch">删除</a-button>
+            <a-button icon="close" v-show="supportMultipleSelection" @click="handleCancelMultipleSelection">取消</a-button>
           </div>
         </a-card>
       </a-col>
 
+      <a-drawer title="添加svg" placement="right" :closable="false" @close="() => { this.visible = false }" :visible="visible"
+        width="80rem">
+
+        <a-textarea v-model="svg"></a-textarea>
+        <a-button @click="addSvg">添加</a-button>
+      </a-drawer>
       <a-col :span="24">
-        <a-list
-          :grid="{ gutter: 12, xs: 2, sm: 2, md: 4, lg: 6, xl: 6, xxl: 6 }"
-          :dataSource="attachments"
-        >
+        <a-list :grid="{ gutter: 12, xs: 2, sm: 2, md: 4, lg: 6, xl: 6, xxl: 6 }" :dataSource="attachments">
           <a-list-item slot="renderItem" slot-scope="item, index" :key="index">
             <a-card :bodyStyle="{ padding: 0 }" hoverable @click="handleShowDetailDrawer(item)">
               <div class="attach-thumb">
                 <div v-if="handleJudgeMediaType(item)">
-                  <img
-                    :src="item.thumbPath"
-                    v-show="handleJudgeMediaType(item)"
-                    loading="lazy"
-                    style="width:100%;height:100px"
-                  />
+                  <img :src="item.thumbPath" v-show="handleJudgeMediaType(item)" style="width:100%;height:100px" />
+                  <span>{{ item.path }}</span>
+
                 </div>
                 <div v-else-if="handleMusicType(item)">
                   <audio :src="item.path" controls style="width: 100%;"></audio>
                 </div>
-                
+
                 <div v-else>
-                  <span >当前格式不支持预览</span>
+                  <span>{{ item.path }}</span>
                 </div>
+                <a-button @click="updateSvg(item.id)">更新</a-button>
               </div>
               <a-card-meta style="padding: 0.8rem;">
                 <!-- <span>{{item.fileKey}}</span> -->
                 <!-- <ellipsis :length="isMobile() ? 12 : 16" tooltip slot="description">{{ item.name }}</ellipsis> -->
               </a-card-meta>
-              <a-checkbox
-                class="select-attachment-checkbox"
-                :style="getCheckStatus(item.id) ? selectedAttachmentStyle : ''"
-                :checked="getCheckStatus(item.id)"
-                @click="handleAttachmentSelectionChanged($event, item)"
-                v-show="supportMultipleSelection"
-              ></a-checkbox>
+              <a-checkbox class="select-attachment-checkbox"
+                :style="getCheckStatus(item.id) ? selectedAttachmentStyle : ''" :checked="getCheckStatus(item.id)"
+                @click="handleAttachmentSelectionChanged($event, item)" v-show="supportMultipleSelection"></a-checkbox>
             </a-card>
           </a-list-item>
         </a-list>
@@ -100,34 +86,20 @@
     </a-row>
 
     <div class="page-wrapper">
-      <a-pagination
-        class="pagination"
-        :current="pagination.page"
-        :total="pagination.total"
-        :defaultPageSize="pagination.size"
-        :pageSizeOptions="['18', '36', '54', '72', '90', '108']"
-        showSizeChanger
-        @change="handlePaginationChange"
-        @showSizeChange="handlePaginationChange"
-      />
+      <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
+        :defaultPageSize="pagination.size" :pageSizeOptions="['18', '36', '54', '72', '90', '108']" showSizeChanger
+        @change="handlePaginationChange" @showSizeChange="handlePaginationChange" />
     </div>
     <a-modal title="上传附件" v-model="uploadVisible" :afterClose="onUploadClose" destroyOnClose>
-      <a-upload-dragger
-        name="file"
-        :multiple="true"
-        :action="upload"
-        @change="uploadPic"
-        :headers="headers"
-        :withCredentials="true"
-      >
+      <a-upload-dragger name="file" :multiple="true" :action="upload" @change="uploadPic" :headers="headers"
+        :withCredentials="true">
         <p class="ant-upload-drag-icon">
           <!-- <a-icon type="inbox" /> -->
           <img :src="queryParam.picPath" width="100%" alt srcset />
         </p>
         <p class="ant-upload-text">Click or drag file to this area to upload</p>
-        <p
-          class="ant-upload-hint"
-        >Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
+        <p class="ant-upload-hint">Support for a single or bulk upload. Strictly prohibit from uploading company data or
+          other band files</p>
       </a-upload-dragger>
     </a-modal>
     <!-- <AttachmentDetailDrawer
@@ -148,7 +120,7 @@ export default {
       uploadVisible: false,
       selectAttachment: {},
       supportMultipleSelection: false,
-      attachments: "",
+      attachments: [],
       pagination: {
         page: 1,
         size: 12,
@@ -163,7 +135,10 @@ export default {
         status: null
       },
       drawerVisible: false,
-      uploadHandler: attachmentApi.upload
+      uploadHandler: attachmentApi.upload,
+      visible: false,
+      svg: "",
+      updateAttachmentId: undefined
     };
   },
   computed: {
@@ -176,7 +151,7 @@ export default {
         Authorization: "Bearer " + token
       };
     }
-  }, 
+  },
   created() {
     this.loadAttachment();
   },
@@ -193,12 +168,36 @@ export default {
     },
     handleMultipleSelection() {
       this.supportMultipleSelection = true;
+    }, addSvg() {
+      if (this.updateAttachmentId) {
+        attachmentApi.updateUploadStrContent(this.updateAttachmentId,{ originContent: this.svg }).then(resp => {
+          this.loadAttachment();
+          this.visible = false;
+          this.$message.success(`${resp.msg}svg file uploaded successfully.`);
+        })
+      } else{
+        attachmentApi.uploadStrContent({ originContent: this.svg }).then(resp => {
+          this.loadAttachment();
+          this.visible = false;
+          this.$message.success(`${resp.msg}svg file uploaded successfully.`);
+        })
+      }
+
+
+    }, updateSvg(id) {
+      attachmentApi.find(id).then(resp=>{
+         this.visible = true;
+       // console.log(id)
+        this.updateAttachmentId = id
+        this.svg = resp.data.data.originContent
+      })
+
     },
-    handleDeleteAttachmentInBatch() {},
+    handleDeleteAttachmentInBatch() { },
     handleCancelMultipleSelection() {
       this.supportMultipleSelection = false;
     },
-    handleShowDetailDrawer() {},
+    handleShowDetailDrawer() { },
     handleJudgeMediaType(attachment) {
       var mediaType = attachment.mediaType;
       // 判断文件类型
@@ -216,7 +215,7 @@ export default {
       // 没有获取到文件返回false
       return false;
     },
-      handleMusicType(attachment) {
+    handleMusicType(attachment) {
       var mediaType = attachment.mediaType;
       // 判断文件类型
       if (mediaType) {
@@ -248,16 +247,15 @@ export default {
         this.$message.error(`${info.file.name} file upload failed.`);
       }
     },
-    getCheckStatus() {},
+    getCheckStatus() { },
     handlePaginationChange(page, pageSize) {
       this.pagination.page = page;
       this.pagination.size = pageSize;
       this.loadAttachment();
     },
-    onUploadClose() {}
+    onUploadClose() { }
   }
 };
 </script>
 
-<style>
-</style>
+<style></style>
