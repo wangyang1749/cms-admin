@@ -17,7 +17,12 @@ collectionApi.import = () => {
       method: 'get'
   })
 }
-
+collectionApi.listAll = () => {
+  return service({
+      url: `${baseUrl}/list`,
+      method: 'get'
+  })
+}
 collectionApi.list = () => {
   return service({
       url: baseUrl,
@@ -30,7 +35,12 @@ collectionApi.listVoTree = () => {
       method: 'get'
   })
 }
-
+collectionApi.delAll= ()=>{
+  return service({
+    url:`${baseUrl}/delAll`,
+    method:'get',
+  })
+}
 
 collectionApi.updateAll = (params) => {
   return service({

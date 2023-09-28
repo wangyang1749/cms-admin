@@ -1,58 +1,71 @@
 <template>
   <div>
-    <a-button @click="importData">导入</a-button>
-    <a-button @click="generateHtml">HTML</a-button>
-    <a-button @click="addMenu">添加菜单</a-button>
-    <a-button type="primary" icon="cloud-upload" @click="() => (uploadVisible = true)">上传</a-button>
 
     <!-- <div v-for="item in literatures" :key="item.id">
       {{ item.id }}---{{ item.title }}--{{ item.url }}--{{ item.key }}
       <a href="javascript:;" @click="deleteLiteratures(item)">删除</a>
       <a href="javascript:;" @click="edit(item)">更新</a>
     </div> -->
+    <a-row>
+      <a-col :span="5">
+        <a-tree class="draggable-tree" draggable block-node :tree-data="collection" :replace-fields="fieldNames"
+          @select="onSelect" />
+      </a-col>
+      <a-col :span="19">
+        <a-button @click="importLiteratureCategory">导入分类</a-button>
+        <a-button @click="importData">导入</a-button>
+        <a-button @click="generateListHtml">生成所有分类HTML</a-button>
+        <a-button @click="addMenu">添加菜单</a-button>
+        <a-button @click="delAllCategory">删除所有分类</a-button>
 
-    <a-table :pagination="false" :columns="columns" :dataSource="literatures" :rowKey="data => data.id">
-      <!-- <div slot="existNav" slot-scope="existNav,record">
+        <a-button @click="delAll">删除所有文献</a-button>
+        <a-button type="primary" icon="cloud-upload" @click="() => (uploadVisible = true)">上传</a-button>
+
+        <a-table :pagination="false" :columns="columns" :dataSource="literatures" :rowKey="data => data.id">
+          <!-- <div slot="existNav" slot-scope="existNav,record">
         <a-switch defaultChecked @change="onChangeNav(record.id)" v-model="record.existNav" />
       </div> -->
-      <!-- <div slot="title_" slot-scope="title_">
+          <!-- <div slot="title_" slot-scope="title_">
         <a href="javascript:;">{{ title_ }}</a>
       </div> -->
-      <div slot="title_" slot-scope="title_, record">
-        <a href="javascript:;" @click="preview(record.id)">{{ title_ }}</a>
-      </div>
+          <div slot="title_" slot-scope="title_, record">
+            <a href="javascript:;" @click="preview(record.id)">{{ title_ }}</a>
+          </div>
 
-      <div slot="viewName" slot-scope="viewName, record">
-        <a href="javascript:;" @click="openHtml(record)">{{ viewName }}</a>
-      </div>
-      <div slot="categoryId" slot-scope="categoryId, record">
-        <a-select style="width: 100%" v-model="record.categoryId" @change="selectCategory(record.id, $event)">
-          <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{ item.name }}</a-select-option>
-        </a-select>
-      </div>
+          <div slot="viewName" slot-scope="viewName, record">
+            <a href="javascript:;" @click="openHtml(record)">{{ viewName }}</a>
+          </div>
+          <div slot="categoryId" slot-scope="categoryId, record">
+            <a-select style="width: 100%" v-model="record.categoryId" @change="selectCategory(record.id, $event)">
+              <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{ item.name }}</a-select-option>
+            </a-select>
+          </div>
 
-      <span slot="action" slot-scope="text, record">
-        <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="edit(record)">更新</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="deleteLiteratures(record)">删除</a>
-        <a-divider type="vertical" />
-        <!-- <a href="javascript:;" @click="deleteById(record.id)">删除</a>
+          <span slot="action" slot-scope="text, record">
+            <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="edit(record)">更新</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="deleteLiteratures(record)">删除</a>
+            <a-divider type="vertical" />
+            <!-- <a href="javascript:;" @click="deleteById(record.id)">删除</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="preview(record.id)">预览</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="openHtml(record)">查看HTML</a> -->
-      </span>
+          </span>
 
-      <template slot="footer">
-        <div class="page-wrapper" :style="{ textAlign: 'right' }">
-          <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
-            :defaultPageSize="pagination.size" :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']" showSizeChanger
-            @showSizeChange="handlePaginationChange" @change="handlePaginationChange" />
-        </div>
-      </template>
-    </a-table>
+          <template slot="footer">
+            <div class="page-wrapper" :style="{ textAlign: 'right' }">
+              <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
+                :defaultPageSize="pagination.size" :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']"
+                showSizeChanger @showSizeChange="handlePaginationChange" @change="handlePaginationChange" />
+            </div>
+          </template>
+        </a-table>
+
+      </a-col>
+    </a-row>
 
 
 
@@ -97,8 +110,9 @@
 import literatureApi from "@/api/literature.js";
 import attachmentApi from "@/api/attachment.js";
 import preview from "@/api/preview.js";
-import categoryApi from "@/api/category.js";
+// import categoryApi from "@/api/category.js";
 import contentAPI from "@/api/content.js";
+import collectionApi from "@/api/collection.js";
 const columns = [
   { title: "id", dataIndex: "id", key: "id" },
 
@@ -131,7 +145,7 @@ export default {
       columns,
       pagination: {
         page: 0,
-        size: 5,
+        size: 10,
         sort: null
       },
       literature: {},
@@ -145,11 +159,18 @@ export default {
       },
       uploadVisible: false,
       categorys: [],
+      collection: [],
+      fieldNames: {
+        children: "children",
+        title: "name",
+        key: "id",
+      },
     };
   },
   created() {
     this.loadLiterature();
     this.loadcategory()
+    this.loadLiteratureCategory()
   },
   computed: {
     upload() {
@@ -173,12 +194,40 @@ export default {
         this.pagination.total = response.data.data.totalElements;
         // console.log(response);
       });
+    }, loadLiteratureCategory() {
+      collectionApi.list().then((resp) => {
+        // console.log(resp);
+        this.collection = resp.data.data;
+      });
+    }, importLiteratureCategory() {
+      collectionApi.import().then((resp) => {
+        // console.log(resp);
+        this.$message.success(resp.data.message);
+        this.loadData();
+      });
+    }, delAll() {
+      literatureApi.delAll().then((response) => {
+        this.$notification["success"]({
+          message: "操作" + response.data.message,
+        });
+        // console.log(response);
+      });
+    }, delAllCategory() {
+      collectionApi.delAll().then((response) => {
+        this.$notification["success"]({
+          message: "操作" + response.data.message,
+        });
+        // console.log(response);
+      });
     }, loadcategory() {
       // console.log("loadcategory");
-      categoryApi.list().then((response) => {
+      collectionApi.listAll().then((response) => {
         // console.log(response);
         this.categorys = response.data.data;
       });
+    }, onSelect(value) {
+      // console.log(value)
+      window.open(preview.Online("baseCategory", value), "_blank");
     }, selectCategory(value, select) {
       contentAPI.updateCategory(value, select).then((response) => {
         // console.log(response);
@@ -191,6 +240,12 @@ export default {
       contentAPI.generateHtml(id).then((response) => {
         this.$notification["success"]({
           message: "成功生成" + response.data.data.title + "的HTML",
+        });
+      });
+    }, generateListHtml(id) {
+      literatureApi.generateListHtml(id).then((response) => {
+        this.$notification["success"]({
+          message: "成功生成" + response.data.message + "的HTML",
         });
       });
     }, handlePaginationChange(page, pageSize) {
@@ -249,7 +304,7 @@ export default {
     preview(id) {
       window.open(preview.Online("content", id), "_blank");
       // window.location.href='https://www.baidu.com/'
-    },    openHtml(value) {
+    }, openHtml(value) {
       window.open(preview.Html(value.path + "/" + value.viewName), "_blank");
       // if (value.haveHtml) {
 
