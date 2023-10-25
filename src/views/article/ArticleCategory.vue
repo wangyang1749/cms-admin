@@ -127,7 +127,9 @@
           <a-switch defaultChecked v-model="categoryParam.isArticleDocLink" />
         </a-form-item>
 
-
+        <a-form-item label="isDisplayNetwork">
+          <a-switch defaultChecked v-model="categoryParam.isDisplayNetwork" />
+        </a-form-item>
         <a-form-item label="desc">
           <a-switch defaultChecked v-model="categoryParam.isDesc" />
         </a-form-item>
