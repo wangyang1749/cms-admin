@@ -127,9 +127,16 @@
           <a-switch defaultChecked v-model="categoryParam.isArticleDocLink" />
         </a-form-item>
 
-        <a-form-item label="isDisplayNetwork">
-          <a-switch defaultChecked v-model="categoryParam.isDisplayNetwork" />
+        <a-form-item label="网络类型">
+          <a-select style="width: 100%" v-model="categoryParam.networkType">
+            <a-select-option :value="item" v-for="item in networkType" :key="item">{{ item }}</a-select-option>
+          </a-select>
         </a-form-item>
+
+
+        <!-- <a-form-item label="isDisplayNetwork">
+          <a-switch defaultChecked v-model="categoryParam.isDisplayNetwork" />
+        </a-form-item> -->
         <a-form-item label="desc">
           <a-switch defaultChecked v-model="categoryParam.isDesc" />
         </a-form-item>
@@ -246,7 +253,6 @@ const columns = [
     key: "viewName",
     scopedSlots: { customRender: "viewName" },
   },
-
   {
     title: "category模板",
     dataIndex: "templateName",
@@ -292,6 +298,7 @@ import ArticleApi from "@/api/article.js";
 import tagsApi from "@/api/tags.js";
 import contentAPI from "@/api/content.js";
 import userApi from "@/api/user.js";
+import enumApi from "@/api/enum.js";
 // // import {  ref } from 'vue';
 // const x = 3;
 // const y = 2;
@@ -374,7 +381,9 @@ export default {
         children: "children",
         title: "title",
         key: "id",
-      }, users: []
+      }, 
+      users: [],
+      networkType:[]
     };
   },
   created() {
@@ -384,6 +393,10 @@ export default {
     this.initEdit();
     this.loadTags();
     // console.log(this.categorys )
+    enumApi.list("NetworkType").then((resp) => {
+      // console.log(resp.data.data);
+      this.networkType = resp.data.data;
+    });
   },
   computed: {
     tagIdMap() {
