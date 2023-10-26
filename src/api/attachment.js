@@ -19,4 +19,27 @@ attachmentApi.list = (params) => {
       method: 'get'
   })
 }
+
+attachmentApi.find = (id) => {
+  return service({
+      url: `${baseUrl}/find/${id}`,
+      method: 'get'
+  })
+}
+
+
+attachmentApi.uploadStrContent = data=>{
+  return service({
+    url:`${baseUrl}/uploadStrContent`,
+    method:'post',
+    data:data
+  })
+}
+attachmentApi.updateUploadStrContent = (id,data)=>{
+  return service({
+    url:`${baseUrl}/uploadStrContent/${id}`,
+    method:'post',
+    data:data
+  })
+}
 export default attachmentApi

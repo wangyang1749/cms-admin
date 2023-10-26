@@ -11,9 +11,9 @@ literatureApi.import = () => {
   })
 }
 
-literatureApi.generateHtml = () => {
+literatureApi.generateListHtml = () => {
   return service({
-      url: `${baseUrl}/generateHtml`,
+      url: `${baseUrl}/generateListHtml`,
       method: 'get'
   })
 }
@@ -29,6 +29,12 @@ literatureApi.list = (params) => {
 literatureApi.delete= (id)=>{
   return service({
     url:`${baseUrl}/delete/${id}`,
+    method:'get',
+  })
+}
+literatureApi.delAll= ()=>{
+  return service({
+    url:`${baseUrl}/delAll`,
     method:'get',
   })
 }

@@ -50,12 +50,13 @@ const routes = [
                     component: () => import(/* webpackChunkName: "ArticleCategory" */ '../views/article/ArticleCategory.vue'),
                     meta: { title: '文章分类' }
                 },
+                // {
+                //     path: '/article/collection',
+                //     name: 'collection',
+                //     component: () => import(/* webpackChunkName: "collection" */ '../views/article/Collection.vue'),
+                //     meta: { title: 'collection' }
+                // },
                 {
-                    path: '/article/collection',
-                    name: 'collection',
-                    component: () => import(/* webpackChunkName: "collection" */ '../views/article/Collection.vue'),
-                    meta: { title: 'collection' }
-                },{
                     path: '/article/literature',
                     name: 'Literature',
                     component: () => import(/* webpackChunkName: "Literature" */ '../views/article/Literature.vue'),

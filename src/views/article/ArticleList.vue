@@ -189,7 +189,7 @@ const columns = [
     title: "Article模板",
     dataIndex: "templateName",
     key: "templateName",
-  },
+  }, 
   {
     title: "分类",
     dataIndex: "categoryId",

@@ -14,6 +14,9 @@
       <a-form-item label="数据来源">
         <a-input style="width: 20%" v-model="queryParam.dataName"></a-input>
       </a-form-item>
+      <a-form-item label="数据参数">
+        <a-input style="width: 20%" v-model="queryParam.dataArgs"></a-input>
+      </a-form-item>
       <a-form-item label="模板HTML文件">
         <a-textarea v-model="queryParam.templateValue" placeholder="Autosize height based on content lines" autosize />
       </a-form-item>

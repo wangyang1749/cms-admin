@@ -9,44 +9,65 @@
         <p>选择文件:<input type="file" name="file"></p>
         <p><input type="submit" value="提交"></p>
     </form>   -->
+    <a-row>
+      <a-col :span="4">
+        <a-form-item label="模板类型">
+          <a-select style="width: 100%" @change="selectTemplateType($event)">
+            <a-select-option value="" key="" >全部</a-select-option>
+            <a-select-option :value="item" v-for="item in templateType" :key="item">{{ item }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item label="模板返回数据">
+          <a-select style="width: 100%" @change="selectTemplateData($event)">
+            <a-select-option value="" key="" >全部</a-select-option>
+            <a-select-option :value="item" v-for="item in templateData" :key="item">{{ item }}</a-select-option>
+          </a-select>
+        </a-form-item>
+        
+      </a-col>
+      <a-col :span="20">
 
-    <a-upload name="file" :multiple="true" :action="upload" @change="uploadAttachment" :headers="headers">
-      <a-button> <a-icon type="upload" /> 安装模板 </a-button>
-    </a-upload>
+        <a-upload name="file" :multiple="true" :action="upload" @change="uploadAttachment" :headers="headers">
+          <a-button> <a-icon type="upload" /> 安装模板 </a-button>
+        </a-upload>
+        <a-button @click="updateAllTemplate">更新所有模板</a-button>
+        <a-button @click="fetchComponents">从文件中获取模板</a-button>
+        <!-- <a-button @click="createAllLanguage">创建所有语言模板</a-button> -->
 
-    <a-button @click="updateAllTemplate">更新所有模板</a-button>
-    <a-button @click="fetchComponents">从文件中获取模板</a-button>
-    <a-button @click="createAllLanguage">创建所有语言模板</a-button>
-
-    <a-select @change="setLang">
+        <!-- <a-select @change="setLang">
       <a-select-option :value="item" v-for="item in langs" :key="item.id">{{ item }}</a-select-option>
-    </a-select>
+    </a-select> -->
 
-    <a-table :columns="columns" :dataSource="template" :pagination="false" :rowKey="(template) => template.id">
-      <div slot="status" slot-scope="status, record">
-        <a-switch defaultChecked @change="onChangeStatus(record.id)" v-model="record.tree" />
-      </div>
+        <a-table :columns="columns" :dataSource="template" :pagination="false" :rowKey="(template) => template.id">
+          <div slot="status" slot-scope="status, record">
+            <a-switch defaultChecked @change="onChangeStatus(record.id)" v-model="record.tree" />
+          </div>
 
 
-      <div slot="name" slot-scope="name, record">
-        <a href="javascript:;" @click="preview(record.id)">{{ name }}</a>
-      </div>
+          <div slot="name" slot-scope="name, record">
+            <a href="javascript:;" @click="preview(record.id)">{{ name }}</a>
+          </div>
 
-      <span slot="action" slot-scope="record">
-        <a href="javascript:;" @click="createTemplateLanguage(record.id)">复制英文</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="deleteById(record.id)">删除</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="edit(record.id)">编辑</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="showSetting(record)">设置</a>
-      </span>
-    </a-table>
-    <div class="page-wrapper" :style="{ textAlign: 'right' }">
-      <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
-        :defaultPageSize="pagination.size" :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']" showSizeChanger
-        @showSizeChange="handlePaginationChange" @change="handlePaginationChange" />
-    </div>
+          <span slot="action" slot-scope="record">
+            <a href="javascript:;" @click="createTemplateLanguage(record.id)">复制英文</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="deleteById(record.id)">删除</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="edit(record.id)">编辑</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="showSetting(record)">设置</a>
+          </span>
+        </a-table>
+        <div class="page-wrapper" :style="{ textAlign: 'right' }">
+          <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
+            :defaultPageSize="pagination.size" :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']" showSizeChanger
+            @showSizeChange="handlePaginationChange" @change="handlePaginationChange" />
+        </div>
+      </a-col>
+    </a-row>
+
+
+
 
     <!-- <a-modal title="附件上传" v-model="attachmentUploadVisible">
       <a-upload-dragger
@@ -71,11 +92,10 @@
 
 
 
-    <a-drawer title="子模板列表" placement="right" :closable="true" :visible="templateDrawer" @close="
-      () => {
-        templateDrawer = false;
-      }
-    " width="40rem">
+    <a-drawer title="子模板列表" placement="right" :closable="true" :visible="templateDrawer" @close="() => {
+      templateDrawer = false;
+    }
+      " width="40rem">
       <a-input v-model="templateEnName" min="1" :max="10"></a-input>
       <a-button @click="addChildTemplate">添加子模板</a-button>
 
@@ -94,6 +114,7 @@
   </div>
 </template>
 <script>
+
 const columns = [
   {
     title: "模板名称",
@@ -146,7 +167,7 @@ export default {
     return {
       pagination: {
         page: 1,
-        size: 5,
+        size: 8,
         sort: null,
       },
       queryParam: {
@@ -165,8 +186,10 @@ export default {
       templateEnName: "",
       record: undefined,
       templatesChild: [],
-      langs:[],
-      lang:undefined
+      langs: [],
+      lang: undefined,
+      templateType: [],
+      templateData:[]
     };
   },
   computed: {
@@ -179,7 +202,8 @@ export default {
   },
   mounted() {
     this.loadTemplate();
-    this.loadLang()
+    this.loadTemplateType()
+    this.loadTemplateData()
   },
   methods: {
     loadTemplate() {
@@ -189,26 +213,56 @@ export default {
       // if(lang){
 
       // }
-      TemplateApi.list(this.queryParam,this.lang).then((response) => {
+      TemplateApi.list(this.queryParam, this.lang).then((response) => {
         this.template = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
         // console.log(response);
       });
-    },loadLang(){
-      enumApi.list("Lang").then(resp=>{
+    }, loadTemplateType() {
+      enumApi.list("TemplateType").then((resp) => {
+        // console.log(resp.data.data);
+        this.templateType = resp.data.data;
+      });
+    }, loadTemplateData() {
+      enumApi.list("TemplateData").then((resp) => {
+        // console.log(resp.data.data);
+        this.templateData = resp.data.data;
+      });
+    }, selectTemplateType(value) {
+      
+      if(value!=""){
+        this.queryParam.templateType = value
+      }else{
+        // console.log(value)
+        delete this.queryParam["templateType"]
+      }
+      
+      
+      this.loadTemplate()
+    },selectTemplateData(value){
+      if(value!=""){
+        this.queryParam.templateData = value
+      }else{
+        // console.log(value)
+        delete this.queryParam["templateData"]
+      }
+      
+      this.loadTemplate()
+    }, loadLang() {
+      enumApi.list("Lang").then(resp => {
         this.langs = resp.data.data
-       
+
       })
-    },createTemplateLanguage(id){
-      TemplateApi.createTemplateLanguage(id).then(resp=>{
+    }, createTemplateLanguage(id) {
+      TemplateApi.createTemplateLanguage(id).then(resp => {
         // console.log(resp)
         this.$notification["success"]({
           message: resp.message
         });
-        this.loadTemplate() 
+        this.loadTemplate()
       })
-    },setLang(value){
-      this.lang= value
+    }, setLang(value) {
+      this.lang = value
       // console.log(value)
       this.loadTemplate()
     }, fetchComponents() {
