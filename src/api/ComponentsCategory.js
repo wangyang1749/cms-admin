@@ -33,4 +33,13 @@ componentsCategory.delete = (componentId,categoryId) => {
         method: 'get'
     })
 }
+
+
+componentsCategory.addAllCategory = (componentId) => {
+    return service({
+        url: `${baseUrl}/addAllCategory/${componentId}`,
+        method: 'get'
+    })
+}
+
 export default componentsCategory

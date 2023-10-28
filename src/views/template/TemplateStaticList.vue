@@ -97,6 +97,7 @@
     >
       <a-input v-model="categoryViewName" min="1" :max="10"></a-input>
       <a-button @click="addByCategoryViewName">添加分类</a-button>
+      <a-button @click="addAllCategory">添加所有父分类</a-button>
 
       <a-list bordered :dataSource="articles">
         <a-list-item slot="renderItem" slot-scope="item">
@@ -367,6 +368,16 @@ export default {
       }
       componentsCategory
         .addByCategoryViewName(this.componentId, this.categoryViewName)
+        .then((resp) => {
+          this.categoryViewName = "";
+          this.showCategory(this.componentId);
+          this.$notification["success"]({
+            message: "操作" + resp.data.message,
+          });
+        });
+    }, addAllCategory() {
+      componentsCategory
+        .addAllCategory(this.componentId)
         .then((resp) => {
           this.categoryViewName = "";
           this.showCategory(this.componentId);
