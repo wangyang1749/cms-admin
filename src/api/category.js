@@ -42,7 +42,7 @@ categoryApi.add = data=>{
 
 categoryApi.listByComponentsId = (id) => {
   return service({
-      url: `${baseUrl}/listByComponentsId/${id}`,
+      url: `/api/baseCategory/listByComponentsId/${id}`,
       method: 'get'
   })
 }
