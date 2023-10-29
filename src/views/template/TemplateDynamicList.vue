@@ -13,17 +13,17 @@
       <a-col :span="4">
         <a-form-item label="模板类型">
           <a-select style="width: 100%" @change="selectTemplateType($event)">
-            <a-select-option value="" key="" >全部</a-select-option>
+            <a-select-option value="" key="">全部</a-select-option>
             <a-select-option :value="item" v-for="item in templateType" :key="item">{{ item }}</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item label="模板返回数据">
           <a-select style="width: 100%" @change="selectTemplateData($event)">
-            <a-select-option value="" key="" >全部</a-select-option>
+            <a-select-option value="" key="">全部</a-select-option>
             <a-select-option :value="item" v-for="item in templateData" :key="item">{{ item }}</a-select-option>
           </a-select>
         </a-form-item>
-        
+
       </a-col>
       <a-col :span="20">
 
@@ -38,7 +38,8 @@
       <a-select-option :value="item" v-for="item in langs" :key="item.id">{{ item }}</a-select-option>
     </a-select> -->
 
-        <a-table :columns="columns" :dataSource="template" :pagination="false" :rowKey="(template) => template.id">
+        <a-table @expand="expand" :columns="columns" :dataSource="template" :pagination="false"
+          :rowKey="(template) => template.id">
           <div slot="status" slot-scope="status, record">
             <a-switch defaultChecked @change="onChangeStatus(record.id)" v-model="record.tree" />
           </div>
@@ -57,6 +58,27 @@
             <a-divider type="vertical" />
             <a href="javascript:;" @click="showSetting(record)">设置</a>
           </span>
+
+
+          <template #expandedRowRender>
+            <a-table :columns="innerColumns" :data-source="innerData" :pagination="false" :rowKey="(template) => template.id">
+              <div slot="name" slot-scope="name, record">
+                <a href="javascript:;" @click="preview(record.id)">{{ name }}</a>
+              </div>
+    
+              <span slot="action" slot-scope="record">
+                <a href="javascript:;" @click="createTemplateLanguage(record.id)">复制英文</a>
+                <a-divider type="vertical" />
+                <a href="javascript:;" @click="deleteById(record.id)">删除</a>
+                <a-divider type="vertical" />
+                <a href="javascript:;" @click="edit(record.id)">编辑</a>
+                <!-- <a-divider type="vertical" /> -->
+                <!-- <a href="javascript:;" @click="showSetting(record)">设置</a> -->
+              </span>
+         
+            </a-table>
+          </template>
+
         </a-table>
         <div class="page-wrapper" :style="{ textAlign: 'right' }">
           <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
@@ -95,7 +117,7 @@
     <a-drawer title="子模板列表" placement="right" :closable="true" :visible="templateDrawer" @close="() => {
       templateDrawer = false;
     }
-      " width="40rem">
+    " width="40rem">
       <a-input v-model="templateEnName" min="1" :max="10"></a-input>
       <a-button @click="addChildTemplate">添加子模板</a-button>
 
@@ -159,6 +181,50 @@ const columns = [
     scopedSlots: { customRender: "action" },
   },
 ];
+const innerColumns = [
+  {
+    title: "模板名称",
+    dataIndex: "name",
+    key: "name",
+    scopedSlots: { customRender: "name" },
+  },
+
+  {
+    title: "英文名称",
+    key: "enName",
+    dataIndex: "enName",
+  },
+  {
+    title: "模板类型",
+    dataIndex: "templateType",
+    key: "templateType",
+  }, {
+    title: "模板类型",
+    dataIndex: "templateData",
+    key: "templateData",
+  },
+  {
+    title: "视图路径",
+    dataIndex: "templateValue",
+    key: "templateValue",
+  },
+  // {
+  //   title: "是否使用Tree",
+  //   dataIndex: "status",
+  //   key: "status",
+  //   scopedSlots: { customRender: "status" },
+  // },
+  // {
+  //   title: "创建时间",
+  //   dataIndex: "createDate",
+  //   key: "createDate",
+  // },
+  {
+    title: "Action",
+    key: "action",
+    scopedSlots: { customRender: "action" },
+  },
+];
 import preview from "@/api/preview.js";
 import TemplateApi from "@/api/template.js";
 import enumApi from "@/api/enum.js";
@@ -167,7 +233,7 @@ export default {
     return {
       pagination: {
         page: 1,
-        size: 8,
+        size: 100,
         sort: null,
       },
       queryParam: {
@@ -179,6 +245,7 @@ export default {
         status: null,
       },
       columns,
+      innerColumns,
       article: [],
       template: [],
       attachmentUploadVisible: false,
@@ -189,7 +256,8 @@ export default {
       langs: [],
       lang: undefined,
       templateType: [],
-      templateData:[]
+      templateData: [],
+      innerData: []
     };
   },
   computed: {
@@ -204,6 +272,7 @@ export default {
     this.loadTemplate();
     this.loadTemplateType()
     this.loadTemplateData()
+
   },
   methods: {
     loadTemplate() {
@@ -223,30 +292,38 @@ export default {
         // console.log(resp.data.data);
         this.templateType = resp.data.data;
       });
+    }, expand(expanded,record) {
+      if(expanded){
+        TemplateApi.findByChild(record.id).then(resp => {
+        this.innerData = resp.data.data
+      })
+        // console.log(record)
+      }
+     
     }, loadTemplateData() {
       enumApi.list("TemplateData").then((resp) => {
         // console.log(resp.data.data);
         this.templateData = resp.data.data;
       });
     }, selectTemplateType(value) {
-      
-      if(value!=""){
+
+      if (value != "") {
         this.queryParam.templateType = value
-      }else{
+      } else {
         // console.log(value)
         delete this.queryParam["templateType"]
       }
-      
-      
+
+
       this.loadTemplate()
-    },selectTemplateData(value){
-      if(value!=""){
+    }, selectTemplateData(value) {
+      if (value != "") {
         this.queryParam.templateData = value
-      }else{
+      } else {
         // console.log(value)
         delete this.queryParam["templateData"]
       }
-      
+
       this.loadTemplate()
     }, loadLang() {
       enumApi.list("Lang").then(resp => {
