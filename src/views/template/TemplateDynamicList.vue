@@ -11,6 +11,14 @@
     </form>   -->
     <a-row>
       <a-col :span="4">
+        <a-form-item label="语言">
+          <a-select style="width: 100%" @change="(value) => { this.queryParam.lang = value; this.loadTemplate() }"
+            :value=this.queryParam.lang>
+            <a-select-option :value="item" v-for="item in langs" :key="item">{{ item }}</a-select-option>
+            <!-- <a-select-option value="EN" >英文</a-select-option> -->
+          </a-select>
+        </a-form-item>
+
         <a-form-item label="模板类型">
           <a-select style="width: 100%" @change="selectTemplateType($event)">
             <a-select-option value="" key="">全部</a-select-option>
@@ -61,11 +69,12 @@
 
 
           <template #expandedRowRender>
-            <a-table :columns="innerColumns" :data-source="innerData" :pagination="false" :rowKey="(template) => template.id">
+            <a-table :columns="innerColumns" :data-source="innerData" :pagination="false"
+              :rowKey="(template) => template.id">
               <div slot="name" slot-scope="name, record">
                 <a href="javascript:;" @click="preview(record.id)">{{ name }}</a>
               </div>
-    
+
               <span slot="action" slot-scope="record">
                 <a href="javascript:;" @click="createTemplateLanguage(record.id)">复制英文</a>
                 <a-divider type="vertical" />
@@ -75,7 +84,7 @@
                 <!-- <a-divider type="vertical" /> -->
                 <!-- <a href="javascript:;" @click="showSetting(record)">设置</a> -->
               </span>
-         
+
             </a-table>
           </template>
 
@@ -117,7 +126,7 @@
     <a-drawer title="子模板列表" placement="right" :closable="true" :visible="templateDrawer" @close="() => {
       templateDrawer = false;
     }
-    " width="40rem">
+      " width="40rem">
       <a-input v-model="templateEnName" min="1" :max="10"></a-input>
       <a-button @click="addChildTemplate">添加子模板</a-button>
 
@@ -144,7 +153,12 @@ const columns = [
     key: "name",
     scopedSlots: { customRender: "name" },
   },
+  {
+    title: "语言",
+    dataIndex: "lang",
+    key: "lang",
 
+  },
   {
     title: "英文名称",
     key: "enName",
@@ -243,6 +257,7 @@ export default {
         keyword: null,
         categoryId: null,
         status: null,
+        lang: 'ZH'
       },
       columns,
       innerColumns,
@@ -257,7 +272,8 @@ export default {
       lang: undefined,
       templateType: [],
       templateData: [],
-      innerData: []
+      innerData: [],
+
     };
   },
   computed: {
@@ -272,7 +288,10 @@ export default {
     this.loadTemplate();
     this.loadTemplateType()
     this.loadTemplateData()
-
+    enumApi.list("Lang").then((resp) => {
+      // console.log(resp.data.data);
+      this.langs = resp.data.data;
+    });
   },
   methods: {
     loadTemplate() {
@@ -292,14 +311,14 @@ export default {
         // console.log(resp.data.data);
         this.templateType = resp.data.data;
       });
-    }, expand(expanded,record) {
-      if(expanded){
+    }, expand(expanded, record) {
+      if (expanded) {
         TemplateApi.findByChild(record.id).then(resp => {
-        this.innerData = resp.data.data
-      })
+          this.innerData = resp.data.data
+        })
         // console.log(record)
       }
-     
+
     }, loadTemplateData() {
       enumApi.list("TemplateData").then((resp) => {
         // console.log(resp.data.data);

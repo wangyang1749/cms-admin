@@ -88,6 +88,12 @@
 
     <a-row>
       <a-col :span="8">
+        <a-select style="width: 100%" @change="(value) => { this.lang = value; this.loadcategory() }"
+            :value=this.lang>
+            <a-select-option :value="item" v-for="item in langs" :key="item">{{ item }}</a-select-option>
+            <!-- <a-select-option value="EN" >英文</a-select-option> -->
+          </a-select>
+
         <a-tree class="draggable-tree" draggable block-node :tree-data="categorys" :replace-fields="fieldNames"
           @dragenter="onDragEnter" @select="onSelect" @drop="onDropCategory" />
         <!-- @select="onSelect" -->
@@ -369,7 +375,7 @@ export default {
         isDesc: true,
         parentId: 0,
         picThumbPath: "",
-        tagIds: [],
+        tagIds: []
       },
       selectedTagNames: [],
       fieldNames: {
@@ -383,7 +389,9 @@ export default {
         key: "id",
       }, 
       users: [],
-      networkType:[]
+      networkType:[],
+      langs: [],
+      lang: 'ZH'
     };
   },
   created() {
@@ -396,6 +404,10 @@ export default {
     enumApi.list("NetworkType").then((resp) => {
       // console.log(resp.data.data);
       this.networkType = resp.data.data;
+    });
+    enumApi.list("Lang").then((resp) => {
+      // console.log(resp.data.data);
+      this.langs = resp.data.data;
     });
   },
   computed: {
@@ -492,7 +504,8 @@ export default {
       //   console.log(resp.data.data.content);
       //   this.categorys = resp.data.data.content;
       // });
-      categoryApi.listVoTree().then((resp) => {
+
+      categoryApi.listVoTree(this.lang).then((resp) => {
         // console.log(resp.data.data);
         this.categorys = resp.data.data;
       });

@@ -1,35 +1,20 @@
 <template>
   <div>
-    <a-table
-      :columns="columns"
-      :dataSource="article"
-      :pagination="false"
-      :rowKey="(article) => article.id"
-      size="small"
-      class="table"
-      :scroll="{ x: 2500 }"
-    >
+    <a-table :columns="columns" :dataSource="article" :pagination="false" :rowKey="(article) => article.id" size="small"
+      class="table" :scroll="{ x: 2500 }">
       <template slot="title">
-        <a-input-search
-          placeholder="input search text"
-          style="width: 200px"
-          v-model="queryParam.keyword"
-          @search="onSearch"
-        />
-        <a-select
-          @change="onSearchCategory()"
-        >
-          <a-select-option
-            :value="item.id"
-            v-for="item in categorys"
-            :key="item.id"
-            >{{ item.name }}</a-select-option
-          >
+        <a-input-search placeholder="input search text" style="width: 200px" v-model="queryParam.keyword"
+          @search="onSearch" />
+        <a-select @change="onSearchCategory()" style="width: 10%">
+          <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{ item.name }}</a-select-option>
         </a-select>
         <a-button @click="updateAll(false)">生成所有文章HTML</a-button>
-        <a-button @click="updateAll(true)"
-          >生成所有文章HTML更新文章内容</a-button
-        >
+        <a-button @click="updateAll(true)">生成所有文章HTML更新文章内容</a-button>
+        <a-select style="width: 10%" @change="(value) => { this.queryParam.lang = value; this.loadArticle() }"
+            :value=this.queryParam.lang>
+            <a-select-option :value="item" v-for="item in langs" :key="item">{{ item }}</a-select-option>
+            <!-- <a-select-option value="EN" >英文</a-select-option> -->
+          </a-select>
       </template>
       <div slot="title_" slot-scope="title_, record">
         <a href="javascript:;" @click="preview(record.id)">{{ title_ }}</a>
@@ -45,11 +30,7 @@
         }}</a>
       </div>
       <div slot="openComment" slot-scope="openComment, record">
-        <a-switch
-          defaultChecked
-          @change="onChangeComment(record.id)"
-          v-model="record.openComment"
-        />
+        <a-switch defaultChecked @change="onChangeComment(record.id)" v-model="record.openComment" />
       </div>
 
       <!-- <div slot="haveHtml" slot-scope="haveHtml,record">
@@ -57,33 +38,16 @@
       </div> -->
 
       <div slot="top" slot-scope="top, record">
-        <a-switch
-          defaultChecked
-          @change="sendOrCancelTop(record.id)"
-          v-model="record.top"
-        />
+        <a-switch defaultChecked @change="sendOrCancelTop(record.id)" v-model="record.top" />
       </div>
 
       <div slot="isDivision" slot-scope="isDivision, record">
-        <a-switch
-          defaultChecked
-          @change="divisionOkOrCancel(record.id)"
-          v-model="record.isDivision"
-        />
+        <a-switch defaultChecked @change="divisionOkOrCancel(record.id)" v-model="record.isDivision" />
       </div>
 
       <div slot="categoryId" slot-scope="categoryId, record">
-        <a-select
-          style="width: 100%"
-          v-model="record.categoryId"
-          @change="selectCategory(record.id, $event)"
-        >
-          <a-select-option
-            :value="item.id"
-            v-for="item in categorys"
-            :key="item.id"
-            >{{ item.name }}</a-select-option
-          >
+        <a-select style="width: 100%" v-model="record.categoryId" @change="selectCategory(record.id, $event)">
+          <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{ item.name }}</a-select-option>
         </a-select>
       </div>
       <!-- <span slot="haveHtml" slot-scope="haveHtml,record">
@@ -110,9 +74,7 @@
         <a-divider type="vertical" />
         <a href="javascript:;" @click="articleSettings(record.id)">设置</a>
         <a-divider type="vertical" />
-        <a href="javascript:;" @click="deleteArticleById(record.id)"
-          >删除文章</a
-        >
+        <a href="javascript:;" @click="deleteArticleById(record.id)">删除文章</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="publisher(record.id)">提交到搜索引擎</a>
         <!-- <a href="javascript:;" class="ant-dropdown-link">
@@ -122,34 +84,19 @@
       </span>
       <template slot="footer">
         <div class="page-wrapper" :style="{ textAlign: 'right' }">
-          <a-pagination
-            class="pagination"
-            :current="pagination.page"
-            :total="pagination.total"
-            :defaultPageSize="pagination.size"
-            :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']"
-            showSizeChanger
-            @showSizeChange="handlePaginationChange"
-            @change="handlePaginationChange"
-          />
+          <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
+            :defaultPageSize="pagination.size" :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']" showSizeChanger
+            @showSizeChange="handlePaginationChange" @change="handlePaginationChange" />
         </div>
       </template>
     </a-table>
 
     <a-modal title="添加到组件" v-model="visible"> </a-modal>
 
-    <a-drawer
-      title="查看评论"
-      placement="right"
-      :closable="true"
-      :visible="commentVisible"
-      @close="
-        () => {
-          commentVisible = false;
-        }
-      "
-      width="40rem"
-    >
+    <a-drawer title="查看评论" placement="right" :closable="true" :visible="commentVisible" @close="() => {
+        commentVisible = false;
+      }
+      " width="40rem">
       <a-form>
         <a-form-item label="发表评论">
           <a-input type="textarea" v-model="commentContent"></a-input>
@@ -178,6 +125,11 @@ const columns = [
     // fixed: "left",
 
     scopedSlots: { customRender: "title_" },
+  }, {
+    title: "语言",
+    dataIndex: "lang",
+    key: "lang",
+
   },
   {
     title: "视图名称",
@@ -189,7 +141,7 @@ const columns = [
     title: "Article模板",
     dataIndex: "templateName",
     key: "templateName",
-  }, 
+  },
   {
     title: "分类",
     dataIndex: "categoryId",
@@ -236,7 +188,7 @@ const columns = [
     dataIndex: "top",
     key: "top",
     scopedSlots: { customRender: "top" },
-  },  {
+  }, {
     title: "是否是分割",
     dataIndex: "isDivision",
     key: "isDivision",
@@ -259,6 +211,8 @@ import commentApi from "@/api/comment.js";
 import ArticleApi from "@/api/article.js";
 import preview from "@/api/preview.js";
 import categoryApi from "@/api/category.js";
+import enumApi from "@/api/enum.js";
+
 export default {
   data() {
     return {
@@ -274,6 +228,7 @@ export default {
         keyword: null,
         categoryId: null,
         status: null,
+        lang: 'ZH'
       },
       categorys: [],
       channels: [],
@@ -285,7 +240,7 @@ export default {
       articleId: null,
       commentContent: "", //评论内容绑定
       visible: false,
-
+      langs: [],
       selecetComponentsId: null,
     };
   },
@@ -294,6 +249,10 @@ export default {
     this.loadcategory();
     //console.log(this.$user)
     // console.log(this.$Golbal.baseUrl)
+    enumApi.list("Lang").then((resp) => {
+      // console.log(resp.data.data);
+      this.langs = resp.data.data;
+    });
   },
   methods: {
     formatDate(now) {
@@ -335,13 +294,13 @@ export default {
         // console.log(response);
         this.categorys = response.data.data;
       });
-    },createArticleLanguage(id){
-      ArticleApi.createArticleLanguage(id).then(resp=>{
+    }, createArticleLanguage(id) {
+      ArticleApi.createArticleLanguage(id).then(resp => {
         // console.log(resp)
         this.$notification["success"]({
           message: resp.message
         });
-        this.loadArticle() 
+        this.loadArticle()
       })
     },
 
@@ -452,10 +411,10 @@ export default {
           message: "成功生成" + response.data.data.title + "的HTML",
         });
       });
-    },  publisher(id) {
+    }, publisher(id) {
       ArticleApi.publisher(id).then((response) => {
         this.$notification["success"]({
-          message: "remain:"+response.data.data.remain+ " success:"+response.data.data.success,
+          message: "remain:" + response.data.data.remain + " success:" + response.data.data.success,
         });
       });
     },
@@ -527,9 +486,9 @@ export default {
     },
     onSearch() {
       this.loadArticle();
-    },onSearchCategory(){
+    }, onSearchCategory() {
 
-    },divisionOkOrCancel(id){
+    }, divisionOkOrCancel(id) {
       ArticleApi.divisionOkOrCancel(id).then((response) => {
         // console.log(response);
         this.$notification["success"]({

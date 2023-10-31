@@ -17,9 +17,9 @@ categoryApi.list = () => {
       method: 'get'
   })
 }
-categoryApi.listVoTree = () => {
+categoryApi.listVoTree = (lang) => {
   return service({
-      url: `${baseUrl}/listVoTree`,
+      url: `${baseUrl}/listVoTree?lang=${lang}`,
       method: 'get'
   })
 }

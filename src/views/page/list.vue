@@ -1,38 +1,55 @@
 <template>
   <div>
-    <a-table :pagination="false" :columns="columns" :dataSource="data" :rowKey="data => data.id">
-      <div slot="existNav" slot-scope="existNav,record">
-        <a-switch defaultChecked @change="onChangeNav(record.id)" v-model="record.existNav" />
-      </div>
-      <div slot="categoryId" slot-scope="categoryId, record">
-          <a-select style="width: 100%" v-model="record.categoryId" @change="selectCategory(record.id, $event)">
-            <a-select-option  :key="0">没有分类</a-select-option>
-            <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{ item.name }}</a-select-option>
+    <a-row>
+      <a-col :span="4">
+        <a-form-item label="语言">
+          <a-select style="width: 100%" @change="(value) => { this.queryParam.lang = value; this.loadSheet() }"
+            :value=this.queryParam.lang>
+            <a-select-option :value="item" v-for="item in langs" :key="item">{{ item }}</a-select-option>
+            <!-- <a-select-option value="EN" >英文</a-select-option> -->
           </a-select>
-        </div>
-      <span slot="action" slot-scope="text, record">
- 
-        <a href="javascript:;" @click="edit(record.id)">编辑</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="createSheetLanguage(record.id)">复制英文</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="deleteById(record.id)">删除</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="preview(record.id)">预览</a>
-        <a-divider type="vertical" />
-        <a href="javascript:;" @click="openHtml(record)">查看HTML</a>
-      </span>
+        </a-form-item>
 
-      <template slot="footer">
-        <div class="page-wrapper" :style="{ textAlign: 'right' }">
-          <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
-            :defaultPageSize="pagination.size" :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']"
-            showSizeChanger @showSizeChange="handlePaginationChange" @change="handlePaginationChange" />
-        </div>
-      </template>
-    </a-table>
+      </a-col>
+      <a-col :span="20">
+        <a-table :pagination="false" :columns="columns" :dataSource="data" :rowKey="data => data.id">
+          <div slot="existNav" slot-scope="existNav,record">
+            <a-switch defaultChecked @change="onChangeNav(record.id)" v-model="record.existNav" />
+          </div>
+          <div slot="categoryId" slot-scope="categoryId, record">
+            <a-select style="width: 100%" v-model="record.categoryId" @change="selectCategory(record.id, $event)">
+              <a-select-option :key="0">没有分类</a-select-option>
+              <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{ item.name }}</a-select-option>
+            </a-select>
+          </div>
+          <span slot="action" slot-scope="text, record">
+
+            <a href="javascript:;" @click="edit(record.id)">编辑</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="createSheetLanguage(record.id)">复制英文</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="deleteById(record.id)">删除</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="preview(record.id)">预览</a>
+            <a-divider type="vertical" />
+            <a href="javascript:;" @click="openHtml(record)">查看HTML</a>
+          </span>
+
+          <template slot="footer">
+            <div class="page-wrapper" :style="{ textAlign: 'right' }">
+              <a-pagination class="pagination" :current="pagination.page" :total="pagination.total"
+                :defaultPageSize="pagination.size" :pageSizeOptions="['1', '2', '5', '10', '20', '50', '100']"
+                showSizeChanger @showSizeChange="handlePaginationChange" @change="handlePaginationChange" />
+            </div>
+          </template>
+        </a-table>
+      </a-col>
+    </a-row>
+
+
+
   </div>
 </template>
 
@@ -41,6 +58,7 @@ import sheetApi from "@/api/sheet.js";
 import preview from "@/api/preview.js";
 import categoryApi from "@/api/category.js";
 import contentAPI from "@/api/content.js";
+import enumApi from "@/api/enum.js";
 
 const columns = [
   { title: "Title", dataIndex: "title", key: "title" },
@@ -48,6 +66,11 @@ const columns = [
     title: "页面的名称",
     dataIndex: "viewName",
     key: "viewName"
+  }, {
+    title: "语言",
+    dataIndex: "lang",
+    key: "lang",
+
   }, {
     title: "模板",
     dataIndex: "templateName",
@@ -83,7 +106,8 @@ export default {
       pagination: {
         page: 0,
         size: 5,
-        sort: null
+        sort: null,
+
       },
       queryParam: {
         page: 0,
@@ -92,16 +116,22 @@ export default {
         keyword: null,
         categoryId: null,
         status: null,
-        
+        lang: 'ZH'
+
       },
-      categorys:[],
+      categorys: [],
       data: [],
-      columns
+      columns,
+      langs: [],
     };
   },
   created() {
     this.loadSheet();
-    this.loadcategory() 
+    this.loadcategory()
+    enumApi.list("Lang").then((resp) => {
+      // console.log(resp.data.data);
+      this.langs = resp.data.data;
+    });
   },
   methods: {
     loadSheet() {
@@ -113,13 +143,13 @@ export default {
         this.pagination.total = response.data.data.totalElements;
         // console.log(response);
       });
-    },createSheetLanguage(id){
-      sheetApi.createSheetLanguage(id).then(resp=>{
+    }, createSheetLanguage(id) {
+      sheetApi.createSheetLanguage(id).then(resp => {
         // console.log(resp)
         this.$notification["success"]({
           message: resp.message
         });
-        this.loadSheet() 
+        this.loadSheet()
       })
     },
     loadcategory() {
@@ -128,7 +158,7 @@ export default {
         // console.log(response);
         this.categorys = response.data.data;
       });
-    },  selectCategory(value, select) {
+    }, selectCategory(value, select) {
       // console.log(value,select)
       contentAPI.updateCategory(value, select).then((response) => {
         // console.log(response);
@@ -197,6 +227,4 @@ export default {
 };
 </script>
 
-<style>
-
-</style>
+<style></style>
