@@ -10,7 +10,12 @@ optionApi.initialize = () => {
       method: 'get'
   })
 }
-
+optionApi.updateLanguage = () => {
+    return service({
+        url: `${baseUrl}/updateLanguage`,
+        method: 'get'
+    })
+  }
 optionApi.list = () => {
     return service({
         url: baseUrl,
