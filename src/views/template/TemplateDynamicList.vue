@@ -20,8 +20,10 @@
         </a-form-item>
 
         <a-form-item label="模板类型">
-          <a-select style="width: 100%" @change="selectTemplateType($event)">
-            <a-select-option value="" key="">全部</a-select-option>
+          {{this.queryParam.templateType}}
+          <a-select style="width: 100%" @change="(value) => { this.queryParam.templateType = value; this.loadTemplate() }" 
+            :value=this.queryParam.templateType >
+            <!-- <a-select-option value="all" key="all" >全部</a-select-option> -->
             <a-select-option :value="item" v-for="item in templateType" :key="item">{{ item }}</a-select-option>
           </a-select>
         </a-form-item>
@@ -38,8 +40,8 @@
         <a-upload name="file" :multiple="true" :action="upload" @change="uploadAttachment" :headers="headers">
           <a-button> <a-icon type="upload" /> 安装模板 </a-button>
         </a-upload>
-        <a-button @click="updateAllTemplate">更新所有模板</a-button>
-        <a-button @click="fetchComponents">从文件中获取模板</a-button>
+        <!-- <a-button @click="updateAllTemplate">更新所有模板</a-button> -->
+        <a-button @click="fetchTemplates(queryParam.templateType)">从文件中获取模板</a-button>
         <!-- <a-button @click="createAllLanguage">创建所有语言模板</a-button> -->
 
         <!-- <a-select @change="setLang">
@@ -64,11 +66,11 @@
             <a-divider type="vertical" />
             <a href="javascript:;" @click="edit(record.id)">编辑</a>
             <a-divider type="vertical" />
-            <a href="javascript:;" @click="showSetting(record)">设置</a>
+            <a href="javascript:;" @click="showSetting(record)" v-if="queryParam.templateType=='CATEGORY'">设置</a>
           </span>
 
 
-          <template #expandedRowRender>
+          <template #expandedRowRender v-if="this.queryParam.templateType=='CATEGORY'">
             <a-table :columns="innerColumns" :data-source="innerData" :pagination="false"
               :rowKey="(template) => template.id">
               <div slot="name" slot-scope="name, record">
@@ -128,14 +130,19 @@
     }
       " width="40rem">
 
-      <a-form-item label="选择子类模板(templateChild)">
-        <a-select style="width: 100%">
-          <a-select-option :value="item.enName" v-for="item in templatesChildListAll" :key="item.id">{{ item.name
+      <a-form-item label="文章列表嵌套模板">
+        <a-select style="width: 100%" @change="(value) => { this.selectChildTemplate = value; }">
+          <a-select-option :value="item.id" v-for="item in articleListTemplates" :key="item.id">{{ item.name
           }}-{{ item.templateValue }}</a-select-option>
         </a-select>
       </a-form-item>
-
-      <a-input v-model="templateEnName" min="1" :max="10"></a-input>
+      <a-form-item label="分类列表嵌套模板">
+        <a-select style="width: 100%" @change="(value) => { this.selectChildTemplate = value; }">
+          <a-select-option :value="item.id" v-for="item in categoryListTemplates" :key="item.id">{{ item.name
+          }}-{{ item.templateValue }}</a-select-option>
+        </a-select>
+      </a-form-item>
+      <!-- <a-input v-model="templateEnName" min="1" :max="10"></a-input> -->
       <a-button @click="addChildTemplate">添加子模板</a-button>
 
 
@@ -265,7 +272,8 @@ export default {
         keyword: null,
         categoryId: null,
         status: null,
-        lang: 'ZH'
+        lang: 'ZH',
+        templateType:"ARTICLE"
 
       },
       columns,
@@ -277,7 +285,9 @@ export default {
       templateEnName: "",
       record: undefined,
       templatesChild: [],
-      templatesChildListAll: [],
+      articleListTemplates: [],
+      categoryListTemplates:[],
+      selectChildTemplate:undefined,
       langs: [],
       lang: undefined,
       templateType: [],
@@ -302,15 +312,22 @@ export default {
       // console.log(resp.data.data);
       this.langs = resp.data.data;
     });
-    TemplateApi.findByType("CATEGORY").then((response) => {
-      this.templatesChildListAll = response.data.data;
+    TemplateApi.findByType("ARTICLE_LIST").then((response) => {
+      this.articleListTemplates = response.data.data;
     });
+    TemplateApi.findByType("CATEGORY_LIST").then((response) => {
+      this.categoryListTemplates = response.data.data;
+    });
+    
   },
   methods: {
     loadTemplate() {
       this.queryParam.page = this.pagination.page - 1;
       this.queryParam.size = this.pagination.size;
       this.queryParam.sort = this.pagination.sort;
+      if(this.queryParam.templateType==="all"){
+        this.queryParam.templateType=""
+      }
       // if(lang){
 
       // }
@@ -337,18 +354,22 @@ export default {
         // console.log(resp.data.data);
         this.templateData = resp.data.data;
       });
-    }, selectTemplateType(value) {
+    }, 
+    // selectTemplateType(value) {
 
-      if (value != "") {
-        this.queryParam.templateType = value
-      } else {
-        // console.log(value)
-        delete this.queryParam["templateType"]
-      }
+    //   if (value != "") {
+    //     this.queryParam.templateType = value
+    //   } else {
+    //     // console.log(value)
+    //     delete this.queryParam["templateType"]
+    //   }
 
 
-      this.loadTemplate()
-    }, selectTemplateData(value) {
+    //   this.loadTemplate()
+    // }, 
+    
+    
+    selectTemplateData(value) {
       if (value != "") {
         this.queryParam.templateData = value
       } else {
@@ -374,8 +395,8 @@ export default {
       this.lang = value
       // console.log(value)
       this.loadTemplate()
-    }, fetchComponents() {
-      TemplateApi.fetchComponents("").then(resp => {
+    }, fetchTemplates(templateType) {
+      TemplateApi.fetchTemplates(templateType).then(resp => {
         // console.log(resp)
         this.loadTemplate();
         this.$notification["success"]({
@@ -392,7 +413,8 @@ export default {
       })
 
     }, addChildTemplate() {
-      TemplateApi.addChild(this.record.id, this.templateEnName).then(resp => {
+      // console.log(this.selectChildTemplate)
+      TemplateApi.addChildById(this.record.id, this.selectChildTemplate).then(resp => {
         this.$notification["success"]({
           message: resp.data.message,
         });

@@ -80,7 +80,12 @@ templateApi.addChild = (id,enName) => {
         method: 'get'
     })
 }
-
+templateApi.addChildById = (id,childId) => {
+    return service({
+        url: `${baseUrl}/addChildById/${id}?childId=${childId}`,
+        method: 'get'
+    })
+}
 templateApi.findByChild = (id) => {
     return service({
         url: `${baseUrl}/findByChild/${id}`,
@@ -95,9 +100,9 @@ templateApi.removeChildTemplate = (templateId, templateChildId) => {
     })
 }
 
-templateApi.fetchComponents = (path) => {
+templateApi.fetchTemplates = (path) => {
     return service({
-        url: `${baseUrl}/fetchComponents?path=${path}`,
+        url: `${baseUrl}/fetchTemplates?path=${path}`,
         method: 'get'
     })
 }

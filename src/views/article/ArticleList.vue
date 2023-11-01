@@ -218,12 +218,12 @@ export default {
     return {
       pagination: {
         page: 1,
-        size: 5,
+        size: 10,
         sort: null,
       },
       queryParam: {
         page: 0,
-        size: 10,
+        size: 20,
         sort: null,
         keyword: null,
         categoryId: null,
