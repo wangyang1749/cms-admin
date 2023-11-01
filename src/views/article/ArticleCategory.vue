@@ -67,8 +67,8 @@
     <!-- </a-tabs> -->
 
     <a-drawer title="文章列表" placement="right" :closable="true" :visible="articleListDrawer" @close="() => {
-        articleListDrawer = false;
-      }
+      articleListDrawer = false;
+    }
       " width="40rem">
       <a-button type="primary" @click="updateArticlePos">更新文章顺序</a-button>
 
@@ -88,11 +88,10 @@
 
     <a-row>
       <a-col :span="8">
-        <a-select style="width: 100%" @change="(value) => { this.lang = value; this.loadcategory() }"
-            :value=this.lang>
-            <a-select-option :value="item" v-for="item in langs" :key="item">{{ item }}</a-select-option>
-            <!-- <a-select-option value="EN" >英文</a-select-option> -->
-          </a-select>
+        <a-select style="width: 100%" @change="(value) => { this.lang = value; this.loadcategory() }" :value=this.lang>
+          <a-select-option :value="item" v-for="item in langs" :key="item">{{ item }}</a-select-option>
+          <!-- <a-select-option value="EN" >英文</a-select-option> -->
+        </a-select>
 
         <a-tree class="draggable-tree" draggable block-node :tree-data="categorys" :replace-fields="fieldNames"
           @dragenter="onDragEnter" @select="onSelect" @drop="onDropCategory" />
@@ -189,24 +188,26 @@
 
 
           <a-form-item label="选择分类信息模板">
+            <a href="">{{categoryTemplate(categoryParam.templateName)}}</a>
             <a-select style="width: 100%" v-model="categoryParam.templateName">
               <a-select-option :value="item.enName" v-for="item in templates" :key="item.id">{{ item.name
-              }}-{{ item.templateValue}}</a-select-option>
-            </a-select>
-          </a-form-item>
-          <a-form-item label="分类推荐模板选择">
-            <a-select style="width: 100%" v-model="categoryParam.recommendTemplateName">
-              <a-select-option :value="item.enName" v-for="item in recommendTemplate" :key="item.id">{{ item.name
-              }}-{{ item.templateValue}}</a-select-option>
-            </a-select>
-          </a-form-item>
-          <a-form-item label="选择文章显示的模板">
-            <a-select style="width: 100%" v-model="categoryParam.articleTemplateName">
-              <a-select-option :value="item.enName" v-for="item in articleTemplate" :key="item.enName">{{ item.name
-              }}-{{ item.templateValue}}</a-select-option>
+              }}-{{ item.templateValue }}</a-select-option>
             </a-select>
           </a-form-item>
 
+          <a-form-item label="选择文章显示的模板">
+            <a-select style="width: 100%" v-model="categoryParam.articleTemplateName">
+              <a-select-option :value="item.enName" v-for="item in articleTemplate" :key="item.enName">{{ item.name
+              }}-{{ item.templateValue }}</a-select-option>
+            </a-select>
+          </a-form-item>
+
+          <a-form-item label="分类推荐模板选择">
+            <a-select style="width: 100%" v-model="categoryParam.recommendTemplateName">
+              <a-select-option :value="item.enName" v-for="item in recommendTemplate" :key="item.id">{{ item.name
+              }}-{{ item.templateValue }}</a-select-option>
+            </a-select>
+          </a-form-item>
           <a-form-item label="分类的描述">
             <a-textarea v-model="categoryParam.description"></a-textarea>
           </a-form-item>
@@ -387,9 +388,9 @@ export default {
         children: "children",
         title: "title",
         key: "id",
-      }, 
+      },
       users: [],
-      networkType:[],
+      networkType: [],
       langs: [],
       lang: 'ZH'
     };
@@ -471,6 +472,9 @@ export default {
         this.articleTemplate = response.data.data;
         // console.log(response);
       });
+    },categoryTemplate(value){
+      let findTemplates = this.templates.filter(item => item.enName ===value )
+      return findTemplates[0]
     },
     handleBlur() {
       const tagNamesToCreate = this.selectedTagNames.filter(
@@ -718,7 +722,7 @@ export default {
     }, generateArticlesByCategoryId(id) {
       ArticleApi.generateArticlesByCategoryId(id).then((response) => {
         this.$notification["success"]({
-          message:  response.data.data.message ,
+          message: response.data.data.message,
         });
       });
     },

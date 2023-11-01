@@ -127,6 +127,14 @@
       templateDrawer = false;
     }
       " width="40rem">
+
+      <a-form-item label="选择子类模板(templateChild)">
+        <a-select style="width: 100%">
+          <a-select-option :value="item.enName" v-for="item in templatesChildListAll" :key="item.id">{{ item.name
+          }}-{{ item.templateValue }}</a-select-option>
+        </a-select>
+      </a-form-item>
+
       <a-input v-model="templateEnName" min="1" :max="10"></a-input>
       <a-button @click="addChildTemplate">添加子模板</a-button>
 
@@ -258,6 +266,7 @@ export default {
         categoryId: null,
         status: null,
         lang: 'ZH'
+
       },
       columns,
       innerColumns,
@@ -268,6 +277,7 @@ export default {
       templateEnName: "",
       record: undefined,
       templatesChild: [],
+      templatesChildListAll: [],
       langs: [],
       lang: undefined,
       templateType: [],
@@ -291,6 +301,9 @@ export default {
     enumApi.list("Lang").then((resp) => {
       // console.log(resp.data.data);
       this.langs = resp.data.data;
+    });
+    TemplateApi.findByType("CATEGORY").then((response) => {
+      this.templatesChildListAll = response.data.data;
     });
   },
   methods: {

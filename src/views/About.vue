@@ -2,6 +2,7 @@
   <div>
     <button @click="initialize">初始化系统</button>
     <button @click="updateLanguage">updateLanguage</button>
+    <button @click="updateTemplateType">updateTemplateType</button>
   </div>
 </template>
 <script>
@@ -17,6 +18,13 @@ export default {
           message: "操作" + response.data
         });
       });
+    },   updateTemplateType() {
+      optionApi.updateTemplateType().then(response => {
+        // console.log(response)
+        this.$notification["success"]({
+          message: "操作" + response.data
+        });
+      });
     },updateLanguage(){
       optionApi.updateLanguage().then(response => {
         // console.log(response)
@@ -24,7 +32,8 @@ export default {
           message: "操作" + response.data
         });
       });
-    }
+      
+    },
   }
 };
 </script>

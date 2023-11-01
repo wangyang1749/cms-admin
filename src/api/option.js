@@ -16,6 +16,12 @@ optionApi.updateLanguage = () => {
         method: 'get'
     })
   }
+  optionApi.updateTemplateType = () => {
+    return service({
+        url: `${baseUrl}/updateTemplateType`,
+        method: 'get'
+    })
+  }
 optionApi.list = () => {
     return service({
         url: baseUrl,
