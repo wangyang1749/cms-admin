@@ -184,7 +184,12 @@
           </a-select>
         </a-form-item>
 
-
+        <a-form-item label="模板返回数据">
+          <a-select style="width: 100%" v-model="categoryParam.templateData">
+            <a-select-option value="" key="">全部</a-select-option>
+            <a-select-option :value="item" v-for="item in templateData" :key="item">{{ item }}</a-select-option>
+          </a-select>
+        </a-form-item>
         <!-- <a-form-item label="isDisplayNetwork">
           <a-switch defaultChecked v-model="categoryParam.isDisplayNetwork" />
         </a-form-item> -->
@@ -437,7 +442,8 @@ export default {
       lang: 'ZH',
       categoryTemplateListDrawer: false,
       selectCategoryTemplate: undefined,
-      categoryTemplates: []
+      categoryTemplates: [],
+      templateData: [],
     };
   },
   created() {
@@ -455,6 +461,10 @@ export default {
       // console.log(resp.data.data);
       this.langs = resp.data.data;
     });
+    enumApi.list("TemplateData").then((resp) => {
+        // console.log(resp.data.data);
+        this.templateData = resp.data.data;
+      });
 
   },
   computed: {
