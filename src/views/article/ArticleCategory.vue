@@ -496,8 +496,8 @@ export default {
       templateApi.findByType("ARTICLE_LIST").then((response) => {
         this.templatesArticleList = response.data.data;
       });
-    }, loadCategoryTemplates(id) {
-      categoryApi.listTemplateByCategoryId(id).then(resp => {
+    }, loadCategoryTemplates() {
+      categoryApi.listTemplateByCategoryId(this.updateId).then(resp => {
         this.categoryTemplates = resp.data.data;
 
       })
@@ -599,7 +599,7 @@ export default {
 
       this.categoryTemplateListDrawer = true;
     }, addTemplate() {
-      categoryApi.addTemplates(this.categoryId, this.selectCategoryTemplate).then((resp) => {
+      categoryApi.addTemplates(this.updateId, this.selectCategoryTemplate).then((resp) => {
         // console.log(resp.data.data);
         this.$notification["success"]({
           message: resp.message
@@ -607,7 +607,8 @@ export default {
         this.loadCategoryTemplates()
       });
     }, delCategoryTemplate(id) {
-      categoryApi.delCategoryTemplate(this.categoryId, id).then(resp => {
+      // console.log(this.updateId)
+      categoryApi.delCategoryTemplate(this.updateId, id).then(resp => {
         // console.log(resp)
         this.$notification["success"]({
           message: resp.message
@@ -689,11 +690,12 @@ export default {
       // // this.loadArticle(id);
 
       // this.loadArticleTempalte();
-      this.loadCategoryTemplates(id)
+    
       categoryApi.findById(id).then((response) => {
         this.isUpdate = true;
-
+   
         this.updateId = id;
+        this.loadCategoryTemplates()
         this.categoryParam = response.data.data;
         this.selectedTagNames = response.data.data.tags.map(
           (item) => item.id + ""
