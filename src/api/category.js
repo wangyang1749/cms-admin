@@ -165,5 +165,24 @@ categoryApi.createCategoryLanguage=(id) => {
   })
 }
 
+categoryApi.listTemplateByCategoryId=(id) => {
+  return service({
+      url: `${baseUrl}/listTemplateByCategoryId/${id}`,
+      method: 'get'
+  })
+}
+
+categoryApi.addTemplates=(id,templateId)=>{
+  return service({
+    url:`${baseUrl}/addTemplates/${id}?templateId=${templateId}`,
+    method:'get'
+  })
+}
+categoryApi.delCategoryTemplate=(id,templateId) => {
+  return service({
+      url: `${baseUrl}/delCategoryTemplate/${id}?templateId=${templateId}`,
+      method: 'get'
+  })
+}
 
 export default categoryApi

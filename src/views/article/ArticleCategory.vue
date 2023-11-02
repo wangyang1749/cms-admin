@@ -4,6 +4,7 @@
     <a-button @click="updateAll(false)">生成所有分类HTML</a-button>
     <a-button @click="updateAll(true)">生成所有分类HTML更新模板</a-button>
     <a-button type="primary" @click="updateCategoryPos">更新顺序</a-button>
+
     <!-- <a-tabs defaultActiveKey="-1" @change="tabCallback"> -->
     <!-- <a-tab-pane :tab="itemTab.name" :key="itemTab.enName" v-for="itemTab in templates"> -->
     <!-- <a-table
@@ -65,13 +66,50 @@
 
     <!-- <a-tab-pane tab="使用说明" ></a-tab-pane> -->
     <!-- </a-tabs> -->
+    <a-drawer title="添加分类模板" placement="right" :closable="true" :visible="categoryTemplateListDrawer" @close="() => {
+      categoryTemplateListDrawer = false;
+    }
+      " width="40rem">
+
+      <a-form-item label="templatesCategory">
+        <!-- <a href="">{{categoryTemplate(categoryParam.templateName)}}</a> -->
+        <a-select style="width: 100%" v-model="selectCategoryTemplate" >
+          <a-select-option :value="item.id" v-for="item in templatesCategory" :key="item.id">{{ item.name
+          }}-{{ item.templateValue }}</a-select-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item label="templatesCategoryList" >
+        <!-- <a href="">{{categoryTemplate(categoryParam.templateName)}}</a> -->
+        <a-select style="width: 100%" v-model="selectCategoryTemplate">
+          <a-select-option :value="item.id" v-for="item in templatesCategoryList" :key="item.id">{{ item.name
+          }}-{{ item.templateValue }}</a-select-option>
+        </a-select>
+      </a-form-item>
+      <a-form-item label="templatesArticleList" >
+        <!-- <a href="">{{categoryTemplate(categoryParam.templateName)}}</a> -->
+        <a-select style="width: 100%" v-model="selectCategoryTemplate">
+          <a-select-option :value="item.id" v-for="item in templatesArticleList" :key="item.id">{{ item.name
+          }}-{{ item.templateValue }}</a-select-option>
+        </a-select>
+      </a-form-item>
+      <a-button @click="addTemplate()">添加</a-button>
+
+
+
+      <ul>
+          <li v-for="item in categoryTemplates" :key="item.id">
+            {{item.id}}--{{item.name}}--{{item.enName}}--{{item.templateValue}}-- <a-button @click="delCategoryTemplate(item.id)">删除</a-button>
+          </li>
+        </ul>
+
+    </a-drawer>
+
 
     <a-drawer title="文章列表" placement="right" :closable="true" :visible="articleListDrawer" @close="() => {
       articleListDrawer = false;
     }
       " width="40rem">
       <a-button type="primary" @click="updateArticlePos">更新文章顺序</a-button>
-
       <a-tree class="draggable-tree" draggable block-node :tree-data="articles" :replace-fields="articleFieldNames"
         @drop="onDropArticle" />
       <!-- <a-list bordered :dataSource="articles">
@@ -107,6 +145,8 @@
           <a-button @click="generateHtml(updateId)">生成HTML</a-button>
           <a-button @click="generateArticlesByCategoryId(updateId)">生成文章HTML</a-button>
           <a-button type="primary" @click="createCategoryLanguage(updateId)">创建英文分类</a-button>
+          <a-button @click="addTemplateInput(updateId)">添加分类模板</a-button>
+
 
           是否推荐首页
           <a-switch defaultChecked @change="onChange(updateId)" v-model="categoryParam.recommend" />
@@ -124,6 +164,7 @@
         <!-- <a-input v-model:value="value" placeholder="Basic usage" /> -->
 
         <!-- <a-modal title="添加分类" v-model="visible" @ok="handleOk"> -->
+
         <a-form-item label="一页文章数量">
           <a-input-number id="inputNumber" v-model="categoryParam.articleListSize" />
         </a-form-item>
@@ -187,13 +228,7 @@
           </a-form-item>
 
 
-          <a-form-item label="选择分类信息模板">
-            <a href="">{{categoryTemplate(categoryParam.templateName)}}</a>
-            <a-select style="width: 100%" v-model="categoryParam.templateName">
-              <a-select-option :value="item.enName" v-for="item in templates" :key="item.id">{{ item.name
-              }}-{{ item.templateValue }}</a-select-option>
-            </a-select>
-          </a-form-item>
+
 
           <a-form-item label="选择文章显示的模板">
             <a-select style="width: 100%" v-model="categoryParam.articleTemplateName">
@@ -351,7 +386,9 @@ export default {
       articles: [],
       // gData:[],
       // value: "",
-      templates: [],
+      templatesCategory: [],
+      templatesCategoryList: [],
+      templatesArticleList: [],
       articleTemplate: [],
       recommendTemplate: [],
       isUpdate: false,
@@ -392,7 +429,10 @@ export default {
       users: [],
       networkType: [],
       langs: [],
-      lang: 'ZH'
+      lang: 'ZH',
+      categoryTemplateListDrawer: false,
+      selectCategoryTemplate:undefined,
+      categoryTemplates:[]
     };
   },
   created() {
@@ -410,6 +450,7 @@ export default {
       // console.log(resp.data.data);
       this.langs = resp.data.data;
     });
+   
   },
   computed: {
     tagIdMap() {
@@ -442,8 +483,19 @@ export default {
   methods: {
     loadTempalte() {
       templateApi.findByType("CATEGORY").then((response) => {
-        this.templates = response.data.data;
+        this.templatesCategory = response.data.data;
       });
+      templateApi.findByType("CATEGORY_LIST").then((response) => {
+        this.templatesCategoryList = response.data.data;
+      });
+      templateApi.findByType("ARTICLE_LIST").then((response) => {
+        this.templatesArticleList = response.data.data;
+      });
+    },loadCategoryTemplates(){
+      categoryApi.listTemplateByCategoryId(this.updateId).then(resp => {
+        this.categoryTemplates= resp.data.data;
+   
+      })
     },
     loadrecommendTemplate() {
       templateApi.findByType("ARTICLE_LIST").then((response) => {
@@ -472,9 +524,6 @@ export default {
         this.articleTemplate = response.data.data;
         // console.log(response);
       });
-    },categoryTemplate(value){
-      let findTemplates = this.templates.filter(item => item.enName ===value )
-      return findTemplates[0]
     },
     handleBlur() {
       const tagNamesToCreate = this.selectedTagNames.filter(
@@ -539,6 +588,27 @@ export default {
       // console.log(id);
       this.loadArticle(id);
       this.articleListDrawer = true;
+    }, addTemplateInput(id) {
+      this.categoryId = id;
+      this.loadTempalte()
+      this.loadCategoryTemplates()
+      this.categoryTemplateListDrawer = true;
+    },addTemplate(){
+      categoryApi.addTemplates(this.categoryId, this.selectCategoryTemplate).then((resp) => {
+        // console.log(resp.data.data);
+        this.$notification["success"]({
+          message: resp.message
+        });
+        this.loadCategoryTemplates()
+      });
+    },delCategoryTemplate(id){
+      categoryApi.delCategoryTemplate(this.categoryId,id).then(resp => {
+        // console.log(resp)
+        this.$notification["success"]({
+          message: resp.message
+        });
+        this.loadCategoryTemplates()
+      })
     },
     // updateArticleOrder(id, order) {
     //   // console.log(id+"-"+order)
@@ -597,7 +667,7 @@ export default {
       this.visible = false;
     },
     initEdit() {
-      this.loadTempalte();
+    
       this.loadArticleTempalte();
       this.loadrecommendTemplate()
       this.categoryParam = {};
