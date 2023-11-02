@@ -73,19 +73,19 @@
 
       <a-form-item label="templatesCategory">
         <!-- <a href="">{{categoryTemplate(categoryParam.templateName)}}</a> -->
-        <a-select style="width: 100%" v-model="selectCategoryTemplate" >
+        <a-select style="width: 100%" v-model="selectCategoryTemplate">
           <a-select-option :value="item.id" v-for="item in templatesCategory" :key="item.id">{{ item.name
           }}-{{ item.templateValue }}</a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="templatesCategoryList" >
+      <a-form-item label="templatesCategoryList">
         <!-- <a href="">{{categoryTemplate(categoryParam.templateName)}}</a> -->
         <a-select style="width: 100%" v-model="selectCategoryTemplate">
           <a-select-option :value="item.id" v-for="item in templatesCategoryList" :key="item.id">{{ item.name
           }}-{{ item.templateValue }}</a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="templatesArticleList" >
+      <a-form-item label="templatesArticleList">
         <!-- <a href="">{{categoryTemplate(categoryParam.templateName)}}</a> -->
         <a-select style="width: 100%" v-model="selectCategoryTemplate">
           <a-select-option :value="item.id" v-for="item in templatesArticleList" :key="item.id">{{ item.name
@@ -96,11 +96,6 @@
 
 
 
-      <ul>
-          <li v-for="item in categoryTemplates" :key="item.id">
-            {{item.id}}--{{item.name}}--{{item.enName}}--{{item.templateValue}}--{{item.templateType}}-- <a-button @click="delCategoryTemplate(item.id)">删除</a-button>
-          </li>
-        </ul>
 
     </a-drawer>
 
@@ -137,6 +132,7 @@
         <!-- :replace-fields="fieldNames" -->
       </a-col>
       <a-col :span="16">
+
         <div v-if="isUpdate">
           <a-button @click="preview(updateId)">预览</a-button>
           <a-button @click="openHtml()">查看Html</a-button>
@@ -146,6 +142,8 @@
           <a-button @click="generateArticlesByCategoryId(updateId)">生成文章HTML</a-button>
           <a-button type="primary" @click="createCategoryLanguage(updateId)">创建英文分类</a-button>
           <a-button @click="addTemplateInput(updateId)">添加分类模板</a-button>
+
+
 
 
           是否推荐首页
@@ -164,6 +162,13 @@
         <!-- <a-input v-model:value="value" placeholder="Basic usage" /> -->
 
         <!-- <a-modal title="添加分类" v-model="visible" @ok="handleOk"> -->
+
+        <ul>
+          <li v-for="item in categoryTemplates" :key="item.id">
+            {{ item.id }}--{{ item.name }}--{{ item.enName }}--{{ item.templateValue }}--{{ item.templateType }}--
+            <a-button @click="delCategoryTemplate(item.id)">删除</a-button> <a-button @click="categoryTemplatePreview(updateId, item.id)">预览</a-button>
+          </li>
+        </ul>
 
         <a-form-item label="一页文章数量">
           <a-input-number id="inputNumber" v-model="categoryParam.articleListSize" />
@@ -431,8 +436,8 @@ export default {
       langs: [],
       lang: 'ZH',
       categoryTemplateListDrawer: false,
-      selectCategoryTemplate:undefined,
-      categoryTemplates:[]
+      selectCategoryTemplate: undefined,
+      categoryTemplates: []
     };
   },
   created() {
@@ -450,7 +455,7 @@ export default {
       // console.log(resp.data.data);
       this.langs = resp.data.data;
     });
-   
+
   },
   computed: {
     tagIdMap() {
@@ -491,10 +496,10 @@ export default {
       templateApi.findByType("ARTICLE_LIST").then((response) => {
         this.templatesArticleList = response.data.data;
       });
-    },loadCategoryTemplates(){
-      categoryApi.listTemplateByCategoryId(this.updateId).then(resp => {
-        this.categoryTemplates= resp.data.data;
-   
+    }, loadCategoryTemplates(id) {
+      categoryApi.listTemplateByCategoryId(id).then(resp => {
+        this.categoryTemplates = resp.data.data;
+
       })
     },
     loadrecommendTemplate() {
@@ -591,9 +596,9 @@ export default {
     }, addTemplateInput(id) {
       this.categoryId = id;
       this.loadTempalte()
-      this.loadCategoryTemplates()
+
       this.categoryTemplateListDrawer = true;
-    },addTemplate(){
+    }, addTemplate() {
       categoryApi.addTemplates(this.categoryId, this.selectCategoryTemplate).then((resp) => {
         // console.log(resp.data.data);
         this.$notification["success"]({
@@ -601,8 +606,8 @@ export default {
         });
         this.loadCategoryTemplates()
       });
-    },delCategoryTemplate(id){
-      categoryApi.delCategoryTemplate(this.categoryId,id).then(resp => {
+    }, delCategoryTemplate(id) {
+      categoryApi.delCategoryTemplate(this.categoryId, id).then(resp => {
         // console.log(resp)
         this.$notification["success"]({
           message: resp.message
@@ -667,7 +672,7 @@ export default {
       this.visible = false;
     },
     initEdit() {
-    
+
       this.loadArticleTempalte();
       this.loadrecommendTemplate()
       this.categoryParam = {};
@@ -684,7 +689,7 @@ export default {
       // // this.loadArticle(id);
 
       // this.loadArticleTempalte();
-
+      this.loadCategoryTemplates(id)
       categoryApi.findById(id).then((response) => {
         this.isUpdate = true;
 
@@ -767,6 +772,9 @@ export default {
       // } else {
       //   this.$message.error("该分类没有生成HTML");
       // }
+    },categoryTemplatePreview(updateId, templateId){
+      // console.log(templateId);
+      window.open(preview.categoryTemplatePreview(updateId, templateId))
     },
     openHtmlFirstArticle(value) {
       if (value.haveHtml) {
