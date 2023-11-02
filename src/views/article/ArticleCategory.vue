@@ -98,7 +98,7 @@
 
       <ul>
           <li v-for="item in categoryTemplates" :key="item.id">
-            {{item.id}}--{{item.name}}--{{item.enName}}--{{item.templateValue}}-- <a-button @click="delCategoryTemplate(item.id)">删除</a-button>
+            {{item.id}}--{{item.name}}--{{item.enName}}--{{item.templateValue}}--{{item.templateType}}-- <a-button @click="delCategoryTemplate(item.id)">删除</a-button>
           </li>
         </ul>
 
