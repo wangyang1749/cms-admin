@@ -31,6 +31,11 @@ const routes = [
                     name: 'ArticleList',
                     component: () => import(/* webpackChunkName: "articleList" */ '../views/article/ArticleList.vue'),
                     meta: { title: '文章列表', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false },
+                },{
+                    path: '/article/goodsList',
+                    name: 'GoodsList',
+                    component: () => import(/* webpackChunkName: "articleList" */ '../views/article/Goods.vue'),
+                    meta: { title: '商品', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false },
                 },
                 {
                     path: '/article/write',
