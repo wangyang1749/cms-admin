@@ -191,6 +191,12 @@ const routes = [
                     name: 'About',
                     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
                     meta: { title: '系统关于', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
+                },{
+                    path: '/system/authRedirect',
+                    name: 'authRedirect',
+                    component: () => import(/* webpackChunkName: "authRedirect" */ '../views/system/authRedirect.vue'),
+                    meta: { title: 'authRedirect', icon: 'dashboard', hiddenHeaderContent: false, keepAlive: false }
+
                 },
                 ]
             },
