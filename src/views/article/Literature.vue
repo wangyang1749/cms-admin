@@ -113,6 +113,7 @@ import preview from "@/api/preview.js";
 // import categoryApi from "@/api/category.js";
 import contentAPI from "@/api/content.js";
 import collectionApi from "@/api/collection.js";
+import literatueAPI from "@/api/literatue.js";
 const columns = [
   { title: "id", dataIndex: "id", key: "id" },
 
@@ -237,7 +238,7 @@ export default {
         this.loadLiterature();
       });
     }, generateHtml(id) {
-      contentAPI.generateHtml(id).then((response) => {
+      literatueAPI.generateHtml(id).then((response) => {
         this.$notification["success"]({
           message: "成功生成" + response.data.data.title + "的HTML",
         });
