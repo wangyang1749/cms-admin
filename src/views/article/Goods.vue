@@ -107,7 +107,24 @@
             <a-select-option :value="item.id" v-for="item in categorys" :key="item.id">{{ item.name }}</a-select-option>
           </a-select>
         </a-form-model-item>
+        <a-form-model-item label="描述">
+          <a-input v-model="form.summary" type="textarea" />
+        </a-form-model-item>
 
+        <a-form-model-item label="goodsImg">
+          <a-input v-model="form.goodsImg" type="textarea" />
+          <img :src="form.goodsImg" alt="">
+        </a-form-model-item>
+       
+        <a-form-model-item label="goodsQr">
+          <a-input v-model="form.goodsQr"  />
+          <img :src="form.goodsQr" alt="">
+        </a-form-model-item>
+       
+        
+        <a-form-model-item label="价格">
+          <a-input v-model="form.cost"  prefix="￥" suffix="RMB" />
+        </a-form-model-item>
         <a-form-model-item :wrapper-col="{ span: 14, offset: 1 }">
           <a-button type="primary" @click="onSubmit">
             Create
