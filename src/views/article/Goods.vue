@@ -295,9 +295,11 @@ export default {
       });
     }, onSubmit() {
       GoodsApi.create(this.form).then(resp => {
-        console.log(resp)
+        this.$notification["success"]({
+          message: "操作" + response.data.message,
+        });
       })
-      console.log('submit!', this.form);
+      // console.log('submit!', this.form);
     },
     loadcategory() {
       // console.log("loadcategory");
