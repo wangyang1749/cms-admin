@@ -290,7 +290,8 @@ export default {
       this.addOrUpdateVisible = true
 
     }, async onSubmit() {
-      if (this.form) {
+      // console.log(this.form.id)
+      if (this.form.id) {
         const resp = await GoodsApi.update(this.form.id, this.form)
         this.$notification["success"]({
           message: "更新操作" + resp.data.message,
