@@ -69,7 +69,7 @@
           <a-divider type="vertical" />-->
         <a href="javascript:;" @click="generateHtml(record.id)">生成HTML</a>
         <a-divider type="vertical" />
-        <a href="javascript:;" @click="handleEditClick(record)">编辑</a>
+        <a href="javascript:;" @click="editGoods(record)">编辑</a>
         <a-divider type="vertical" />
         <a href="javascript:;" @click="createArticleLanguage(record.id)">复制英文</a>
         <a-divider type="vertical" />
@@ -281,7 +281,27 @@ export default {
       );
     },
     addGoods() {
+      this.form = undefined
       this.addOrUpdateVisible = true
+    }, async editGoods(record) {
+      const resp = await GoodsApi.findById(record.id)
+      // console.log(resp)
+      this.form = resp.data.data;
+      this.addOrUpdateVisible = true
+
+    }, async onSubmit() {
+      if (this.form) {
+        const resp = await GoodsApi.update(this.form.id, this.form)
+        this.$notification["success"]({
+          message: "更新操作" + resp.data.message,
+        });
+      } else {
+        const resp = await GoodsApi.create(this.form)
+        this.$notification["success"]({
+          message: "保存操作" + resp.data.message,
+        });
+      }
+      // console.log('submit!', this.form);ss
     },
     loadArticle() {
       //console.log("loadArticle")
@@ -293,13 +313,6 @@ export default {
         this.article = response.data.data.content;
         this.pagination.total = response.data.data.totalElements;
       });
-    }, onSubmit() {
-      GoodsApi.create(this.form).then(resp => {
-        this.$notification["success"]({
-          message: "操作" + resp.data.message,
-        });
-      })
-      // console.log('submit!', this.form);ss
     },
     loadcategory() {
       // console.log("loadcategory");
