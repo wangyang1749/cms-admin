@@ -296,10 +296,10 @@ export default {
     }, onSubmit() {
       GoodsApi.create(this.form).then(resp => {
         this.$notification["success"]({
-          message: "操作" + response.data.message,
+          message: "操作" + resp.data.message,
         });
       })
-      // console.log('submit!', this.form);
+      // console.log('submit!', this.form);ss
     },
     loadcategory() {
       // console.log("loadcategory");
