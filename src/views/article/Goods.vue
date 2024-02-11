@@ -120,7 +120,10 @@
           <a-input v-model="form.goodsQr"  />
           <img :src="form.goodsQr" alt="">
         </a-form-model-item>
-       
+
+        <a-form-model-item label="costUrl">
+          <a-input v-model="form.costUrl"  />
+        </a-form-model-item>
         
         <a-form-model-item label="价格">
           <a-input v-model="form.cost"  prefix="￥" suffix="RMB" />
