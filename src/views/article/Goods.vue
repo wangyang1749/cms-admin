@@ -281,7 +281,7 @@ export default {
       );
     },
     addGoods() {
-      this.form = undefined
+      this.form = {}
       this.addOrUpdateVisible = true
     }, async editGoods(record) {
       const resp = await GoodsApi.findById(record.id)
@@ -301,6 +301,7 @@ export default {
           message: "保存操作" + resp.data.message,
         });
       }
+      this.loadArticle()
       // console.log('submit!', this.form);ss
     },
     loadArticle() {
