@@ -121,6 +121,11 @@
           <img :src="form.goodsQr" alt="">
         </a-form-model-item>
 
+        <a-form-model-item label="picPath">
+          <a-input v-model="form.picPath"  />
+          <img :src="form.picPath" alt="">
+        </a-form-model-item>
+
         <a-form-model-item label="costUrl">
           <a-input v-model="form.costUrl"  />
         </a-form-model-item>
